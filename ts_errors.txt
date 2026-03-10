@@ -1,0 +1,3 @@
+﻿src/app/cart/page.tsx(35,30): error TS2304: Cannot find name 'ShoppingCart'.
+src/components/SmoothScrollProvider.tsx(12,7): error TS2322: Type 'React.ReactNode' is not assignable to type 'import("D:/Antigravity projects/Viraasat Frontend/node_modules/@studio-freight/react-lenis/node_modules/@types/react/index").ReactNode'.
+  Type 'bigint' is not assignable to type 'ReactNode'.

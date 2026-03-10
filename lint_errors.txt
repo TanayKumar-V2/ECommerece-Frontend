@@ -1,0 +1,358 @@
+﻿
+> viraasat@0.1.0 lint
+> eslint
+
+
+D:\Antigravity projects\Viraasat Frontend\src\app\about\page.tsx
+  90:91   error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  90:316  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  95:70   error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+D:\Antigravity projects\Viraasat Frontend\src\app\cart\page.tsx
+  16:21   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\Antigravity projects\Viraasat Frontend\src\app\cart\page.tsx:16:21
+  14 |     const [mounted, setMounted] = useState(false)
+  15 |
+> 16 |     useEffect(() => setMounted(true), [])
+     |                     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  17 |
+  18 |     const subtotal = mounted ? cart.reduce((acc, item) => acc + (item.price * item.quantity), 0) : 0
+  19 |     const shipping = subtotal > 2000 ? 0 : 150  react-hooks/set-state-in-effect
+  38:107  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              react/no-unescaped-entities
+
+D:\Antigravity projects\Viraasat Frontend\src\app\checkout\page.tsx
+  15:21  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\Antigravity projects\Viraasat Frontend\src\app\checkout\page.tsx:15:21
+  13 |     const [isProcessing, setIsProcessing] = useState(false)
+  14 |
+> 15 |     useEffect(() => setMounted(true), [])
+     |                     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  16 |
+  17 |     const subtotal = mounted ? cart.reduce((acc, item) => acc + (item.price * item.quantity), 0) : 0
+  18 |     const shipping = subtotal > 2000 ? 0 : 150                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               react-hooks/set-state-in-effect
+  64:34  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+D:\Antigravity projects\Viraasat Frontend\src\app\checkout\page.tsx:64:34
+  62 |                             <div>
+  63 |                                 <h3 className="text-xl font-heading mb-6 border-b border-foreground/10 pb-4">Contact Information</h3>
+> 64 |                                 <InputField label="Email Address" type="email" placeholder="you@example.com" />
+     |                                  ^^^^^^^^^^ This component is created during render
+  65 |                             </div>
+  66 |
+  67 |                             <div>
+
+D:\Antigravity projects\Viraasat Frontend\src\app\checkout\page.tsx:30:24
+  28 |     }
+  29 |
+> 30 |     const InputField = ({ label, type = "text", placeholder }: { label: string, type?: string, placeholder?: string }) => (
+     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 31 |         <div className="flex flex-col gap-2">
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 32 |             <label className="text-sm font-medium text-foreground/80">{label}</label>
+     ΓÇª
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 39 |         </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |     )
+     | ^^^^^^ The component is created during render here
+  41 |
+  42 |     return (
+  43 |         <main className="min-h-screen bg-background flex flex-col">                                                                                                                                                                                                   react-hooks/static-components
+  70:38  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+D:\Antigravity projects\Viraasat Frontend\src\app\checkout\page.tsx:70:38
+  68 |                                 <h3 className="text-xl font-heading mb-6 border-b border-foreground/10 pb-4">Shipping Address</h3>
+  69 |                                 <div className="grid grid-cols-2 gap-4">
+> 70 |                                     <InputField label="First Name" />
+     |                                      ^^^^^^^^^^ This component is created during render
+  71 |                                     <InputField label="Last Name" />
+  72 |                                     <div className="col-span-2"><InputField label="Address" placeholder="123 Cozy Street" /></div>
+  73 |                                     <InputField label="City" />
+
+D:\Antigravity projects\Viraasat Frontend\src\app\checkout\page.tsx:30:24
+  28 |     }
+  29 |
+> 30 |     const InputField = ({ label, type = "text", placeholder }: { label: string, type?: string, placeholder?: string }) => (
+     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 31 |         <div className="flex flex-col gap-2">
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 32 |             <label className="text-sm font-medium text-foreground/80">{label}</label>
+     ΓÇª
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 39 |         </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |     )
+     | ^^^^^^ The component is created during render here
+  41 |
+  42 |     return (
+  43 |         <main className="min-h-screen bg-background flex flex-col">  react-hooks/static-components
+  71:38  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+D:\Antigravity projects\Viraasat Frontend\src\app\checkout\page.tsx:71:38
+  69 |                                 <div className="grid grid-cols-2 gap-4">
+  70 |                                     <InputField label="First Name" />
+> 71 |                                     <InputField label="Last Name" />
+     |                                      ^^^^^^^^^^ This component is created during render
+  72 |                                     <div className="col-span-2"><InputField label="Address" placeholder="123 Cozy Street" /></div>
+  73 |                                     <InputField label="City" />
+  74 |                                     <InputField label="State" />
+
+D:\Antigravity projects\Viraasat Frontend\src\app\checkout\page.tsx:30:24
+  28 |     }
+  29 |
+> 30 |     const InputField = ({ label, type = "text", placeholder }: { label: string, type?: string, placeholder?: string }) => (
+     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 31 |         <div className="flex flex-col gap-2">
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 32 |             <label className="text-sm font-medium text-foreground/80">{label}</label>
+     ΓÇª
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 39 |         </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |     )
+     | ^^^^^^ The component is created during render here
+  41 |
+  42 |     return (
+  43 |         <main className="min-h-screen bg-background flex flex-col">                                                                    react-hooks/static-components
+  72:66  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+D:\Antigravity projects\Viraasat Frontend\src\app\checkout\page.tsx:72:66
+  70 |                                     <InputField label="First Name" />
+  71 |                                     <InputField label="Last Name" />
+> 72 |                                     <div className="col-span-2"><InputField label="Address" placeholder="123 Cozy Street" /></div>
+     |                                                                  ^^^^^^^^^^ This component is created during render
+  73 |                                     <InputField label="City" />
+  74 |                                     <InputField label="State" />
+  75 |                                     <InputField label="PIN Code" />
+
+D:\Antigravity projects\Viraasat Frontend\src\app\checkout\page.tsx:30:24
+  28 |     }
+  29 |
+> 30 |     const InputField = ({ label, type = "text", placeholder }: { label: string, type?: string, placeholder?: string }) => (
+     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 31 |         <div className="flex flex-col gap-2">
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 32 |             <label className="text-sm font-medium text-foreground/80">{label}</label>
+     ΓÇª
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 39 |         </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |     )
+     | ^^^^^^ The component is created during render here
+  41 |
+  42 |     return (
+  43 |         <main className="min-h-screen bg-background flex flex-col">                                             react-hooks/static-components
+  73:38  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+D:\Antigravity projects\Viraasat Frontend\src\app\checkout\page.tsx:73:38
+  71 |                                     <InputField label="Last Name" />
+  72 |                                     <div className="col-span-2"><InputField label="Address" placeholder="123 Cozy Street" /></div>
+> 73 |                                     <InputField label="City" />
+     |                                      ^^^^^^^^^^ This component is created during render
+  74 |                                     <InputField label="State" />
+  75 |                                     <InputField label="PIN Code" />
+  76 |                                     <InputField label="Phone" type="tel" />
+
+D:\Antigravity projects\Viraasat Frontend\src\app\checkout\page.tsx:30:24
+  28 |     }
+  29 |
+> 30 |     const InputField = ({ label, type = "text", placeholder }: { label: string, type?: string, placeholder?: string }) => (
+     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 31 |         <div className="flex flex-col gap-2">
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 32 |             <label className="text-sm font-medium text-foreground/80">{label}</label>
+     ΓÇª
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 39 |         </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |     )
+     | ^^^^^^ The component is created during render here
+  41 |
+  42 |     return (
+  43 |         <main className="min-h-screen bg-background flex flex-col">                                                                   react-hooks/static-components
+  74:38  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+D:\Antigravity projects\Viraasat Frontend\src\app\checkout\page.tsx:74:38
+  72 |                                     <div className="col-span-2"><InputField label="Address" placeholder="123 Cozy Street" /></div>
+  73 |                                     <InputField label="City" />
+> 74 |                                     <InputField label="State" />
+     |                                      ^^^^^^^^^^ This component is created during render
+  75 |                                     <InputField label="PIN Code" />
+  76 |                                     <InputField label="Phone" type="tel" />
+  77 |                                 </div>
+
+D:\Antigravity projects\Viraasat Frontend\src\app\checkout\page.tsx:30:24
+  28 |     }
+  29 |
+> 30 |     const InputField = ({ label, type = "text", placeholder }: { label: string, type?: string, placeholder?: string }) => (
+     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 31 |         <div className="flex flex-col gap-2">
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 32 |             <label className="text-sm font-medium text-foreground/80">{label}</label>
+     ΓÇª
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 39 |         </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |     )
+     | ^^^^^^ The component is created during render here
+  41 |
+  42 |     return (
+  43 |         <main className="min-h-screen bg-background flex flex-col">                                                                                                 react-hooks/static-components
+  75:38  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+D:\Antigravity projects\Viraasat Frontend\src\app\checkout\page.tsx:75:38
+  73 |                                     <InputField label="City" />
+  74 |                                     <InputField label="State" />
+> 75 |                                     <InputField label="PIN Code" />
+     |                                      ^^^^^^^^^^ This component is created during render
+  76 |                                     <InputField label="Phone" type="tel" />
+  77 |                                 </div>
+  78 |                             </div>
+
+D:\Antigravity projects\Viraasat Frontend\src\app\checkout\page.tsx:30:24
+  28 |     }
+  29 |
+> 30 |     const InputField = ({ label, type = "text", placeholder }: { label: string, type?: string, placeholder?: string }) => (
+     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 31 |         <div className="flex flex-col gap-2">
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 32 |             <label className="text-sm font-medium text-foreground/80">{label}</label>
+     ΓÇª
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 39 |         </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |     )
+     | ^^^^^^ The component is created during render here
+  41 |
+  42 |     return (
+  43 |         <main className="min-h-screen bg-background flex flex-col">                                                                                                                                                                                                 react-hooks/static-components
+  76:38  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+D:\Antigravity projects\Viraasat Frontend\src\app\checkout\page.tsx:76:38
+  74 |                                     <InputField label="State" />
+  75 |                                     <InputField label="PIN Code" />
+> 76 |                                     <InputField label="Phone" type="tel" />
+     |                                      ^^^^^^^^^^ This component is created during render
+  77 |                                 </div>
+  78 |                             </div>
+  79 |
+
+D:\Antigravity projects\Viraasat Frontend\src\app\checkout\page.tsx:30:24
+  28 |     }
+  29 |
+> 30 |     const InputField = ({ label, type = "text", placeholder }: { label: string, type?: string, placeholder?: string }) => (
+     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 31 |         <div className="flex flex-col gap-2">
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 32 |             <label className="text-sm font-medium text-foreground/80">{label}</label>
+     ΓÇª
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 39 |         </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |     )
+     | ^^^^^^ The component is created during render here
+  41 |
+  42 |     return (
+  43 |         <main className="min-h-screen bg-background flex flex-col">                                                                                                                                                                                                                                                                 react-hooks/static-components
+
+D:\Antigravity projects\Viraasat Frontend\src\app\login\page.tsx
+  92:28  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+D:\Antigravity projects\Viraasat Frontend\src\app\wishlist\page.tsx
+  16:21  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\Antigravity projects\Viraasat Frontend\src\app\wishlist\page.tsx:16:21
+  14 |     const [mounted, setMounted] = useState(false)
+  15 |
+> 16 |     useEffect(() => setMounted(true), [])
+     |                     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  17 |
+  18 |     const handleMoveToCart = (product: Product) => {
+  19 |         addToCart({ ...product, quantity: 1, size: 'M' })  react-hooks/set-state-in-effect
+  49:50  warning  'index' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+
+D:\Antigravity projects\Viraasat Frontend\src\components\Footer.tsx
+  38:159  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  39:163  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+D:\Antigravity projects\Viraasat Frontend\src\components\Navbar.tsx
+  23:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\Antigravity projects\Viraasat Frontend\src\components\Navbar.tsx:23:9
+  21 |
+  22 |     useEffect(() => {
+> 23 |         setMounted(true)
+     |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  24 |         const handleScroll = () => {
+  25 |             setIsScrolled(window.scrollY > 20)
+  26 |         }  react-hooks/set-state-in-effect
+
+D:\Antigravity projects\Viraasat Frontend\src\components\ProductCard.tsx
+  18:21  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\Antigravity projects\Viraasat Frontend\src\components\ProductCard.tsx:18:21
+  16 |     const [mounted, setMounted] = useState(false)
+  17 |
+> 18 |     useEffect(() => setMounted(true), [])
+     |                     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  19 |
+  20 |     const isWished = mounted ? isInWishlist(product.id) : false
+  21 |  react-hooks/set-state-in-effect
+
+D:\Antigravity projects\Viraasat Frontend\src\components\ProductCarousel.tsx
+   4:29  warning  'useTransform' is defined but never used              @typescript-eslint/no-unused-vars
+  18:13  warning  'scrollYProgress' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\Antigravity projects\Viraasat Frontend\src\components\SmoothScrollProvider.tsx
+  1:1  error  Do not use "@ts-nocheck" because it alters compilation errors  @typescript-eslint/ban-ts-comment
+
+Γ£û 24 problems (21 errors, 3 warnings)
+
