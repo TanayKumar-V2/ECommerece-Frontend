@@ -14,8 +14,8 @@ export default function Footer() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="bg-brand-cream text-foreground pt-16 pb-8 border-t border-brand-beige/50"
         >
-            <div className="container-custom grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-                <div className="col-span-1 md:col-span-2">
+            <div className="container-custom grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 mb-12">
+                <div className="col-span-1 sm:col-span-2 md:col-span-2">
                     <Link href="/" className="mb-6 block relative w-fit">
                         <Image
                             src="/logo.png"

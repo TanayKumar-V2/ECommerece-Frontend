@@ -60,7 +60,7 @@ export default function CartPage() {
                                             animate={{ opacity: 1, scale: 1 }}
                                             exit={{ opacity: 0, x: -50 }}
                                             transition={{ duration: 0.3 }}
-                                            className="flex flex-col md:flex-row items-start md:items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-foreground/5 relative"
+                                            className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white p-4 rounded-2xl shadow-sm border border-foreground/5 relative"
                                         >
                                             <button
                                                 onClick={() => removeFromCart(item.id, item.size)}
@@ -75,7 +75,7 @@ export default function CartPage() {
                                                 </div>
                                                 <div className="flex flex-col justify-center">
                                                     <p className="text-xs text-foreground/60 uppercase tracking-widest mb-1">{item.category}</p>
-                                                    <h3 className="font-medium text-base mb-1 pr-6 md:pr-0">{item.name}</h3>
+                                                    <h3 className="font-medium text-base mb-1 pr-6 md:pr-0 leading-tight">{item.name}</h3>
                                                     <p className="text-foreground/60 text-sm mb-2">Size: <span className="font-semibold text-foreground">{item.size}</span></p>
                                                     <p className="md:hidden font-semibold">₹{item.price.toLocaleString('en-IN')}</p>
                                                 </div>

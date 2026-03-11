@@ -2,7 +2,7 @@
 
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useStore } from '@/store/useStore'
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
@@ -19,8 +19,13 @@ const InputField = ({ label, type = "text", placeholder }: { label: string, type
     </div>
 )
 
+import { useRouter } from 'next/navigation'
+import OrderSuccess from '@/components/checkout/OrderSuccess'
+import PageTransition from '@/components/PageTransition'
+
 export default function CheckoutPage() {
     const { cart } = useStore()
+    const router = useRouter()
     const [mounted, setMounted] = useState(false)
     const [isProcessing, setIsProcessing] = useState(false)
 
@@ -33,14 +38,15 @@ export default function CheckoutPage() {
     const handlePayment = (e: React.FormEvent) => {
         e.preventDefault()
         setIsProcessing(true)
-        setTimeout(() => {
-            alert("Payment successful! Thank you for choosing Viraasat.")
-            setIsProcessing(false)
-        }, 2000)
+    }
+
+    const onAnimationComplete = () => {
+        router.push('/checkout/success')
     }
 
     return (
-        <main className="min-h-screen bg-background flex flex-col">
+        <PageTransition>
+            <main className="min-h-screen bg-background flex flex-col relative">
             <Navbar />
             <div className="flex-1 py-24 container-custom max-w-6xl">
                 <motion.div
@@ -82,7 +88,7 @@ export default function CheckoutPage() {
                                 disabled={isProcessing}
                                 className="w-full bg-foreground text-background py-4 flex items-center justify-center gap-2 rounded-xl font-medium hover:bg-foreground/90 transition-all hover:shadow-lg hover:-translate-y-1 transform duration-300 disabled:opacity-70 disabled:hover:translate-y-0"
                             >
-                                {isProcessing ? 'Processing...' : `Pay ₹${total.toLocaleString('en-IN')}`}
+                                {isProcessing ? 'Processing...' : `Pay Rs. ${total.toLocaleString('en-IN')}`}
                             </button>
                         </form>
                     </motion.div>
@@ -92,8 +98,9 @@ export default function CheckoutPage() {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.6, delay: 0.4 }}
+                        className="order-first lg:order-last"
                     >
-                        <div className="bg-brand-cream/20 p-8 rounded-3xl sticky top-28 border border-brand-beige/30">
+                        <div className="bg-brand-cream/20 p-6 md:p-8 rounded-3xl sticky top-28 border border-brand-beige/30">
                             <h3 className="text-xl font-heading mb-6">In your bag</h3>
 
                             <div className="space-y-4 mb-6 max-h-[40vh] overflow-y-auto hidden-scrollbar pr-2">
@@ -107,7 +114,7 @@ export default function CheckoutPage() {
                                             <p className="text-foreground/60 text-xs">Size: {item.size} • Qty: {item.quantity}</p>
                                         </div>
                                         <div className="flex items-center">
-                                            <p className="font-semibold text-sm">₹{(item.price * item.quantity).toLocaleString('en-IN')}</p>
+                                            <p className="font-semibold text-sm w-max whitespace-nowrap">Rs. {(item.price * item.quantity).toLocaleString('en-IN')}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -116,18 +123,18 @@ export default function CheckoutPage() {
                             <div className="space-y-3 pt-6 border-t border-brand-beige/40 text-sm text-foreground/80">
                                 <div className="flex justify-between">
                                     <span>Subtotal</span>
-                                    <span>₹{subtotal.toLocaleString('en-IN')}</span>
+                                    <span>Rs. {subtotal.toLocaleString('en-IN')}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span>Shipping</span>
-                                    <span>{shipping === 0 ? "Free" : `₹${shipping}`}</span>
+                                    <span>{shipping === 0 ? "Free" : `Rs. ${shipping}`}</span>
                                 </div>
                             </div>
 
                             <div className="border-t border-brand-beige/40 py-4 mt-4">
                                 <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-foreground/5 shadow-sm">
                                     <span className="font-medium">Total</span>
-                                    <span className="font-bold text-xl font-heading">₹{total.toLocaleString('en-IN')}</span>
+                                    <span className="font-bold text-xl font-heading">Rs. {total.toLocaleString('en-IN')}</span>
                                 </div>
                             </div>
                         </div>
@@ -135,6 +142,11 @@ export default function CheckoutPage() {
                 </div>
             </div>
             <Footer />
+
+            <AnimatePresence>
+                {isProcessing && <OrderSuccess onComplete={onAnimationComplete} />}
+            </AnimatePresence>
         </main>
+        </PageTransition>
     )
 }

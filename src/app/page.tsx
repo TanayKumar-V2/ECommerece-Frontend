@@ -11,8 +11,6 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
   const trendingProducts = DUMMY_PRODUCTS.slice(0, 5);
-  const dailyWear = DUMMY_PRODUCTS.slice(2, 7);
-
   const { recentlyViewed } = useStore();
   const [mounted, setMounted] = useState(false);
 
@@ -45,13 +43,6 @@ export default function Home() {
           />
         </div>
       )}
-
-      <div className="bg-brand-cream/10 border-t border-brand-beige/20">
-        <ProductCarousel
-          title="Everyday Essentials"
-          products={dailyWear}
-        />
-      </div>
 
       <Footer />
     </main>
