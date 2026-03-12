@@ -5,19 +5,23 @@ import { Heart, ShoppingCart } from 'lucide-react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
+import ProductQuickView from './ProductQuickView'
 
 interface ProductCardProps {
     product: Product
     index?: number
+    onOpenQuickView?: (product: Product) => void
 }
 
-export default function ProductCard({ product, index = 0 }: ProductCardProps) {
-    const { toggleWishlist, isInWishlist, addToCart, addRecentlyViewed } = useStore()
+export default function ProductCard({ product, index = 0, onOpenQuickView }: ProductCardProps) {
+    const toggleWishlist = useStore(state => state.toggleWishlist)
+    const isWished = useStore(state => state.wishlist.some(w => w.id === product.id))
+    const addRecentlyViewed = useStore(state => state.addRecentlyViewed)
     const [mounted, setMounted] = useState(false)
 
     useEffect(() => setMounted(true), [])
 
-    const isWished = mounted ? isInWishlist(product.id) : false
+    const displayWished = mounted ? isWished : false
 
     return (
         <motion.div
@@ -29,11 +33,14 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         >
             <div
                 className="relative aspect-[3/4] w-full overflow-hidden bg-brand-cream/30 cursor-pointer"
-                onClick={() => addRecentlyViewed(product)}
+                onClick={() => {
+                    addRecentlyViewed(product)
+                    onOpenQuickView?.(product)
+                }}
             >
                 <Image
-                    src={product.image}
-                    alt={product.name}
+                    src={product.image || "/placeholder.jpg"}
+                    alt={product.name || "Product"}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -45,10 +52,10 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                         e.stopPropagation()
                         toggleWishlist(product)
                     }}
-                    className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full opacity-0 translate-y-2 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white z-10"
+                    className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full sm:opacity-0 sm:translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:bg-white z-10 shadow-sm"
                 >
                     <motion.div whileTap={{ scale: 0.8 }}>
-                        <Heart className={`w-5 h-5 transition-colors ${isWished ? 'fill-red-500 text-red-500' : 'text-foreground'}`} />
+                        <Heart className={`w-5 h-5 transition-colors ${displayWished ? 'fill-red-500 text-red-500' : 'text-foreground'}`} />
                     </motion.div>
                 </button>
 
@@ -57,7 +64,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                     <button
                         onClick={(e) => {
                             e.stopPropagation()
-                            addToCart({ ...product, quantity: 1, size: 'M' }) // Default size M for quick add
+                            onOpenQuickView?.(product)
                         }}
                         className="w-full bg-foreground text-background py-3 rounded-xl flex items-center justify-center gap-2 font-medium hover:bg-foreground/90 transition-colors shadow-lg"
                     >
