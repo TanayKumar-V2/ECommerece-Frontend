@@ -7,12 +7,15 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useStore } from '@/store/useStore'
 import { usePathname } from 'next/navigation'
+import { useSession } from 'next-auth/react'
+import SearchBar from './SearchBar'
 
 export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
     const pathname = usePathname()
+    const { data: session } = useSession()
 
     // To avoid hydration mismatch for Zustand persists:
     const [mounted, setMounted] = useState(false)
@@ -59,13 +62,13 @@ export default function Navbar() {
                         </button>
                     </div>
 
-                    <Link href="/" className="flex items-center">
+                    <Link href="/" className="flex items-center shrink-0">
                         <Image
                             src="/logo.png"
                             alt="Viraasat Logo"
                             width={240}
                             height={40}
-                            className="h-8 w-auto object-contain"
+                            className="h-6 sm:h-7 md:h-8 w-auto object-contain"
                             priority
                         />
                     </Link>
@@ -83,14 +86,21 @@ export default function Navbar() {
                         ))}
                     </div>
 
-                    <div className="flex items-center gap-6 text-foreground/80">
-                        <Link href="/login" className="hidden md:flex flex-col items-center relative group hover:text-foreground transition-all duration-300">
-                            <User className="w-5 h-5 mb-1 group-hover:scale-110 transition-transform" />
-                            <span className="absolute top-full mt-1 text-[10px] items-center uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-foreground font-semibold">Login</span>
+                    <SearchBar />
+
+                    <div className="flex items-center gap-3 sm:gap-6 text-foreground/80">
+                        <Link 
+                            href={session ? "/profile" : "/login"} 
+                            className="flex flex-col items-center relative group hover:text-foreground transition-all duration-300"
+                        >
+                            <User className="w-5 h-5 sm:mb-1 group-hover:scale-110 transition-transform" />
+                            <span className="absolute top-full mt-1 text-[10px] items-center uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-foreground font-semibold hidden sm:block">
+                                {session ? "Profile" : "Login"}
+                            </span>
                         </Link>
                         <Link href="/wishlist" className="relative flex flex-col items-center group hover:text-foreground transition-all duration-300">
-                            <Heart className="w-5 h-5 mb-1 group-hover:scale-110 transition-transform" />
-                            <span className="absolute top-full mt-1 text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-foreground font-semibold">Wishlist</span>
+                            <Heart className="w-5 h-5 sm:mb-1 group-hover:scale-110 transition-transform" />
+                            <span className="absolute top-full mt-1 text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-foreground font-semibold hidden sm:block">Wishlist</span>
                             {wishlistCount > 0 && (
                                 <span className="absolute top-0 -right-2 bg-brand-cream border border-brand-beige text-foreground text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
                                     {wishlistCount}
@@ -98,8 +108,8 @@ export default function Navbar() {
                             )}
                         </Link>
                         <Link href="/cart" className="relative flex flex-col items-center group hover:text-foreground transition-all duration-300">
-                            <ShoppingBag className="w-5 h-5 mb-1 group-hover:scale-110 transition-transform" />
-                            <span className="absolute top-full mt-1 text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-foreground font-semibold">Cart</span>
+                            <ShoppingBag className="w-5 h-5 sm:mb-1 group-hover:scale-110 transition-transform" />
+                            <span className="absolute top-full mt-1 text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-foreground font-semibold hidden sm:block">Cart</span>
                             {cartCount > 0 && (
                                 <span className="absolute top-0 -right-2 bg-foreground text-background text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full shadow-sm">
                                     {cartCount}
@@ -126,6 +136,17 @@ export default function Navbar() {
                             <X className="w-8 h-8" />
                         </button>
                         <div className="flex flex-col gap-6 text-2xl font-heading mt-10">
+                            {/* Mobile search */}
+                            <form
+                                onSubmit={(e) => {
+                                    e.preventDefault()
+                                    const val = (e.currentTarget.elements.namedItem('mq') as HTMLInputElement)?.value.trim()
+                                    if (val) { window.location.href = `/?query=${encodeURIComponent(val)}`; setMobileMenuOpen(false) }
+                                }}
+                                className="flex items-center gap-2 border border-foreground/20 rounded-2xl px-4 py-3 text-base focus-within:border-foreground/40"
+                            >
+                                <input name="mq" type="text" placeholder="Search products..." className="flex-1 bg-transparent focus:outline-none text-foreground text-sm placeholder:text-foreground/40" />
+                            </form>
                             {navLinks.map((link) => (
                                 <Link
                                     key={link.name}
@@ -137,11 +158,11 @@ export default function Navbar() {
                                 </Link>
                             ))}
                             <Link
-                                href="/login"
+                                href={session ? "/profile" : "/login"}
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="border-b border-foreground/10 pb-4 transition-colors hover:text-foreground text-foreground/60"
                             >
-                                Login
+                                {session ? "Profile" : "Login"}
                             </Link>
                         </div>
                     </motion.div>

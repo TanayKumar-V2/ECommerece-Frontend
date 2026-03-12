@@ -22,7 +22,7 @@ export default function Footer() {
                             alt="Viraasat Logo"
                             width={300}
                             height={50}
-                            className="h-10 w-auto object-contain"
+                            className="h-8 sm:h-9 md:h-10 w-auto object-contain"
                         />
                     </Link>
                     <p className="text-foreground/80 max-w-sm mb-6 text-sm leading-relaxed">

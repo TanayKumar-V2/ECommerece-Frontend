@@ -7,9 +7,10 @@ import { useState, FormEvent } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
-export default function LoginPage() {
+export default function RegisterPage() {
     const router = useRouter()
 
+    const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
@@ -21,20 +22,34 @@ export default function LoginPage() {
         setIsLoading(true)
 
         try {
-            const result = await signIn('credentials', {
-                redirect: false,
-                email: email.trim(),
-                password,
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password }),
             })
 
-            if (result?.error) {
-                setError(result.error)
+            const data = await res.json()
+
+            if (!res.ok) {
+                setError(data.message || 'Something went wrong')
             } else {
-                router.push('/')
-                router.refresh()
+                // Automatically sign in after registration
+                const result = await signIn('credentials', {
+                    redirect: false,
+                    email: email.trim(),
+                    password,
+                })
+
+                if (result?.error) {
+                    // If auto-signin fails, redirect to login page
+                    router.push('/login')
+                } else {
+                    router.push('/')
+                    router.refresh()
+                }
             }
-        } catch {
-            setError('Something went wrong. Please try again.')
+        } catch (err: any) {
+            setError('An error occurred. Please try again.')
         } finally {
             setIsLoading(false)
         }
@@ -66,25 +81,38 @@ export default function LoginPage() {
                     className="w-full max-w-md bg-white p-10 rounded-[2rem] shadow-xl border border-foreground/5"
                 >
                     <div className="text-center mb-8">
-                        <h1 className="text-3xl font-heading font-medium mb-2">Welcome Back</h1>
-                        <p className="text-foreground/60 text-sm">Please enter your details to sign in.</p>
+                        <h1 className="text-3xl font-heading font-medium mb-2">Create Account</h1>
+                        <p className="text-foreground/60 text-sm">Join the Viraasat family today.</p>
                     </div>
 
-                    <form className="space-y-5" onSubmit={handleSubmit}>
-                        <div className="space-y-2">
+                    <form className="space-y-4" onSubmit={handleSubmit}>
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-medium text-foreground/80 pl-1">Full Name</label>
+                            <input
+                                type="text"
+                                placeholder="Enter your name"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                required
+                                disabled={isLoading}
+                                className="w-full px-5 py-3.5 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-beige focus:border-transparent transition-all placeholder:text-foreground/30"
+                            />
+                        </div>
+
+                        <div className="space-y-1.5">
                             <label className="text-sm font-medium text-foreground/80 pl-1">Email</label>
                             <input
                                 type="email"
-                                placeholder="Enter your email"
+                                placeholder="name@example.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                                 disabled={isLoading}
-                                className="w-full px-5 py-4 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-beige focus:border-transparent transition-all placeholder:text-foreground/30"
+                                className="w-full px-5 py-3.5 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-beige focus:border-transparent transition-all placeholder:text-foreground/30"
                             />
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                             <label className="text-sm font-medium text-foreground/80 pl-1">Password</label>
                             <input
                                 type="password"
@@ -92,30 +120,24 @@ export default function LoginPage() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
+                                minLength={6}
                                 disabled={isLoading}
-                                className="w-full px-5 py-4 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-beige focus:border-transparent transition-all placeholder:text-foreground/30"
+                                className="w-full px-5 py-3.5 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-beige focus:border-transparent transition-all placeholder:text-foreground/30"
                             />
+                            <p className="text-[10px] text-foreground/40 pl-1 italic">Must be at least 6 characters.</p>
                         </div>
 
                         {/* Error Message */}
                         {error && (
-                            <p className="text-red-500 text-sm text-center px-1">{error}</p>
+                            <p className="text-red-500 text-sm text-center px-1 font-medium">{error}</p>
                         )}
-
-                        <div className="flex items-center justify-between text-sm px-1">
-                            <label className="flex items-center gap-2 cursor-pointer group">
-                                <input type="checkbox" className="accent-brand-beige w-4 h-4 rounded border-foreground/20" />
-                                <span className="text-foreground/70 group-hover:text-foreground transition-colors">Remember me</span>
-                            </label>
-                            <a href="#" className="font-medium text-brand-beige hover:text-foreground transition-colors">Forgot password?</a>
-                        </div>
 
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-foreground text-background py-4 rounded-2xl font-medium hover:bg-foreground/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform tracking-wide mt-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                            className="w-full bg-foreground text-background py-4 rounded-2xl font-medium hover:bg-foreground/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform tracking-wide mt-4 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                         >
-                            {isLoading ? 'Signing in…' : 'Sign In'}
+                            {isLoading ? 'Creating account…' : 'Create Account'}
                         </button>
                     </form>
 
@@ -125,7 +147,7 @@ export default function LoginPage() {
                                 <div className="w-full border-t border-brand-beige/30"></div>
                             </div>
                             <div className="relative flex justify-center text-sm">
-                                <span className="px-4 bg-white text-foreground/50">Or continue with</span>
+                                <span className="px-4 bg-white text-foreground/50">Or register with</span>
                             </div>
                         </div>
 
@@ -146,7 +168,7 @@ export default function LoginPage() {
                     </div>
 
                     <p className="mt-8 text-center text-sm text-foreground/60">
-                        Don&apos;t have an account? <Link href="/register" className="font-semibold text-foreground hover:underline">Sign up</Link>
+                        Already have an account? <Link href="/login" className="font-semibold text-foreground hover:underline">Sign in</Link>
                     </p>
                 </motion.div>
             </div>

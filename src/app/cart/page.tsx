@@ -54,7 +54,7 @@ export default function CartPage() {
                                 <AnimatePresence>
                                     {cart.map((item) => (
                                         <motion.div
-                                            key={`${item.id}-${item.size}`}
+                                            key={`${item.id}-${item.size}-${item.color}`}
                                             layout
                                             initial={{ opacity: 0, scale: 0.95 }}
                                             animate={{ opacity: 1, scale: 1 }}
@@ -63,7 +63,7 @@ export default function CartPage() {
                                             className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white p-4 rounded-2xl shadow-sm border border-foreground/5 relative"
                                         >
                                             <button
-                                                onClick={() => removeFromCart(item.id, item.size)}
+                                                onClick={() => removeFromCart(item.id, item.size, item.color)}
                                                 className="absolute top-4 right-4 md:hidden text-foreground/40 hover:text-red-500 transition-colors"
                                             >
                                                 <Trash2 className="w-5 h-5" />
@@ -76,7 +76,9 @@ export default function CartPage() {
                                                 <div className="flex flex-col justify-center">
                                                     <p className="text-xs text-foreground/60 uppercase tracking-widest mb-1">{item.category}</p>
                                                     <h3 className="font-medium text-base mb-1 pr-6 md:pr-0 leading-tight">{item.name}</h3>
-                                                    <p className="text-foreground/60 text-sm mb-2">Size: <span className="font-semibold text-foreground">{item.size}</span></p>
+                                                    <p className="text-foreground/60 text-sm mb-2">
+                                                        Size: <span className="font-semibold text-foreground">{item.size}</span> | Color: <span className="font-semibold text-foreground">{item.color}</span>
+                                                    </p>
                                                     <p className="md:hidden font-semibold">₹{item.price.toLocaleString('en-IN')}</p>
                                                 </div>
                                             </div>
@@ -85,7 +87,7 @@ export default function CartPage() {
                                                 <span className="md:hidden text-sm text-foreground/60">Quantity:</span>
                                                 <div className="flex items-center gap-3 border border-foreground/20 rounded-full px-3 py-1">
                                                     <button
-                                                        onClick={() => updateCartQuantity(item.id, item.size, Math.max(1, item.quantity - 1))}
+                                                        onClick={() => updateCartQuantity(item.id, item.size, item.color, Math.max(1, item.quantity - 1))}
                                                         className="text-foreground/60 hover:text-foreground transition-colors"
                                                         disabled={item.quantity <= 1}
                                                     >
@@ -93,7 +95,7 @@ export default function CartPage() {
                                                     </button>
                                                     <span className="w-4 text-center text-sm font-medium">{item.quantity}</span>
                                                     <button
-                                                        onClick={() => updateCartQuantity(item.id, item.size, item.quantity + 1)}
+                                                        onClick={() => updateCartQuantity(item.id, item.size, item.color, item.quantity + 1)}
                                                         className="text-foreground/60 hover:text-foreground transition-colors"
                                                     >
                                                         <Plus className="w-4 h-4" />
@@ -104,7 +106,7 @@ export default function CartPage() {
                                             <div className="hidden md:flex flex-col items-end justify-center w-1/5 gap-2">
                                                 <p className="font-semibold text-lg">₹{(item.price * item.quantity).toLocaleString('en-IN')}</p>
                                                 <button
-                                                    onClick={() => removeFromCart(item.id, item.size)}
+                                                    onClick={() => removeFromCart(item.id, item.size, item.color)}
                                                     className="text-foreground/40 hover:text-red-500 transition-colors flex items-center gap-1 text-sm"
                                                 >
                                                     <Trash2 className="w-4 h-4" /> Remove

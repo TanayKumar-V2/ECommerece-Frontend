@@ -7,11 +7,14 @@ export interface Product {
     price: number
     image: string
     category: "Men" | "Women" | "Unisex"
+    sizes?: string[]
+    colors?: string[]
 }
 
-interface CartItem extends Product {
+export interface CartItem extends Product {
     quantity: number
-    size: "XS" | "S" | "M" | "L" | "XL" | "XXL"
+    size: "XS" | "S" | "M" | "L" | "XL" | "XXL" | string
+    color: string
 }
 
 interface AppState {
@@ -19,11 +22,12 @@ interface AppState {
     wishlist: Product[]
     recentlyViewed: Product[]
     addToCart: (item: CartItem) => void
-    removeFromCart: (id: string, size: string) => void
-    updateCartQuantity: (id: string, size: string, quantity: number) => void
+    removeFromCart: (id: string, size: string, color: string) => void
+    updateCartQuantity: (id: string, size: string, color: string, quantity: number) => void
     toggleWishlist: (item: Product) => void
     isInWishlist: (id: string) => boolean
     addRecentlyViewed: (item: Product) => void
+    clearCart: () => void
 }
 
 export const useStore = create<AppState>()(
@@ -35,7 +39,7 @@ export const useStore = create<AppState>()(
 
             addToCart: (item) => {
                 const { cart } = get()
-                const existingItemIndex = cart.findIndex((i) => i.id === item.id && i.size === item.size)
+                const existingItemIndex = cart.findIndex((i) => i.id === item.id && i.size === item.size && i.color === item.color)
                 if (existingItemIndex > -1) {
                     const newCart = [...cart]
                     newCart[existingItemIndex].quantity += item.quantity
@@ -45,13 +49,13 @@ export const useStore = create<AppState>()(
                 }
             },
 
-            removeFromCart: (id, size) => set((state) => ({
-                cart: state.cart.filter((i) => !(i.id === id && i.size === size))
+            removeFromCart: (id, size, color) => set((state) => ({
+                cart: state.cart.filter((i) => !(i.id === id && i.size === size && i.color === color))
             })),
 
-            updateCartQuantity: (id, size, quantity) => set((state) => ({
+            updateCartQuantity: (id, size, color, quantity) => set((state) => ({
                 cart: state.cart.map((item) =>
-                    item.id === id && item.size === size ? { ...item, quantity } : item
+                    item.id === id && item.size === size && item.color === color ? { ...item, quantity } : item
                 )
             })),
 
@@ -73,7 +77,9 @@ export const useStore = create<AppState>()(
                 const filtered = recentlyViewed.filter((p) => p.id !== item.id)
                 // Add to start of array, keep max 10
                 set({ recentlyViewed: [item, ...filtered].slice(0, 10) })
-            }
+            },
+
+            clearCart: () => set({ cart: [] })
         }),
         {
             name: 'viraasat-storage',

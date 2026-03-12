@@ -1,9 +1,10 @@
 "use client"
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Product } from '@/store/useStore'
 import ProductCard from './ProductCard'
+import ProductQuickView from './ProductQuickView'
 
 interface ProductCarouselProps {
     title: string
@@ -13,6 +14,8 @@ interface ProductCarouselProps {
 
 export default function ProductCarousel({ title, subtitle, products }: ProductCarouselProps) {
     const containerRef = useRef<HTMLDivElement>(null)
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+    const [isCartModalOpen, setIsCartModalOpen] = useState(false)
 
     // Scroll progress effects can be added here
 
@@ -36,12 +39,28 @@ export default function ProductCarousel({ title, subtitle, products }: ProductCa
             <div className="pl-4 md:pl-8 lg:pl-16 flex gap-6 overflow-x-auto pb-12 pt-4 snap-x snap-mandatory hide-scroll-bar will-change-scroll">
                 {products.map((product, index) => (
                     <div key={product.id} className="min-w-[280px] md:min-w-[320px] snap-center shrink-0">
-                        <ProductCard product={product} index={index} />
+                        <ProductCard 
+                            product={product} 
+                            index={index} 
+                            onOpenQuickView={(p) => {
+                                setSelectedProduct(p)
+                                setIsCartModalOpen(true)
+                            }}
+                        />
                     </div>
                 ))}
                 {/* Padding element for the end of carousel */}
                 <div className="min-w-[4px] md:min-w-[32px] shrink-0" />
             </div>
+
+            {/* Quick View Modal */}
+            {selectedProduct && (
+                <ProductQuickView 
+                    product={selectedProduct} 
+                    isOpen={isCartModalOpen} 
+                    onClose={() => setIsCartModalOpen(false)} 
+                />
+            )}
 
             <style jsx global>{`
         .hide-scroll-bar {

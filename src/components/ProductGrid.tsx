@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Filter, ChevronDown } from 'lucide-react'
 import { Product } from '@/store/useStore'
 import ProductCard from './ProductCard'
+import ProductQuickView from './ProductQuickView'
 
 interface ProductGridProps {
     products: Product[]
@@ -15,6 +16,8 @@ interface ProductGridProps {
 export default function ProductGrid({ products, title, description }: ProductGridProps) {
     const [showFilters, setShowFilters] = useState(false)
     const [sortOption, setSortOption] = useState('popularity')
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+    const [isCartModalOpen, setIsCartModalOpen] = useState(false)
 
     // Basic mock sorting
     const sortedProducts = [...products].sort((a, b) => {
@@ -113,7 +116,15 @@ export default function ProductGrid({ products, title, description }: ProductGri
                     <div className="flex-1">
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                             {sortedProducts.map((product, index) => (
-                                <ProductCard key={product.id} product={product} index={index % 6} />
+                                <ProductCard 
+                                    key={product.id} 
+                                    product={product} 
+                                    index={index % 6} 
+                                    onOpenQuickView={(p) => {
+                                        setSelectedProduct(p)
+                                        setIsCartModalOpen(true)
+                                    }}
+                                />
                             ))}
                         </div>
                         {sortedProducts.length === 0 && (
@@ -124,6 +135,15 @@ export default function ProductGrid({ products, title, description }: ProductGri
                     </div>
                 </div>
             </div>
+
+            {/* Quick View Modal */}
+            {selectedProduct && (
+                <ProductQuickView 
+                    product={selectedProduct} 
+                    isOpen={isCartModalOpen} 
+                    onClose={() => setIsCartModalOpen(false)} 
+                />
+            )}
         </div>
     )
 }
