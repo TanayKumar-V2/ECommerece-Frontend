@@ -4,9 +4,9 @@ import Hero from "@/components/home/Hero";
 import FeaturedCategories from "@/components/home/FeaturedCategories";
 import ProductCarousel from "@/components/ProductCarousel";
 import RecentlyViewed from "@/components/home/RecentlyViewed";
-import ProductCard from "@/components/ProductCard";
 import dbConnect from "@/lib/db";
 import Product from "@/models/Product";
+import SearchPageClient from "@/components/search/SearchPageClient";
 
 export default async function Home({
   searchParams,
@@ -54,16 +54,7 @@ export default async function Home({
           </div>
 
           {results.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              {results.map((product, index) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  index={index % 6}
-                  onOpenQuickView={() => {}}
-                />
-              ))}
-            </div>
+            <SearchPageClient products={results as any} />
           ) : (
             <div className="py-24 text-center text-foreground/40">
               <p className="text-4xl mb-4">🔍</p>
