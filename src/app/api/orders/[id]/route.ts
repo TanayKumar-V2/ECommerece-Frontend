@@ -7,16 +7,16 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session || !session.user || !(session.user as any).id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const userId = (session.user as any).id;
 
-    const { id } = params;
     if (!id) {
       return NextResponse.json({ error: 'Order ID is required' }, { status: 400 });
     }
