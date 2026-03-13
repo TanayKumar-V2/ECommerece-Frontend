@@ -54,7 +54,7 @@ export default function Footer() {
                 <div>
                     <h4 className="font-heading font-semibold text-lg mb-4">Contact Us</h4>
                     <ul className="flex flex-col gap-3 text-sm text-foreground/80">
-                        <li><a href="mailto:viraasat.store18@gmail.com" className="hover:text-brand-beige transition-colors">viraasat.store18@gmail.com</a></li>
+                        <li><a href="mailto:messaging@viraasatclothing.store" className="hover:text-brand-beige transition-colors">messaging@viraasatclothing.store</a></li>
                         <li>+91 98765 43210</li>
                         <li className="mt-2 text-xs">Mon - Fri, 10am - 6pm (IST)</li>
                     </ul>
