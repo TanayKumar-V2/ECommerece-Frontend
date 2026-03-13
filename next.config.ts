@@ -14,11 +14,16 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'i.etsystatic.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'sgp1.digitaloceanspaces.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.qikink.com',
       }
     ],
-  },
-  typescript: {
-    ignoreBuildErrors: true,
   },
 };
 

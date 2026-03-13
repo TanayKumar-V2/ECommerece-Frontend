@@ -8,24 +8,26 @@ import Product from "@/models/Product";
 export default async function MenPage({
   searchParams,
 }: {
-  searchParams: { size?: string; sort?: string };
+  searchParams: Promise<{ size?: string; sort?: string }>;
 }) {
   await dbConnect();
+
+  const resolvedSearchParams = await searchParams;
 
   // Build the query dynamically
   const filter: Record<string, any> = {
     category: { $in: ["men", "unisex"] },
   };
 
-  if (searchParams.size) {
-    filter.sizes = { $in: [searchParams.size] };
+  if (resolvedSearchParams.size) {
+    filter.sizes = { $in: [resolvedSearchParams.size] };
   }
 
   // Sort direction
   const sortDir =
-    searchParams.sort === "asc"
+    resolvedSearchParams.sort === "asc"
       ? { price: 1 as const }
-      : searchParams.sort === "desc"
+      : resolvedSearchParams.sort === "desc"
       ? { price: -1 as const }
       : { createdAt: -1 as const };
 

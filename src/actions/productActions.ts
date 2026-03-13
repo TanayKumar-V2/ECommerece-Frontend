@@ -23,6 +23,7 @@ export async function createProduct(formData: any) {
       sizes: formData.sizes || ["S", "M", "L", "XL", "XXL"],
       colors: formData.colors || ["Black", "White"],
       qikink_sku: formData.sku,
+      stock: Number(formData.stock) || 0,
     });
 
     revalidatePath("/admin/products");
@@ -62,6 +63,7 @@ export async function updateProduct(id: string, formData: any) {
         sizes: formData.sizes,
         colors: formData.colors,
         qikink_sku: formData.sku,
+        stock: Number(formData.stock) || 0,
       },
       { new: true }
     );

@@ -1,28 +1,46 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import Link from 'next/link'
-import { Download, ArrowRight, Package, Check } from 'lucide-react'
+import { Download, ArrowRight, Package, Check, Loader2 } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import Image from 'next/image'
 import PageTransition from '@/components/PageTransition'
 import { useStore } from '@/store/useStore'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function OrderSuccessPage() {
+function OrderSuccessContent() {
     const { cart } = useStore()
     const [mounted, setMounted] = useState(false)
     const [isDownloading, setIsDownloading] = useState(false)
     const [showToast, setShowToast] = useState(false)
+    const [orderData, setOrderData] = useState<any>(null)
+    const [isLoading, setIsLoading] = useState(true)
     
-    // Generate static order ID for demo
-    const orderId = "VR-" + Math.floor(10000 + Math.random() * 90000)
+    const searchParams = useSearchParams()
+    const id = searchParams.get('id')
+    
+    // Format order ID for display
+    const displayOrderId = id ? `VR-${id.slice(-5).toUpperCase()}` : "VR-" + Math.floor(10000 + Math.random() * 90000)
 
     useEffect(() => {
         setMounted(true)
+        
+        if (id) {
+            setIsLoading(true)
+            fetch(`/api/orders/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.error) setOrderData(data)
+                })
+                .catch(err => console.error('Fetch error:', err))
+                .finally(() => setIsLoading(false))
+        } else {
+            setIsLoading(false)
+        }
         
         // Fire confetti
         const duration = 2000
@@ -49,7 +67,7 @@ export default function OrderSuccessPage() {
             }
         }
         frame()
-    }, [])
+    }, [id])
 
     const router = useRouter()
 
@@ -59,7 +77,7 @@ export default function OrderSuccessPage() {
         
         // Add minimal shimmer effect before redirecting
         setTimeout(() => {
-            router.push('/checkout/receipt')
+            router.push(`/checkout/receipt?id=${id || ''}`)
         }, 1200)
     }
 
@@ -112,7 +130,7 @@ export default function OrderSuccessPage() {
                                 transition={{ duration: 1.5, delay: 1, ease: "easeInOut" }}
                                 className="absolute top-0 w-1/2 h-full bg-gradient-to-r from-transparent via-brand-beige/30 to-transparent skew-x-12"
                             />
-                            <p className="text-sm font-medium text-foreground/80">Order ID: <span className="font-heading font-semibold text-foreground ml-1">{orderId}</span></p>
+                            <p className="text-sm font-medium text-foreground/80">Order Number: <span className="font-heading font-semibold text-foreground ml-1">{displayOrderId}</span></p>
                         </motion.div>
                     </div>
 
@@ -128,23 +146,30 @@ export default function OrderSuccessPage() {
                                 What's coming your way
                             </motion.h3>
                             <div className="space-y-4">
-                                {cart.map((item, index) => (
+                                {isLoading ? (
+                                    <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-foreground/20" /></div>
+                                ) : (orderData?.products || cart).map((item: any, index: number) => (
                                     <motion.div 
-                                        key={`${item.id}-${index}`}
+                                        key={item._id || `${item.id}-${index}`}
                                         initial={{ opacity: 0, y: 20, scale: 0.95 }}
                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                         transition={{ duration: 0.5, delay: 0.4 + (index * 0.1), type: 'spring', stiffness: 100 }}
                                         className="flex gap-4 p-4 bg-white rounded-2xl border border-foreground/5 shadow-sm hover:shadow-md transition-shadow duration-300"
                                     >
                                         <div className="relative w-20 h-24 rounded-xl overflow-hidden shrink-0 bg-brand-cream/30">
-                                            <Image src={item.image} alt={item.name} fill className="object-cover" />
+                                            <Image 
+                                                src={item.product?.images?.[0] || item.image || "/placeholder.jpg"} 
+                                                alt={item.product?.title || item.name} 
+                                                fill 
+                                                className="object-cover" 
+                                            />
                                         </div>
-                                        <div className="flex-1 flex flex-col justify-center">
-                                            <h4 className="font-medium text-foreground">{item.name}</h4>
+                                        <div className="flex-1 flex flex-col justify-center text-left">
+                                            <h4 className="font-medium text-foreground">{item.product?.title || item.name}</h4>
                                             <p className="text-foreground/60 text-sm mt-1">Size: {item.size} • Qty: {item.quantity}</p>
                                         </div>
                                         <div className="flex items-center pr-2">
-                                            <p className="font-heading font-semibold">Rs. {(item.price * item.quantity).toLocaleString('en-IN')}</p>
+                                            <p className="font-heading font-semibold">Rs. {((item.product?.price || item.price) * item.quantity).toLocaleString('en-IN')}</p>
                                         </div>
                                     </motion.div>
                                 ))}
@@ -215,5 +240,13 @@ export default function OrderSuccessPage() {
                 </AnimatePresence>
             </main>
         </PageTransition>
+    )
+}
+
+export default function OrderSuccessPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="w-8 h-8 animate-spin text-foreground/20" /></div>}>
+            <OrderSuccessContent />
+        </Suspense>
     )
 }

@@ -9,6 +9,7 @@ export interface IProduct extends Document {
   sizes: string[];
   colors: string[];
   qikink_sku: string;
+  stock: number;
 }
 
 const ProductSchema: Schema = new Schema(
@@ -21,6 +22,7 @@ const ProductSchema: Schema = new Schema(
     sizes: { type: [String], required: true },
     colors: { type: [String], required: true },
     qikink_sku: { type: String, required: true },
+    stock: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

@@ -39,12 +39,19 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: `Product not found: ${item.id}` }, { status: 404 });
       }
 
+      // Validate stock availability
+      if (typeof product.stock === 'number' && product.stock < item.quantity) {
+        return NextResponse.json({
+          error: `Insufficient stock for "${product.title}". Available: ${product.stock}, Requested: ${item.quantity}`
+        }, { status: 400 });
+      }
+
       calculatedSubtotal += product.price * item.quantity;
       orderProducts.push({
         product: product._id,
         quantity: item.quantity,
         size: item.size,
-        color: product.colors && product.colors.length > 0 ? product.colors[0] : 'N/A' // Use first color or N/A
+        color: item.color || (product.colors && product.colors.length > 0 ? product.colors[0] : 'N/A')
       });
     }
 
@@ -65,6 +72,7 @@ export async function POST(req: Request) {
       user: userId,
       products: orderProducts,
       totalAmount: calculatedTotal,
+      razorpayOrderId: razorpayOrder.id,
       status: 'pending',
       shippingAddress: {
         name: `${shippingAddress.firstName} ${shippingAddress.lastName}`,

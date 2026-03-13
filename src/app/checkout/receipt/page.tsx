@@ -1,30 +1,60 @@
 "use client"
 
 import { useStore } from '@/store/useStore'
-import { Printer, Download, ArrowLeft } from 'lucide-react'
+import { Printer, Download, ArrowLeft, Loader2 } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 
-export default function ReceiptPage() {
+function ReceiptContent() {
     const { cart } = useStore()
     const [mounted, setMounted] = useState(false)
-    const [date, setDate] = useState('')
-
-    // Generate static order ID for demo
-    const orderId = "VR-" + Math.floor(10000 + Math.random() * 90000)
+    const [orderData, setOrderData] = useState<any>(null)
+    const [isLoading, setIsLoading] = useState(true)
+    
+    const searchParams = useSearchParams()
+    const id = searchParams.get('id')
 
     useEffect(() => {
         setMounted(true)
-        const today = new Date()
-        setDate(today.toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }))
-    }, [])
+        if (id) {
+            setIsLoading(true)
+            fetch(`/api/orders/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.error) setOrderData(data)
+                })
+                .catch(err => console.error('Fetch error:', err))
+                .finally(() => setIsLoading(false))
+        } else {
+            setIsLoading(false)
+        }
+    }, [id])
 
     if (!mounted) return null
-
-    const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0)
-    const shipping = subtotal > 2000 ? 0 : 150
+    if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-brand-cream/10"><Loader2 className="w-8 h-8 animate-spin text-foreground/20" /></div>
+    
+    // Fallback logic if no orderData is found (e.g. preview mode)
+    const displayItems = orderData?.products || cart
+    const subtotal = orderData ? orderData.totalAmount : displayItems.reduce((acc: any, item: any) => acc + ((item.product?.price || item.price) * item.quantity), 0)
+    const shipping = orderData ? 0 : (subtotal > 2000 ? 0 : 150)
     const total = subtotal + shipping
+    
+    const displayOrderId = orderData ? `VR-${orderData._id.slice(-5).toUpperCase()}` : "VR-PREVIEW"
+    const dateStr = orderData 
+        ? new Date(orderData.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+        : new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+
+    const billingInfo = orderData?.shippingAddress || {
+        name: "John Doe",
+        addressLine1: "123 Cozy Street",
+        city: "Mumbai",
+        state: "Maharashtra",
+        pincode: "400001"
+    }
+    
+    const userEmail = orderData?.user?.email || "customer@example.com"
 
     const handlePrint = () => {
         window.print()
@@ -67,17 +97,21 @@ export default function ReceiptPage() {
                 <div className="grid grid-cols-2 gap-8 mb-10">
                     <div>
                         <p className="text-xs text-foreground/50 uppercase tracking-wider mb-1 font-medium">Billed To</p>
-                        <p className="font-medium text-foreground text-sm">John Doe</p>
-                        <p className="text-foreground/70 text-sm mt-0.5">123 Cozy Street<br />Mumbai, Maharashtra 400001<br />john@example.com</p>
+                        <p className="font-medium text-foreground text-sm">{billingInfo.name}</p>
+                        <p className="text-foreground/70 text-sm mt-0.5">
+                            {billingInfo.addressLine1}<br />
+                            {billingInfo.city}, {billingInfo.state} {billingInfo.pincode}<br />
+                            {billingInfo.phone || ''}
+                        </p>
                     </div>
                     <div className="text-right">
                         <div>
                             <p className="text-xs text-foreground/50 uppercase tracking-wider mb-1 font-medium">Order Number</p>
-                            <p className="font-heading font-semibold text-lg text-foreground">{orderId}</p>
+                            <p className="font-heading font-semibold text-lg text-foreground">{displayOrderId}</p>
                         </div>
                         <div className="mt-4">
                             <p className="text-xs text-foreground/50 uppercase tracking-wider mb-1 font-medium">Date</p>
-                            <p className="text-sm text-foreground/70">{date}</p>
+                            <p className="text-sm text-foreground/70">{dateStr}</p>
                         </div>
                     </div>
                 </div>
@@ -89,21 +123,26 @@ export default function ReceiptPage() {
                         <span>Amount</span>
                     </div>
 
-                    <div className="space-y-4">
-                        {cart.map((item, index) => (
-                            <div key={`${item.id}-${index}`} className="flex justify-between items-start">
+                    <div className="space-y-4 text-left">
+                        {displayItems.map((item: any, index: number) => (
+                            <div key={item._id || `${item.id}-${index}`} className="flex justify-between items-start">
                                 <div className="flex gap-3">
                                     <div className="w-10 h-12 relative rounded overflow-hidden shrink-0 print:hidden bg-brand-cream/30">
-                                        <Image src={item.image} alt={item.name} fill className="object-cover" />
+                                        <Image 
+                                            src={item.product?.images?.[0] || item.image || "/placeholder.jpg"} 
+                                            alt={item.product?.title || item.name} 
+                                            fill 
+                                            className="object-cover" 
+                                        />
                                     </div>
-                                    <div>
-                                        <p className="font-medium text-foreground text-sm">{item.name}</p>
-                                        <p className="text-xs text-foreground/60 mt-0.5">Size: {item.size} • Qty: {item.quantity}</p>
+                                    <div className="text-left">
+                                        <p className="font-medium text-foreground text-sm">{item.product?.title || item.name}</p>
+                                        <p className="text-xs text-foreground/60 mt-0.5 text-left">Size: {item.size} • Qty: {item.quantity}</p>
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <p className="font-medium text-sm text-foreground">Rs. {(item.price * item.quantity).toLocaleString('en-IN')}</p>
-                                    <p className="text-xs text-foreground/40 mt-0.5">Rs. {item.price.toLocaleString('en-IN')} each</p>
+                                    <p className="font-medium text-sm text-foreground">Rs. {((item.product?.price || item.price) * item.quantity).toLocaleString('en-IN')}</p>
+                                    <p className="text-xs text-foreground/40 mt-0.5">Rs. {(item.product?.price || item.price).toLocaleString('en-IN')} each</p>
                                 </div>
                             </div>
                         ))}
@@ -139,5 +178,13 @@ export default function ReceiptPage() {
                 </div>
             </div>
         </div>
+    )
+}
+
+export default function ReceiptPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-brand-cream/10 shadow-sm"><Loader2 className="w-8 h-8 animate-spin text-foreground/20" /></div>}>
+            <ReceiptContent />
+        </Suspense>
     )
 }

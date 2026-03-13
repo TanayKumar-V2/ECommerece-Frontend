@@ -23,6 +23,7 @@ export interface IOrder extends Document {
   products: IOrderItem[];
   totalAmount: number;
   paymentId?: string;
+  razorpayOrderId?: string;
   status: 'pending' | 'paid' | 'processing' | 'shipped';
   shippingAddress: IShippingAddress;
 }
@@ -40,6 +41,7 @@ const OrderSchema: Schema = new Schema(
     ],
     totalAmount: { type: Number, required: true },
     paymentId: { type: String },
+    razorpayOrderId: { type: String, required: true },
     status: {
       type: String,
       enum: ['pending', 'paid', 'processing', 'shipped'],

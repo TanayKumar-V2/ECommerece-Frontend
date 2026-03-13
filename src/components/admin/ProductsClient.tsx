@@ -16,6 +16,7 @@ interface ProductType {
   description: string;
   sizes: string[];
   colors: string[];
+  stock: number;
 }
 
 export default function ProductsClient({ initialProducts }: { initialProducts: ProductType[] }) {
@@ -32,6 +33,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
     price: "",
     sku: "",
     images: "",
+    stock: "",
   });
 
   const openAddModal = () => {
@@ -43,6 +45,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       price: "",
       sku: "",
       images: "",
+      stock: "0",
     });
     setIsModalOpen(true);
   };
@@ -56,6 +59,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       price: product.price.toString(),
       sku: product.qikink_sku,
       images: product.images[0] || "",
+      stock: (product.stock || 0).toString(),
     });
     setIsModalOpen(true);
   };
@@ -150,6 +154,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                 <th className="p-4 font-medium pl-6">Product</th>
                 <th className="p-4 font-medium">Category</th>
                 <th className="p-4 font-medium">Price</th>
+                <th className="p-4 font-medium">Stock</th>
                 <th className="p-4 font-medium">SKU</th>
                 <th className="p-4 font-medium text-right pr-6">Actions</th>
               </tr>
@@ -181,6 +186,11 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                   </td>
                   <td className="p-4 text-sm text-foreground/80 capitalize">{product.category}</td>
                   <td className="p-4 text-sm font-medium">Rs. {product.price.toLocaleString('en-IN')}</td>
+                  <td className="p-4 text-sm">
+                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${product.stock > 10 ? 'bg-green-100 text-green-700' : product.stock > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+                      {product.stock || 0} left
+                    </span>
+                  </td>
                   <td className="p-4 text-sm text-foreground/60 font-mono tracking-tighter">{product.qikink_sku}</td>
                   <td className="p-4 pr-6 text-right">
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -284,6 +294,17 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       />
                     </div>
                     <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-foreground/80 pl-1">Stock Quantity</label>
+                      <input 
+                        type="number" 
+                        required
+                        value={formData.stock}
+                        onChange={(e) => setFormData({...formData, stock: e.target.value})}
+                        className="w-full px-4 py-2.5 bg-brand-cream/10 border border-brand-beige/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige text-sm" 
+                        placeholder="0" 
+                      />
+                    </div>
+                    <div className="space-y-1.5 md:col-span-2">
                       <label className="text-sm font-medium text-foreground/80 pl-1">Image URL</label>
                       <input 
                         type="text" 

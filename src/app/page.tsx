@@ -11,11 +11,12 @@ import Product from "@/models/Product";
 export default async function Home({
   searchParams,
 }: {
-  searchParams: { query?: string };
+  searchParams: Promise<{ query?: string }>;
 }) {
   await dbConnect();
 
-  const query = searchParams.query?.trim();
+  const resolvedSearchParams = await searchParams;
+  const query = resolvedSearchParams.query?.trim();
 
   if (query) {
     // ── Search mode ──────────────────────────────────────────────────────────

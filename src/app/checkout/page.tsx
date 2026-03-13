@@ -38,6 +38,7 @@ export default function CheckoutPage() {
     const [mounted, setMounted] = useState(false)
     const [isProcessing, setIsProcessing] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
+    const [orderId, setOrderId] = useState<string | null>(null)
 
     // Form State
     const [email, setEmail] = useState('')
@@ -98,6 +99,7 @@ export default function CheckoutPage() {
 
                         const verifyData = await verifyRes.json();
                         if (verifyRes.ok) {
+                            setOrderId(orderData.mongo_order_id);
                             setIsSuccess(true);
                             clearCart();
                         } else {
@@ -135,7 +137,7 @@ export default function CheckoutPage() {
     }
 
     const onAnimationComplete = () => {
-        router.push('/checkout/success')
+        router.push(`/checkout/success?id=${orderId}`)
     }
 
     return (
