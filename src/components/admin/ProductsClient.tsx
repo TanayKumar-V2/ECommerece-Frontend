@@ -24,6 +24,8 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ProductType | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
   
   // Form State
   const [formData, setFormData] = useState({
@@ -110,6 +112,16 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
     }
   };
 
+  const filteredProducts = products.filter((p) => {
+    const matchesSearch =
+      p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.qikink_sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      !categoryFilter || p.category.toLowerCase() === categoryFilter.toLowerCase();
+    return matchesSearch && matchesCategory;
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -132,15 +144,21 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
           <input 
             type="text" 
             placeholder="Search products..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-9 pr-4 py-2 bg-brand-cream/10 border border-brand-beige/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige focus:border-transparent transition-all text-sm"
           />
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
-          <select className="px-4 py-2 bg-brand-cream/10 border border-brand-beige/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-beige">
-            <option>All Categories</option>
-            <option>Men</option>
-            <option>Women</option>
-            <option>Unisex</option>
+          <select 
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="px-4 py-2 bg-brand-cream/10 border border-brand-beige/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-beige"
+          >
+            <option value="">All Categories</option>
+            <option value="men">Men</option>
+            <option value="women">Women</option>
+            <option value="unisex">Unisex</option>
           </select>
         </div>
       </div>
@@ -160,56 +178,64 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
               </tr>
             </thead>
             <tbody>
-              {products.map((product, index) => (
-                <motion.tr 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                  key={product._id} 
-                  className="border-b border-foreground/5 hover:bg-brand-cream/20 transition-colors group"
-                >
-                  <td className="p-4 pl-6">
-                    <div className="flex items-center gap-4">
-                      <div className="relative w-12 h-16 rounded-lg overflow-hidden bg-brand-cream/50 shadow-sm shrink-0">
-                        <Image 
-                          src={product.images[0] || "/placeholder.jpg"} 
-                          alt={product.title} 
-                          fill 
-                          className="object-cover" 
-                        />
+              {filteredProducts.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-16 text-foreground/40 text-sm">
+                    No products match your search.
+                  </td>
+                </tr>
+              ) : (
+                filteredProducts.map((product, index) => (
+                  <motion.tr 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    key={product._id} 
+                    className="border-b border-foreground/5 hover:bg-brand-cream/20 transition-colors group"
+                  >
+                    <td className="p-4 pl-6">
+                      <div className="flex items-center gap-4">
+                        <div className="relative w-12 h-16 rounded-lg overflow-hidden bg-brand-cream/50 shadow-sm shrink-0">
+                          <Image 
+                            src={product.images[0] || "/placeholder.jpg"} 
+                            alt={product.title} 
+                            fill 
+                            className="object-cover" 
+                          />
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground text-sm">{product.title}</p>
+                          <p className="text-xs text-foreground/50 truncate max-w-[200px]">{product.description}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-foreground text-sm">{product.title}</p>
-                        <p className="text-xs text-foreground/50 truncate max-w-[200px]">{product.description}</p>
+                    </td>
+                    <td className="p-4 text-sm text-foreground/80 capitalize">{product.category}</td>
+                    <td className="p-4 text-sm font-medium">Rs. {product.price.toLocaleString('en-IN')}</td>
+                    <td className="p-4 text-sm">
+                      <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${product.stock > 10 ? 'bg-green-100 text-green-700' : product.stock > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+                        {product.stock || 0} left
+                      </span>
+                    </td>
+                    <td className="p-4 text-sm text-foreground/60 font-mono tracking-tighter">{product.qikink_sku}</td>
+                    <td className="p-4 pr-6 text-right">
+                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button 
+                          onClick={() => openEditModal(product)}
+                          className="p-2 text-foreground/60 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(product._id)}
+                          className="p-2 text-foreground/60 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
-                    </div>
-                  </td>
-                  <td className="p-4 text-sm text-foreground/80 capitalize">{product.category}</td>
-                  <td className="p-4 text-sm font-medium">Rs. {product.price.toLocaleString('en-IN')}</td>
-                  <td className="p-4 text-sm">
-                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${product.stock > 10 ? 'bg-green-100 text-green-700' : product.stock > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
-                      {product.stock || 0} left
-                    </span>
-                  </td>
-                  <td className="p-4 text-sm text-foreground/60 font-mono tracking-tighter">{product.qikink_sku}</td>
-                  <td className="p-4 pr-6 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button 
-                        onClick={() => openEditModal(product)}
-                        className="p-2 text-foreground/60 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(product._id)}
-                        className="p-2 text-foreground/60 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </motion.tr>
-              ))}
+                    </td>
+                  </motion.tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

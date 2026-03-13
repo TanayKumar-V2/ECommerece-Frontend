@@ -1,14 +1,13 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductGrid from "@/components/ProductGrid";
-import CategoryFilters from "@/components/CategoryFilters";
 import dbConnect from "@/lib/db";
 import Product from "@/models/Product";
 
 export default async function MenPage({
   searchParams,
 }: {
-  searchParams: Promise<{ size?: string; sort?: string }>;
+  searchParams: Promise<{ size?: string; sort?: string; minPrice?: string; maxPrice?: string }>;
 }) {
   await dbConnect();
 
@@ -21,6 +20,16 @@ export default async function MenPage({
 
   if (resolvedSearchParams.size) {
     filter.sizes = { $in: [resolvedSearchParams.size] };
+  }
+
+  if (resolvedSearchParams.minPrice || resolvedSearchParams.maxPrice) {
+    filter.price = {};
+    if (resolvedSearchParams.minPrice) {
+      filter.price.$gte = Number(resolvedSearchParams.minPrice);
+    }
+    if (resolvedSearchParams.maxPrice) {
+      filter.price.$lte = Number(resolvedSearchParams.maxPrice);
+    }
   }
 
   // Sort direction
@@ -45,7 +54,6 @@ export default async function MenPage({
   return (
     <main className="min-h-screen bg-background">
       <Navbar />
-      <CategoryFilters />
       <ProductGrid
         title="Men's Collection"
         description="Discover our premium range of men's clothing. Designed for comfort, styled for everyday luxury. From oversized fits to minimalist essentials."

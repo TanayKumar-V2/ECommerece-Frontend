@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Filter, ChevronDown } from 'lucide-react'
+import { SlidersHorizontal, X } from 'lucide-react'
 import { Product } from '@/store/useStore'
 import ProductCard from './ProductCard'
 import ProductQuickView from './ProductQuickView'
@@ -13,22 +14,154 @@ interface ProductGridProps {
     description?: string
 }
 
-export default function ProductGrid({ products, title, description }: ProductGridProps) {
-    const [showFilters, setShowFilters] = useState(false)
-    const [sortOption, setSortOption] = useState('popularity')
+const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+const PRICE_RANGES = [
+    { label: 'Under ₹500', min: 0, max: 500 },
+    { label: '₹500 – ₹1,000', min: 500, max: 1000 },
+    { label: '₹1,000 – ₹2,000', min: 1000, max: 2000 },
+    { label: '₹2,000 – ₹5,000', min: 2000, max: 5000 },
+    { label: 'Above ₹5,000', min: 5000, max: 999999 },
+]
+
+function ProductGridInner({ products, title, description }: ProductGridProps) {
+    const router = useRouter()
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
+    const [showMobileFilters, setShowMobileFilters] = useState(false)
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
     const [isCartModalOpen, setIsCartModalOpen] = useState(false)
 
-    // Basic mock sorting
-    const sortedProducts = [...products].sort((a, b) => {
-        if (sortOption === 'price-low') return a.price - b.price
-        if (sortOption === 'price-high') return b.price - a.price
-        return 0 // popularity/default
-    })
+    const activeSize = searchParams.get('size') ?? ''
+    const activeSort = searchParams.get('sort') ?? ''
+    const activeMinPrice = searchParams.get('minPrice') ?? ''
+    const activeMaxPrice = searchParams.get('maxPrice') ?? ''
+
+    const buildUrl = (updates: Record<string, string>) => {
+        const params = new URLSearchParams(searchParams.toString())
+        for (const [key, value] of Object.entries(updates)) {
+            if (value) {
+                params.set(key, value)
+            } else {
+                params.delete(key)
+            }
+        }
+        return `${pathname}?${params.toString()}`
+    }
+
+    const handleSize = (size: string) => {
+        router.replace(buildUrl({ size: activeSize === size ? '' : size }), { scroll: false })
+    }
+
+    const handleSort = (sort: string) => {
+        router.replace(buildUrl({ sort: activeSort === sort ? '' : sort }), { scroll: false })
+    }
+
+    const handlePriceRange = (min: number, max: number) => {
+        const isActive = activeMinPrice === String(min) && activeMaxPrice === String(max)
+        if (isActive) {
+            router.replace(buildUrl({ minPrice: '', maxPrice: '' }), { scroll: false })
+        } else {
+            router.replace(buildUrl({ minPrice: String(min), maxPrice: String(max) }), { scroll: false })
+        }
+    }
+
+    const clearAll = () => {
+        router.replace(pathname, { scroll: false })
+    }
+
+    const hasFilters = activeSize || activeSort || activeMinPrice || activeMaxPrice
+
+    const SidebarContent = () => (
+        <div className="sticky top-24 pr-4 border-r border-foreground/10 h-[calc(100vh-120px)] overflow-y-auto pb-10" style={{ scrollbarWidth: 'none' }}>
+            {/* Filters Header */}
+            <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2 text-foreground font-heading font-semibold text-base">
+                    <SlidersHorizontal className="w-4 h-4" />
+                    Filters
+                </div>
+                {hasFilters && (
+                    <button
+                        onClick={clearAll}
+                        className="text-xs text-foreground/40 hover:text-foreground underline underline-offset-2 transition-colors flex items-center gap-1"
+                    >
+                        <X className="w-3 h-3" /> Clear all
+                    </button>
+                )}
+            </div>
+
+            {/* Sort */}
+            <div className="mb-8">
+                <h3 className="font-heading font-semibold text-sm mb-3 uppercase tracking-widest text-foreground/60">Sort By</h3>
+                <div className="space-y-2 text-sm">
+                    {[
+                        { label: 'Default', value: '' },
+                        { label: 'Price: Low to High', value: 'asc' },
+                        { label: 'Price: High to Low', value: 'desc' },
+                    ].map((opt) => (
+                        <button
+                            key={opt.value}
+                            onClick={() => handleSort(opt.value)}
+                            className={`w-full text-left px-3 py-2 rounded-lg transition-colors text-sm ${
+                                activeSort === opt.value
+                                    ? 'bg-foreground text-background font-medium'
+                                    : 'text-foreground/70 hover:bg-brand-cream/50 hover:text-foreground'
+                            }`}
+                        >
+                            {opt.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Size Filter */}
+            <div className="mb-8">
+                <h3 className="font-heading font-semibold text-sm mb-3 uppercase tracking-widest text-foreground/60">Size</h3>
+                <div className="flex flex-wrap gap-2">
+                    {SIZES.map((size) => (
+                        <button
+                            key={size}
+                            onClick={() => handleSize(size)}
+                            className={`w-10 h-10 border rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-200 ${
+                                activeSize === size
+                                    ? 'bg-foreground text-background border-foreground shadow-sm'
+                                    : 'border-foreground/20 text-foreground/70 hover:border-foreground hover:bg-foreground/5'
+                            }`}
+                        >
+                            {size}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Price Range */}
+            <div className="mb-8">
+                <h3 className="font-heading font-semibold text-sm mb-3 uppercase tracking-widest text-foreground/60">Price Range</h3>
+                <div className="space-y-2">
+                    {PRICE_RANGES.map((range) => {
+                        const isActive = activeMinPrice === String(range.min) && activeMaxPrice === String(range.max)
+                        return (
+                            <button
+                                key={range.label}
+                                onClick={() => handlePriceRange(range.min, range.max)}
+                                className={`w-full text-left px-3 py-2 rounded-lg transition-colors text-sm ${
+                                    isActive
+                                        ? 'bg-foreground text-background font-medium'
+                                        : 'text-foreground/70 hover:bg-brand-cream/50 hover:text-foreground'
+                                }`}
+                            >
+                                {range.label}
+                            </button>
+                        )
+                    })}
+                </div>
+            </div>
+        </div>
+    )
 
     return (
         <div className="py-24 bg-background min-h-screen">
             <div className="container-custom">
+                {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -40,86 +173,47 @@ export default function ProductGrid({ products, title, description }: ProductGri
                         {description && <p className="text-foreground/70 max-w-2xl">{description}</p>}
                     </motion.div>
 
-                    <div className="flex items-center gap-4 border-t md:border-t-0 pt-4 md:pt-0 border-foreground/10">
-                        <button
-                            onClick={() => setShowFilters(!showFilters)}
-                            className="flex items-center gap-2 px-4 py-2 border border-foreground/20 rounded-full hover:bg-brand-cream/50 transition-colors md:hidden text-sm"
-                        >
-                            <Filter className="w-4 h-4" /> Filters
-                        </button>
-
-                        <div className="relative group">
-                            <button className="flex items-center gap-2 px-4 py-2 border border-foreground/20 rounded-full hover:bg-brand-cream/50 transition-colors text-sm">
-                                Sort by: {sortOption === 'popularity' ? 'Popularity' : sortOption === 'price-low' ? 'Price: Low to High' : 'Price: High to Low'} <ChevronDown className="w-4 h-4" />
-                            </button>
-                            <div className="absolute right-0 top-full mt-2 w-48 bg-white shadow-xl rounded-xl border border-foreground/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 overflow-hidden transform origin-top-right group-hover:scale-100 scale-95">
-                                <button onClick={() => setSortOption('popularity')} className="block w-full text-left px-4 py-3 hover:bg-brand-cream/30 text-sm transition-colors">Popularity</button>
-                                <button onClick={() => setSortOption('price-low')} className="block w-full text-left px-4 py-3 hover:bg-brand-cream/30 text-sm transition-colors">Price: Low to High</button>
-                                <button onClick={() => setSortOption('price-high')} className="block w-full text-left px-4 py-3 hover:bg-brand-cream/30 text-sm transition-colors">Price: High to Low</button>
-                            </div>
-                        </div>
-                    </div>
+                    {/* Mobile filter toggle */}
+                    <button
+                        onClick={() => setShowMobileFilters(!showMobileFilters)}
+                        className="flex items-center gap-2 px-4 py-2 border border-foreground/20 rounded-full hover:bg-brand-cream/50 transition-colors md:hidden text-sm self-start"
+                    >
+                        <SlidersHorizontal className="w-4 h-4" />
+                        {hasFilters ? 'Filters (active)' : 'Filters'}
+                    </button>
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-8">
-                    {/* Sidebar Filters */}
+                    {/* Sidebar – desktop always visible, mobile toggled */}
                     <motion.aside
                         initial={false}
-                        animate={{ height: showFilters ? 'auto' : 0, opacity: showFilters ? 1 : 0 }}
-                        className={`md:w-64 shrink-0 overflow-hidden md:!h-auto md:!opacity-100 uppercase tracking-wider text-sm`}
+                        animate={{
+                            height: showMobileFilters ? 'auto' : undefined,
+                            opacity: showMobileFilters ? 1 : undefined,
+                        }}
+                        className="md:w-60 shrink-0 md:block"
+                        style={{
+                            display: typeof window !== 'undefined' && window.innerWidth < 768 && !showMobileFilters ? 'none' : undefined,
+                        }}
                     >
-                        <div className="sticky top-24 pr-4 border-r border-foreground/10 h-[calc(100vh-120px)] overflow-y-auto hidden-scrollbar pb-10">
-                            <div className="mb-8">
-                                <h3 className="font-heading font-semibold text-base mb-4 tracking-normal">Categories</h3>
-                                <ul className="space-y-3 text-foreground/70">
-                                    <li className="cursor-pointer hover:text-brand-beige transition-colors flex items-center gap-2">
-                                        <input type="checkbox" className="accent-foreground w-4 h-4 rounded-sm border-foreground/20" /> All {title}
-                                    </li>
-                                    <li className="cursor-pointer hover:text-brand-beige transition-colors flex items-center gap-2">
-                                        <input type="checkbox" className="accent-foreground w-4 h-4 rounded-sm border-foreground/20" /> Oversized T-Shirts
-                                    </li>
-                                    <li className="cursor-pointer hover:text-brand-beige transition-colors flex items-center gap-2">
-                                        <input type="checkbox" className="accent-foreground w-4 h-4 rounded-sm border-foreground/20" /> Slim Fit
-                                    </li>
-                                    <li className="cursor-pointer hover:text-brand-beige transition-colors flex items-center gap-2">
-                                        <input type="checkbox" className="accent-foreground w-4 h-4 rounded-sm border-foreground/20" /> Printed
-                                    </li>
-                                    <li className="cursor-pointer hover:text-brand-beige transition-colors flex items-center gap-2">
-                                        <input type="checkbox" className="accent-foreground w-4 h-4 rounded-sm border-foreground/20" /> Casual Wear
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <div className="mb-8">
-                                <h3 className="font-heading font-semibold text-base mb-4 tracking-normal">Size</h3>
-                                <div className="flex flex-wrap gap-2">
-                                    {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(size => (
-                                        <button key={size} className="w-10 h-10 border border-foreground/20 rounded-full flex items-center justify-center hover:border-foreground transition-colors hover:bg-foreground hover:text-background">
-                                            {size}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="mb-8">
-                                <h3 className="font-heading font-semibold text-base mb-4 tracking-normal">Price Range</h3>
-                                <input type="range" min="0" max="10000" className="w-full accent-foreground" />
-                                <div className="flex justify-between mt-2 text-foreground/50">
-                                    <span>₹0</span>
-                                    <span>₹10,000+</span>
-                                </div>
-                            </div>
+                        {/* Mobile: show inline panel */}
+                        <div className="md:hidden mb-6 bg-white rounded-2xl p-4 border border-foreground/10 shadow-sm">
+                            <SidebarContent />
+                        </div>
+                        {/* Desktop: sticky sidebar */}
+                        <div className="hidden md:block">
+                            <SidebarContent />
                         </div>
                     </motion.aside>
 
                     {/* Product Grid */}
                     <div className="flex-1">
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                            {sortedProducts.map((product, index) => (
-                                <ProductCard 
-                                    key={product.id} 
-                                    product={product} 
-                                    index={index % 6} 
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                            {products.map((product, index) => (
+                                <ProductCard
+                                    key={product.id}
+                                    product={product}
+                                    index={index % 6}
                                     onOpenQuickView={(p) => {
                                         setSelectedProduct(p)
                                         setIsCartModalOpen(true)
@@ -127,7 +221,7 @@ export default function ProductGrid({ products, title, description }: ProductGri
                                 />
                             ))}
                         </div>
-                        {sortedProducts.length === 0 && (
+                        {products.length === 0 && (
                             <div className="py-20 text-center text-foreground/50">
                                 <p>No products found matching your criteria.</p>
                             </div>
@@ -138,12 +232,20 @@ export default function ProductGrid({ products, title, description }: ProductGri
 
             {/* Quick View Modal */}
             {selectedProduct && (
-                <ProductQuickView 
-                    product={selectedProduct} 
-                    isOpen={isCartModalOpen} 
-                    onClose={() => setIsCartModalOpen(false)} 
+                <ProductQuickView
+                    product={selectedProduct}
+                    isOpen={isCartModalOpen}
+                    onClose={() => setIsCartModalOpen(false)}
                 />
             )}
         </div>
+    )
+}
+
+export default function ProductGrid(props: ProductGridProps) {
+    return (
+        <Suspense fallback={<div className="py-24 min-h-screen bg-background" />}>
+            <ProductGridInner {...props} />
+        </Suspense>
     )
 }

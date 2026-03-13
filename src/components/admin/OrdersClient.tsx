@@ -45,6 +45,7 @@ export default function OrdersClient({
 }) {
   const [orders, setOrders] = useState(initialOrders);
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     // Optimistic update
@@ -65,10 +66,16 @@ export default function OrdersClient({
     }
   };
 
-  const filteredOrders = orders.filter(order => 
-    order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.user?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredOrders = orders.filter(order => {
+    const matchesSearch = 
+      order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.user?.email?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = !statusFilter || order.status.toLowerCase() === statusFilter.toLowerCase();
+    
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div className="space-y-6">
@@ -123,14 +130,18 @@ export default function OrdersClient({
           />
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
-          <select className="px-4 py-2 bg-brand-cream/10 border border-brand-beige/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-beige">
-            <option>All Statuses</option>
-            <option>Pending</option>
-            <option>Paid</option>
-            <option>Processing</option>
-            <option>Shipped</option>
-            <option>Delivered</option>
-            <option>Cancelled</option>
+          <select 
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-4 py-2 bg-brand-cream/10 border border-brand-beige/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-beige"
+          >
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+            <option value="processing">Processing</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
           </select>
         </div>
       </div>
@@ -149,7 +160,13 @@ export default function OrdersClient({
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.map((order, index) => (
+              {filteredOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-16 text-foreground/40 text-sm">
+                    No orders found matching your search.
+                  </td>
+                </tr>
+              ) : filteredOrders.map((order, index) => (
                 <motion.tr 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
