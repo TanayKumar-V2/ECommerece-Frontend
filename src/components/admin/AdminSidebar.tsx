@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { LayoutDashboard, Package, ShoppingBag, BarChart3, Settings, LogOut, Menu, X } from 'lucide-react'
+import { LayoutDashboard, Package, ShoppingBag, BarChart3, Settings, LogOut, Menu, X, MessageSquare } from 'lucide-react'
 
 export default function AdminSidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (val: boolean) => void }) {
     const pathname = usePathname()
@@ -12,7 +12,8 @@ export default function AdminSidebar({ isOpen, setIsOpen }: { isOpen: boolean, s
         { title: 'Dashboard', href: '/admin', icon: LayoutDashboard },
         { title: 'Products', href: '/admin/products', icon: Package },
         { title: 'Orders', href: '/admin/orders', icon: ShoppingBag },
-        { title: 'Analytics', href: '/admin/analytics', icon: BarChart3 }
+        { title: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
+        { title: 'Contacts', href: '/admin/contacts', icon: MessageSquare },
     ]
 
     return (

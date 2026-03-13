@@ -40,6 +40,7 @@ export default function Navbar() {
         { name: 'Men', path: '/men' },
         { name: 'Women', path: '/women' },
         { name: 'About', path: '/about' },
+        { name: 'Contact', path: '/contact' },
     ]
 
     const isActive = (path: string) => pathname === path
