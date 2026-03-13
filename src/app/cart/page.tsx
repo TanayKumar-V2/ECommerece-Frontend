@@ -16,7 +16,7 @@ export default function CartPage() {
     useEffect(() => setMounted(true), [])
 
     const subtotal = mounted ? cart.reduce((acc, item) => acc + (item.price * item.quantity), 0) : 0
-    const shipping = subtotal > 2000 ? 0 : 150
+    const shipping = 0
     const total = subtotal + shipping
 
     return (
@@ -130,11 +130,8 @@ export default function CartPage() {
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Shipping</span>
-                                        <span>{shipping === 0 ? <span className="text-green-600 font-medium">Free</span> : `₹${shipping}`}</span>
+                                        <span className="text-green-600 font-medium">Free</span>
                                     </div>
-                                    {shipping > 0 && (
-                                        <p className="text-xs text-brand-beige text-right -mt-2">Free shipping on orders above ₹2,000</p>
-                                    )}
                                 </div>
 
                                 <div className="border-t border-brand-beige py-4 mb-6">
