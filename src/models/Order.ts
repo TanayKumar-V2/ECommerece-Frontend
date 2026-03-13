@@ -1,4 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import './Product';
+import './User';
 
 export interface IShippingAddress {
   name: string;
