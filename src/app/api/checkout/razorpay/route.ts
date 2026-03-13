@@ -48,7 +48,7 @@ export async function POST(req: Request) {
       });
     }
 
-    const shipping = calculatedSubtotal > 2000 ? 0 : 150;
+    const shipping = 0;
     const calculatedTotal = calculatedSubtotal + shipping;
 
     // Create Razorpay Order
