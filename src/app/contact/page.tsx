@@ -79,77 +79,13 @@ export default function ContactPage() {
 
       {/* Main Content */}
       <section className="py-20">
-        <div className="container-custom grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-          {/* Contact Info Panel */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="space-y-10"
-          >
-            <div>
-              <h2 className="text-2xl font-heading font-semibold mb-4">Contact Information</h2>
-              <p className="text-foreground/60 leading-relaxed">
-                Have a question or just want to say hello? Fill out the form and our team will get back to you within 24 hours.
-              </p>
-            </div>
-
-            <div className="space-y-6">
-              {[
-                {
-                  icon: Mail,
-                  label: "Email",
-                  value: "support@viraasat.com",
-                  href: "mailto:support@viraasat.com",
-                },
-                {
-                  icon: Phone,
-                  label: "Phone",
-                  value: "+91 98765 43210",
-                  href: "tel:+919876543210",
-                },
-                {
-                  icon: MapPin,
-                  label: "Studio",
-                  value: "Mumbai, Maharashtra, India",
-                  href: "#",
-                },
-              ].map(({ icon: Icon, label, value, href }) => (
-                <a
-                  key={label}
-                  href={href}
-                  className="flex items-start gap-4 group"
-                >
-                  <div className="p-3 rounded-2xl bg-brand-cream border border-brand-beige/30 group-hover:bg-brand-beige/30 transition-colors shrink-0">
-                    <Icon className="w-5 h-5 text-foreground/70" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-foreground/40 uppercase tracking-widest mb-0.5">{label}</p>
-                    <p className="text-foreground font-medium group-hover:text-brand-beige transition-colors">{value}</p>
-                  </div>
-                </a>
-              ))}
-            </div>
-
-            {/* Decorative card */}
-            <div className="bg-gradient-to-br from-brand-beige/40 to-brand-cream/60 border border-brand-beige/30 rounded-3xl p-8">
-              <p className="text-sm text-foreground/50 uppercase tracking-widest font-semibold mb-2">Business Hours</p>
-              <p className="font-heading text-xl font-medium mb-1">Monday – Saturday</p>
-              <p className="text-foreground/60">10:00 AM – 7:00 PM IST</p>
-              <div className="mt-4 pt-4 border-t border-brand-beige/30">
-                <p className="text-sm text-foreground/60">
-                  We typically respond to all queries within <span className="font-semibold text-foreground">24 hours</span>.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-
+        <div className="container-custom max-w-3xl mx-auto">
           {/* Contact Form */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="bg-white rounded-[2rem] shadow-xl border border-foreground/5 p-8 md:p-10"
+            className="bg-white rounded-[2rem] shadow-xl border border-foreground/5 p-8 md:p-12"
           >
             {status === "success" ? (
               <motion.div
@@ -172,7 +108,7 @@ export default function ContactPage() {
                 </button>
               </motion.div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-8">
                 <div>
                   <h2 className="text-2xl font-heading font-semibold mb-2">Send a Message</h2>
                   <p className="text-foreground/50 text-sm">All fields are required.</p>
@@ -185,7 +121,7 @@ export default function ContactPage() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-xs uppercase tracking-widest text-foreground/40 font-semibold mb-2">
                       Full Name
@@ -197,7 +133,7 @@ export default function ContactPage() {
                       required
                       value={form.name}
                       onChange={handleChange}
-                      placeholder="Tanay Kumar"
+                      placeholder="Name"
                       className="w-full px-4 py-3 rounded-xl border border-foreground/15 bg-brand-cream/20 focus:outline-none focus:ring-2 focus:ring-brand-beige/60 focus:border-transparent placeholder:text-foreground/30 text-sm transition-all"
                     />
                   </div>
@@ -229,7 +165,7 @@ export default function ContactPage() {
                     required
                     value={form.phone}
                     onChange={handleChange}
-                    placeholder="+91 98765 43210"
+                    placeholder="Phone Number"
                     className="w-full px-4 py-3 rounded-xl border border-foreground/15 bg-brand-cream/20 focus:outline-none focus:ring-2 focus:ring-brand-beige/60 focus:border-transparent placeholder:text-foreground/30 text-sm transition-all"
                   />
                 </div>
