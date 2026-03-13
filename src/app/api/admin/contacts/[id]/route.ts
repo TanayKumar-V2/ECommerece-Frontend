@@ -4,15 +4,16 @@ import ContactMessage from '@/models/ContactMessage';
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     await dbConnect();
     const { status } = await req.json();
     if (!['new', 'read', 'resolved'].includes(status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
     }
-    await ContactMessage.findByIdAndUpdate(params.id, { status });
+    await ContactMessage.findByIdAndUpdate(resolvedParams.id, { status });
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error('Contact status update error:', err);
