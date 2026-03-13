@@ -3,8 +3,43 @@
 import Navbar from '@/components/Navbar'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useState, FormEvent } from 'react'
+import { signIn } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
+    const router = useRouter()
+
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [error, setError] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
+
+    async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+        e.preventDefault()
+        setError('')
+        setIsLoading(true)
+
+        try {
+            const result = await signIn('credentials', {
+                redirect: false,
+                email: email.trim(),
+                password,
+            })
+
+            if (result?.error) {
+                setError(result.error)
+            } else {
+                router.push('/')
+                router.refresh()
+            }
+        } catch {
+            setError('Something went wrong. Please try again.')
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
     return (
         <main className="min-h-screen bg-brand-cream/20 flex flex-col relative overflow-hidden">
             <Navbar />
@@ -35,12 +70,16 @@ export default function LoginPage() {
                         <p className="text-foreground/60 text-sm">Please enter your details to sign in.</p>
                     </div>
 
-                    <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+                    <form className="space-y-5" onSubmit={handleSubmit}>
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-foreground/80 pl-1">Email</label>
                             <input
                                 type="email"
                                 placeholder="Enter your email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                                disabled={isLoading}
                                 className="w-full px-5 py-4 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-beige focus:border-transparent transition-all placeholder:text-foreground/30"
                             />
                         </div>
@@ -50,9 +89,18 @@ export default function LoginPage() {
                             <input
                                 type="password"
                                 placeholder="••••••••"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                disabled={isLoading}
                                 className="w-full px-5 py-4 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-beige focus:border-transparent transition-all placeholder:text-foreground/30"
                             />
                         </div>
+
+                        {/* Error Message */}
+                        {error && (
+                            <p className="text-red-500 text-sm text-center px-1">{error}</p>
+                        )}
 
                         <div className="flex items-center justify-between text-sm px-1">
                             <label className="flex items-center gap-2 cursor-pointer group">
@@ -62,8 +110,12 @@ export default function LoginPage() {
                             <a href="#" className="font-medium text-brand-beige hover:text-foreground transition-colors">Forgot password?</a>
                         </div>
 
-                        <button className="w-full bg-foreground text-background py-4 rounded-2xl font-medium hover:bg-foreground/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform tracking-wide mt-2">
-                            Sign In
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full bg-foreground text-background py-4 rounded-2xl font-medium hover:bg-foreground/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform tracking-wide mt-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                        >
+                            {isLoading ? 'Signing in…' : 'Sign In'}
                         </button>
                     </form>
 
@@ -77,7 +129,12 @@ export default function LoginPage() {
                             </div>
                         </div>
 
-                        <button className="mt-6 w-full bg-white border border-brand-beige/50 text-foreground py-4 rounded-2xl font-medium hover:bg-brand-cream/20 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-md">
+                        <button 
+                            type="button"
+                            onClick={() => signIn('google', { callbackUrl: '/' })}
+                            disabled={isLoading}
+                            className="mt-6 w-full bg-white border border-brand-beige/50 text-foreground py-4 rounded-2xl font-medium hover:bg-brand-cream/20 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M23.745 12.27C23.745 11.42 23.665 10.6 23.525 9.81H12.255V14.47H18.705C18.425 15.96 17.585 17.26 16.295 18.12V21.16H20.185C22.455 19.06 23.745 15.95 23.745 12.27Z" fill="#4285F4" />
                                 <path d="M12.2549 24C15.4849 24 18.2049 22.93 20.1849 21.16L16.2949 18.12C15.2249 18.84 13.8449 19.27 12.2549 19.27C9.1749 19.27 6.5649 17.18 5.6149 14.39H1.6149V17.49C3.5749 21.37 7.5849 24 12.2549 24Z" fill="#34A853" />

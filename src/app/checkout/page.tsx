@@ -6,13 +6,22 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useStore } from '@/store/useStore'
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import Script from 'next/script'
 
-const InputField = ({ label, type = "text", placeholder }: { label: string, type?: string, placeholder?: string }) => (
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
+const InputField = ({ label, type = "text", placeholder, value, onChange }: { label: string, type?: string, placeholder?: string, value?: string, onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void }) => (
     <div className="flex flex-col gap-2">
         <label className="text-sm font-medium text-foreground/80">{label}</label>
         <input
             type={type}
             placeholder={placeholder}
+            value={value}
+            onChange={onChange}
             required
             className="px-4 py-3 bg-white border border-foreground/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige focus:border-transparent transition-all"
         />
@@ -24,10 +33,21 @@ import OrderSuccess from '@/components/checkout/OrderSuccess'
 import PageTransition from '@/components/PageTransition'
 
 export default function CheckoutPage() {
-    const { cart } = useStore()
+    const { cart, clearCart } = useStore()
     const router = useRouter()
     const [mounted, setMounted] = useState(false)
     const [isProcessing, setIsProcessing] = useState(false)
+    const [isSuccess, setIsSuccess] = useState(false)
+
+    // Form State
+    const [email, setEmail] = useState('')
+    const [firstName, setFirstName] = useState('')
+    const [lastName, setLastName] = useState('')
+    const [address, setAddress] = useState('')
+    const [city, setCity] = useState('')
+    const [state, setState] = useState('')
+    const [pincode, setPincode] = useState('')
+    const [phone, setPhone] = useState('')
 
     useEffect(() => setMounted(true), [])
 
@@ -35,9 +55,83 @@ export default function CheckoutPage() {
     const shipping = subtotal > 2000 ? 0 : 150
     const total = subtotal + shipping
 
-    const handlePayment = (e: React.FormEvent) => {
+    const handlePayment = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (cart.length === 0) return;
         setIsProcessing(true)
+
+        try {
+            // 1. Create Order on Server
+            const orderRes = await fetch('/api/checkout/razorpay', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    items: cart,
+                    shippingAddress: { email, firstName, lastName, address, city, state, pincode, phone }
+                })
+            });
+            const orderData = await orderRes.json();
+
+            if (!orderRes.ok) throw new Error(orderData.error);
+
+            // 2. Initialize Razorpay Modal
+            const options = {
+                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Use public key from env
+                amount: orderData.amount,
+                currency: orderData.currency,
+                name: "Viraasat",
+                description: "Order Payment",
+                order_id: orderData.order_id,
+                handler: async function (response: any) {
+                    try {
+                        // 3. Verify Payment
+                        const verifyRes = await fetch('/api/checkout/verify', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_signature: response.razorpay_signature,
+                                mongo_order_id: orderData.mongo_order_id
+                            })
+                        });
+
+                        const verifyData = await verifyRes.json();
+                        if (verifyRes.ok) {
+                            setIsSuccess(true);
+                            clearCart();
+                        } else {
+                            throw new Error(verifyData.error || "Payment verification failed");
+                        }
+                    } catch (err) {
+                        console.error('Verification error:', err);
+                        alert("Payment verification failed. Please contact support.");
+                    } finally {
+                        setIsProcessing(false);
+                    }
+                },
+                prefill: {
+                    name: `${firstName} ${lastName}`,
+                    email: email,
+                    contact: phone
+                },
+                theme: {
+                    color: "#0F0F0F" // Brand foreground color
+                }
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.on('payment.failed', function (response: any){
+                alert("Payment failed. " + response.error.description);
+                setIsProcessing(false);
+            });
+            rzp.open();
+
+        } catch (error: any) {
+            console.error('Checkout error:', error);
+            alert(`Error: ${error.message}`);
+            setIsProcessing(false);
+        }
     }
 
     const onAnimationComplete = () => {
@@ -46,6 +140,7 @@ export default function CheckoutPage() {
 
     return (
         <PageTransition>
+            <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
             <main className="min-h-screen bg-background flex flex-col relative">
             <Navbar />
             <div className="flex-1 py-24 container-custom max-w-6xl">
@@ -64,22 +159,22 @@ export default function CheckoutPage() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
                     >
-                        <form onSubmit={handlePayment} className="space-y-8 bg-white p-8 rounded-3xl shadow-sm border border-foreground/5 relative overflow-hidden">
+                        <form onSubmit={handlePayment} className="space-y-8 bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-foreground/5 relative overflow-hidden">
                             <div>
                                 <h3 className="text-xl font-heading mb-6 border-b border-foreground/10 pb-4">Contact Information</h3>
-                                <InputField label="Email Address" type="email" placeholder="you@example.com" />
+                                <InputField label="Email Address" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
                             </div>
 
                             <div>
                                 <h3 className="text-xl font-heading mb-6 border-b border-foreground/10 pb-4">Shipping Address</h3>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <InputField label="First Name" />
-                                    <InputField label="Last Name" />
-                                    <div className="col-span-2"><InputField label="Address" placeholder="123 Cozy Street" /></div>
-                                    <InputField label="City" />
-                                    <InputField label="State" />
-                                    <InputField label="PIN Code" />
-                                    <InputField label="Phone" type="tel" />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <InputField label="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                                    <InputField label="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                                    <div className="sm:col-span-2"><InputField label="Address" placeholder="123 Cozy Street" value={address} onChange={(e) => setAddress(e.target.value)} /></div>
+                                    <InputField label="City" value={city} onChange={(e) => setCity(e.target.value)} />
+                                    <InputField label="State" value={state} onChange={(e) => setState(e.target.value)} />
+                                    <InputField label="PIN Code" value={pincode} onChange={(e) => setPincode(e.target.value)} />
+                                    <InputField label="Phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
                                 </div>
                             </div>
 
@@ -144,7 +239,7 @@ export default function CheckoutPage() {
             <Footer />
 
             <AnimatePresence>
-                {isProcessing && <OrderSuccess onComplete={onAnimationComplete} />}
+                {isSuccess && <OrderSuccess onComplete={onAnimationComplete} />}
             </AnimatePresence>
         </main>
         </PageTransition>

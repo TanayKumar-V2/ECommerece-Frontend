@@ -39,8 +39,47 @@ const analyticsData = [
         color: "bg-purple-50 text-purple-600"
     }
 ]
+const revenueData = [
+    { name: "Jan", revenue: 4500 },
+    { name: "Feb", revenue: 5200 },
+    { name: "Mar", revenue: 4800 },
+    { name: "Apr", revenue: 6100 },
+    { name: "May", revenue: 5900 },
+    { name: "Jun", revenue: 7200 },
+    { name: "Jul", revenue: 6800 },
+    { name: "Aug", revenue: 8400 },
+    { name: "Sep", revenue: 7900 },
+    { name: "Oct", revenue: 9200 },
+    { name: "Nov", revenue: 8800 },
+    { name: "Dec", revenue: 10500 },
+];
 
 export default function AdminDashboard() {
+    const handleDownloadReport = () => {
+        const headers = ["Title", "Value", "Trend", "Subtitle"];
+        const rows = analyticsData.map(item => [
+            `"${item.title}"`,
+            `"${item.value}"`,
+            `"${item.trend}"`,
+            `"${item.subtitle}"`
+        ]);
+
+        const csvContent = [
+            headers.join(","),
+            ...rows.map(row => row.join(","))
+        ].join("\n");
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `admin-report-${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <div className="space-y-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -48,7 +87,10 @@ export default function AdminDashboard() {
                     <h1 className="text-3xl font-heading font-medium text-foreground">Dashboard Overview</h1>
                     <p className="text-foreground/60 mt-1">Welcome back. Here's what's happening with Viraasat today.</p>
                 </div>
-                <button className="px-4 py-2 bg-foreground text-background rounded-full text-sm font-medium hover:bg-foreground/90 transition-colors shadow-sm inline-flex items-center gap-2">
+                <button 
+                    onClick={handleDownloadReport}
+                    className="px-4 py-2 bg-foreground text-background rounded-full text-sm font-medium hover:bg-foreground/90 transition-colors shadow-sm inline-flex items-center gap-2"
+                >
                     Download Report
                 </button>
             </div>
@@ -91,7 +133,7 @@ export default function AdminDashboard() {
                         <p className="text-sm text-foreground/60">Revenue growth over the past 12 months</p>
                     </div>
                     <div className="h-[300px] w-full">
-                        <RevenueChart />
+                        <RevenueChart data={revenueData} />
                     </div>
                 </motion.div>
 

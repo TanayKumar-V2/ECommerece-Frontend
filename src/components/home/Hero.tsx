@@ -28,7 +28,7 @@ export default function Hero() {
                         initial={{ opacity: 0, y: 40 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-                        className="text-5xl md:text-7xl lg:text-8xl font-heading font-medium tracking-tight leading-[1.1]"
+                        className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-heading font-medium tracking-tight leading-[1.1]"
                     >
                         Wear Your <br className="hidden md:block" />
                         <span className="italic text-brand-beige font-serif">Culture</span>
