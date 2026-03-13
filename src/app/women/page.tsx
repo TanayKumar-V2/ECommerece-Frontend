@@ -31,7 +31,7 @@ export default async function WomenPage({
       ? { price: -1 as const }
       : { createdAt: -1 as const };
 
-  const productsResult = await Product.find(filter).sort(sortDir).lean();
+  const productsResult = await Product.find(filter).sort(sortDir as any).lean();
 
   const womenProducts = productsResult.map((p: any) => ({
     id: p._id.toString(),
