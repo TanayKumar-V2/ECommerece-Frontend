@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import ContactMessage from '@/models/ContactMessage';
+import { revalidatePath } from 'next/cache';
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,6 +14,7 @@ export async function POST(req: NextRequest) {
     }
 
     await ContactMessage.create({ name, email, phone, query });
+    revalidatePath('/admin/contacts');
     return NextResponse.json({ success: true }, { status: 201 });
   } catch (err) {
     console.error('Contact form error:', err);

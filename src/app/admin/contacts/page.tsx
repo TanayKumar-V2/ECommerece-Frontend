@@ -2,6 +2,8 @@ import dbConnect from "@/lib/db";
 import ContactMessage from "@/models/ContactMessage";
 import ContactsClient from "@/components/admin/ContactsClient";
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminContactsPage() {
   await dbConnect();
   const raw = await ContactMessage.find({}).sort({ createdAt: -1 }).lean() as any[];
