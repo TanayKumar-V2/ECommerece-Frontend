@@ -22,6 +22,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'cdn.qikink.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'qikink-assets.s3.ap-south-1.amazonaws.com',
       }
     ],
   },
