@@ -6,12 +6,12 @@ import path from 'path';
 const QIKINK_API_KEY = process.env.QIKINK_API_KEY || '';
 const QIKINK_API_SECRET = process.env.QIKINK_API_SECRET || '';
 
-// Determine Base URL (Sandbox vs Live)
-// Default to sandbox as requested by user
+// Base URL for Qikink Auth
+const ROOT_URL = 'https://sandbox.qikink.com';
+// Base URL for Qikink API
 const QIKINK_BASE_URL = process.env.QIKINK_API_URL 
-  ? new URL(process.env.QIKINK_API_URL).origin 
-  : 'https://sandbox.qikink.com';
-
+  ? new URL(process.env.QIKINK_API_URL).origin + '/api'
+  : 'https://sandbox.qikink.com/api';
 
 export async function pushOrderToQikink(orderId: string) {
   try {
@@ -27,8 +27,8 @@ export async function pushOrderToQikink(orderId: string) {
       throw new Error(`Order ${orderId} is not paid. Status: ${order.status}`);
     }
 
-    // 1. Fetch Qikink Access Token
-    const tokenUrl = `${QIKINK_BASE_URL}/api/token`;
+    // 1. Fetch Qikink Access Token (Auth endpoint usually at /api/token)
+    const tokenUrl = `${ROOT_URL}/api/token`;
     const params = new URLSearchParams();
     params.append('ClientId', QIKINK_API_KEY);
     params.append('client_secret', QIKINK_API_SECRET);
@@ -100,7 +100,7 @@ export async function pushOrderToQikink(orderId: string) {
       console.error("Failed to write debug log:", e);
     }
 
-    const response = await fetch(`${QIKINK_BASE_URL}/api/order/create`, {
+    const response = await fetch(`${QIKINK_BASE_URL}/order/create`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -131,7 +131,7 @@ export async function pushOrderToQikink(orderId: string) {
 
   } catch (error) {
     console.error(`Failed to push order ${orderId} to Qikink:`, error);
-    // Note: We don't throw here so that the payment verification process still completes
-    return { success: false, error };
+    // CRITICAL: We throw the error so the calling verify/route.ts can catch it if needed.
+    throw error;
   }
 }
