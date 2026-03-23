@@ -1,5 +1,7 @@
 import Order from '../models/Order';
 import dbConnect from './db';
+import fs from 'fs';
+import path from 'path';
 
 const QIKINK_API_KEY = process.env.QIKINK_API_KEY || '';
 const QIKINK_API_SECRET = process.env.QIKINK_API_SECRET || '';
@@ -73,6 +75,7 @@ export async function pushOrderToQikink(orderId: string) {
         return {
           search_from_my_products: 1, // Assume SKU is linked
           quantity: item.quantity.toString(),
+          price: item.product.price.toString(),
           sku: finalSku
         };
       }),
@@ -89,6 +92,14 @@ export async function pushOrderToQikink(orderId: string) {
       }
     };
 
+    // Debug logging to file
+    try {
+      const logMsg = `\n--- ${new Date().toISOString()} ---\nOrderId: ${orderId}\nPayload: ${JSON.stringify(b2bPayload, null, 2)}\n`;
+      fs.appendFileSync(path.join(process.cwd(), 'qikink_debug.log'), logMsg);
+    } catch (e) {
+      console.error("Failed to write debug log:", e);
+    }
+
     const response = await fetch(`${QIKINK_BASE_URL}/api/order/create`, {
         method: 'POST',
         headers: {
@@ -100,6 +111,14 @@ export async function pushOrderToQikink(orderId: string) {
     });
 
     const data = await response.json();
+
+    // Debug logging response
+    try {
+      const logRes = `Response: ${JSON.stringify(data, null, 2)}\n`;
+      fs.appendFileSync(path.join(process.cwd(), 'qikink_debug.log'), logRes);
+    } catch (e) {
+      console.error("Failed to write debug log response:", e);
+    }
 
     if (!response.ok) {
         throw new Error(`Qikink API Error: ${response.status} - ${JSON.stringify(data)}`);
