@@ -36,6 +36,8 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
     sku: "",
     images: "",
     stock: "",
+    colors: "Black, White",
+    sizes: "S, M, L, XL, XXL",
   });
 
   const openAddModal = () => {
@@ -48,6 +50,8 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       sku: "",
       images: "",
       stock: "0",
+      colors: "Black, White",
+      sizes: "S, M, L, XL, XXL",
     });
     setIsModalOpen(true);
   };
@@ -62,6 +66,8 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       sku: product.qikink_sku,
       images: product.images[0] || "",
       stock: (product.stock || 0).toString(),
+      colors: product.colors?.join(", ") || "Black, White",
+      sizes: product.sizes?.join(", ") || "S, M, L, XL, XXL",
     });
     setIsModalOpen(true);
   };
@@ -339,6 +345,28 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                         onChange={(e) => setFormData({...formData, images: e.target.value})}
                         className="w-full px-4 py-2.5 bg-brand-cream/10 border border-brand-beige/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige text-sm" 
                         placeholder="https://..." 
+                      />
+                    </div>
+                    <div className="space-y-1.5 md:col-span-2">
+                      <label className="text-sm font-medium text-foreground/80 pl-1">Available Colors (comma separated)</label>
+                      <input 
+                        type="text" 
+                        required
+                        value={formData.colors}
+                        onChange={(e) => setFormData({...formData, colors: e.target.value})}
+                        className="w-full px-4 py-2.5 bg-brand-cream/10 border border-brand-beige/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige text-sm" 
+                        placeholder="White, Black, Light Baby Pink" 
+                      />
+                    </div>
+                    <div className="space-y-1.5 md:col-span-2">
+                      <label className="text-sm font-medium text-foreground/80 pl-1">Available Sizes (comma separated)</label>
+                      <input 
+                        type="text" 
+                        required
+                        value={formData.sizes}
+                        onChange={(e) => setFormData({...formData, sizes: e.target.value})}
+                        className="w-full px-4 py-2.5 bg-brand-cream/10 border border-brand-beige/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige text-sm" 
+                        placeholder="XS, S, M, L, XL" 
                       />
                     </div>
                   </div>
