@@ -49,6 +49,8 @@ export default async function WomenPage({
     image: p.images[0],
     category: (p.category.charAt(0).toUpperCase() +
       p.category.slice(1)) as "Men" | "Women" | "Unisex",
+    colors: p.colors,
+    sizes: p.sizes,
   }));
 
   return (
