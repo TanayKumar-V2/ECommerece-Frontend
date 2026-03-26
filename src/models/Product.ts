@@ -9,6 +9,12 @@ export interface IProduct extends Document {
   sizes: string[];
   colors: string[];
   qikink_sku: string;
+  qikinkFulfillmentMode?: 'catalog_design' | 'my_products';
+  qikinkDesignUrl?: string;
+  qikinkMockupUrl?: string;
+  qikinkDesignCode?: string;
+  qikinkPlacementSku?: string;
+  qikinkPrintTypeId?: number;
   stock: number;
 }
 
@@ -22,6 +28,16 @@ const ProductSchema: Schema = new Schema(
     sizes: { type: [String], required: true },
     colors: { type: [String], required: true },
     qikink_sku: { type: String, required: true },
+    qikinkFulfillmentMode: {
+      type: String,
+      enum: ['catalog_design', 'my_products'],
+      default: 'catalog_design',
+    },
+    qikinkDesignUrl: { type: String },
+    qikinkMockupUrl: { type: String },
+    qikinkDesignCode: { type: String },
+    qikinkPlacementSku: { type: String, default: 'fr' },
+    qikinkPrintTypeId: { type: Number },
     stock: { type: Number, default: 0 },
   },
   { timestamps: true }

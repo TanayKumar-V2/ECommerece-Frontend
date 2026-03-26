@@ -4,6 +4,7 @@ import './User';
 
 export interface IShippingAddress {
   name: string;
+  email: string;
   phone: string;
   addressLine1: string;
   city: string;
@@ -24,6 +25,10 @@ export interface IOrder extends Document {
   totalAmount: number;
   paymentId?: string;
   razorpayOrderId?: string;
+  qikinkOrderId?: string;
+  qikinkLastError?: string;
+  qikinkLastAttemptAt?: Date;
+  qikinkFulfilledAt?: Date;
   status: 'pending' | 'paid' | 'processing' | 'shipped';
   shippingAddress: IShippingAddress;
 }
@@ -42,6 +47,10 @@ const OrderSchema: Schema = new Schema(
     totalAmount: { type: Number, required: true },
     paymentId: { type: String },
     razorpayOrderId: { type: String, required: true },
+    qikinkOrderId: { type: String },
+    qikinkLastError: { type: String },
+    qikinkLastAttemptAt: { type: Date },
+    qikinkFulfilledAt: { type: Date },
     status: {
       type: String,
       enum: ['pending', 'paid', 'processing', 'shipped'],
@@ -49,6 +58,7 @@ const OrderSchema: Schema = new Schema(
     },
     shippingAddress: {
       name: { type: String, required: true },
+      email: { type: String, required: true },
       phone: { type: String, required: true },
       addressLine1: { type: String, required: true },
       city: { type: String, required: true },

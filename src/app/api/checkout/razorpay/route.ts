@@ -76,6 +76,7 @@ export async function POST(req: Request) {
       status: 'pending',
       shippingAddress: {
         name: `${shippingAddress.firstName} ${shippingAddress.lastName}`,
+        email: shippingAddress.email,
         phone: shippingAddress.phone,
         addressLine1: shippingAddress.address,
         city: shippingAddress.city,

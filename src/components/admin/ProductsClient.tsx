@@ -12,6 +12,7 @@ interface ProductType {
   category: string;
   price: number;
   qikink_sku: string;
+  qikinkFulfillmentMode?: "catalog_design" | "my_products";
   images: string[];
   description: string;
   sizes: string[];
@@ -34,6 +35,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
     category: "Men",
     price: "",
     sku: "",
+    qikinkFulfillmentMode: "catalog_design",
     images: "",
     stock: "",
     colors: "Black, White",
@@ -48,6 +50,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       category: "Men",
       price: "",
       sku: "",
+      qikinkFulfillmentMode: "catalog_design",
       images: "",
       stock: "0",
       colors: "Black, White",
@@ -64,6 +67,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       category: product.category.charAt(0).toUpperCase() + product.category.slice(1),
       price: product.price.toString(),
       sku: product.qikink_sku,
+      qikinkFulfillmentMode: product.qikinkFulfillmentMode || "catalog_design",
       images: product.images[0] || "",
       stock: (product.stock || 0).toString(),
       colors: product.colors?.join(", ") || "Black, White",
@@ -324,6 +328,17 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                         className="w-full px-4 py-2.5 bg-brand-cream/10 border border-brand-beige/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige text-sm" 
                         placeholder="e.g. M-JKT-001" 
                       />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-foreground/80 pl-1">Qikink Mode</label>
+                      <select
+                        value={formData.qikinkFulfillmentMode}
+                        onChange={(e) => setFormData({...formData, qikinkFulfillmentMode: e.target.value as "catalog_design" | "my_products"})}
+                        className="w-full px-4 py-2.5 bg-brand-cream/10 border border-brand-beige/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige text-sm"
+                      >
+                        <option value="catalog_design">Catalog SKU + Design</option>
+                        <option value="my_products">My Products SKU</option>
+                      </select>
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-sm font-medium text-foreground/80 pl-1">Stock Quantity</label>

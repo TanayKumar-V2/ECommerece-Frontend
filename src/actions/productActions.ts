@@ -23,6 +23,7 @@ export async function createProduct(formData: any) {
       sizes: typeof formData.sizes === 'string' ? formData.sizes.split(',').map((s: string) => s.trim()) : (formData.sizes || ["S", "M", "L", "XL", "XXL"]),
       colors: typeof formData.colors === 'string' ? formData.colors.split(',').map((c: string) => c.trim()) : (formData.colors || ["Black", "White"]),
       qikink_sku: formData.sku,
+      qikinkFulfillmentMode: formData.qikinkFulfillmentMode || "catalog_design",
       stock: Number(formData.stock) || 0,
     });
 
@@ -63,6 +64,7 @@ export async function updateProduct(id: string, formData: any) {
         sizes: typeof formData.sizes === 'string' ? formData.sizes.split(',').map((s: string) => s.trim()) : formData.sizes,
         colors: typeof formData.colors === 'string' ? formData.colors.split(',').map((c: string) => c.trim()) : formData.colors,
         qikink_sku: formData.sku,
+        qikinkFulfillmentMode: formData.qikinkFulfillmentMode || "catalog_design",
         stock: Number(formData.stock) || 0,
       },
       { new: true }
