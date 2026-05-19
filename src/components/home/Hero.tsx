@@ -49,7 +49,10 @@ export default function Hero() {
                         transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.6 }}
                         className="mt-4"
                     >
-                        <button className="px-8 py-3.5 md:py-4 bg-foreground text-background font-medium tracking-wide rounded-full hover:bg-foreground/80 transition-all hover:shadow-xl hover:-translate-y-1 transform duration-300 text-sm md:text-base">
+                        <button 
+                            onClick={() => document.getElementById('curated-categories')?.scrollIntoView({ behavior: 'smooth' })}
+                            className="px-8 py-3.5 md:py-4 bg-foreground text-background font-medium tracking-wide rounded-full hover:bg-foreground/80 transition-all hover:shadow-xl hover:-translate-y-1 transform duration-300 text-sm md:text-base"
+                        >
                             Explore Collection
                         </button>
                     </motion.div>

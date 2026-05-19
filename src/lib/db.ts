@@ -1,4 +1,14 @@
 import mongoose from 'mongoose';
+import dns from 'dns';
+
+// Force using Google DNS to bypass local SRV/DNS blocking (e.g., ECONNREFUSED querySrv)
+if (typeof dns.setServers === 'function') {
+  try {
+    dns.setServers(['8.8.8.8', '8.8.4.4']);
+  } catch (err) {
+    console.warn('Failed to set custom DNS servers:', err);
+  }
+}
 
 const MONGODB_URI = process.env.MONGODB_URI;
 

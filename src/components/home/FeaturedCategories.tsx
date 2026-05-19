@@ -9,13 +9,13 @@ const categories = [
         title: "Men's Clothing",
         image: "https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&q=80&w=800",
         link: "/men",
-        span: "md:col-span-2 md:row-span-2",
+        span: "md:col-span-2 md:row-span-1",
     },
     {
         title: "Women's Clothing",
-        image: "https://images.unsplash.com/photo-1550614000-4b95d4edfa23?auto=format&fit=crop&q=80&w=800",
+        image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=800",
         link: "/women",
-        span: "md:col-span-2 md:row-span-2",
+        span: "md:col-span-2 md:row-span-1",
     },
     {
         title: "Oversized Tees",
@@ -39,7 +39,7 @@ const categories = [
 
 export default function FeaturedCategories() {
     return (
-        <section className="py-24 bg-background">
+        <section id="curated-categories" className="py-24 bg-background">
             <div className="container-custom">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
