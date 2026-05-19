@@ -18,6 +18,11 @@ interface ProductType {
   sizes: string[];
   colors: string[];
   stock: number;
+  qikinkDesignUrl?: string;
+  qikinkMockupUrl?: string;
+  qikinkDesignCode?: string;
+  qikinkPlacementSku?: string;
+  qikinkPrintTypeId?: number;
 }
 
 export default function ProductsClient({ initialProducts }: { initialProducts: ProductType[] }) {
@@ -40,6 +45,11 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
     stock: "",
     colors: "Black, White",
     sizes: "S, M, L, XL, XXL",
+    qikinkDesignUrl: "",
+    qikinkMockupUrl: "",
+    qikinkDesignCode: "",
+    qikinkPlacementSku: "fr",
+    qikinkPrintTypeId: "1",
   });
 
   const openAddModal = () => {
@@ -55,6 +65,11 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       stock: "0",
       colors: "Black, White",
       sizes: "S, M, L, XL, XXL",
+      qikinkDesignUrl: "",
+      qikinkMockupUrl: "",
+      qikinkDesignCode: "",
+      qikinkPlacementSku: "fr",
+      qikinkPrintTypeId: "1",
     });
     setIsModalOpen(true);
   };
@@ -72,6 +87,11 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       stock: (product.stock || 0).toString(),
       colors: product.colors?.join(", ") || "Black, White",
       sizes: product.sizes?.join(", ") || "S, M, L, XL, XXL",
+      qikinkDesignUrl: product.qikinkDesignUrl || "",
+      qikinkMockupUrl: product.qikinkMockupUrl || "",
+      qikinkDesignCode: product.qikinkDesignCode || "",
+      qikinkPlacementSku: product.qikinkPlacementSku || "fr",
+      qikinkPrintTypeId: product.qikinkPrintTypeId?.toString() || "1",
     });
     setIsModalOpen(true);
   };
@@ -340,6 +360,61 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                         <option value="my_products">My Products SKU</option>
                       </select>
                     </div>
+
+                    {formData.qikinkFulfillmentMode === "catalog_design" && (
+                      <>
+                        <div className="space-y-1.5 md:col-span-2">
+                          <label className="text-sm font-medium text-foreground/80 pl-1">Qikink Design URL (High-Res Print File)</label>
+                          <input 
+                            type="text" 
+                            value={formData.qikinkDesignUrl}
+                            onChange={(e) => setFormData({...formData, qikinkDesignUrl: e.target.value})}
+                            className="w-full px-4 py-2.5 bg-brand-cream/10 border border-brand-beige/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige text-sm" 
+                            placeholder="https://... (transparent PNG)" 
+                          />
+                        </div>
+                        <div className="space-y-1.5 md:col-span-2">
+                          <label className="text-sm font-medium text-foreground/80 pl-1">Qikink Mockup URL (Optional)</label>
+                          <input 
+                            type="text" 
+                            value={formData.qikinkMockupUrl}
+                            onChange={(e) => setFormData({...formData, qikinkMockupUrl: e.target.value})}
+                            className="w-full px-4 py-2.5 bg-brand-cream/10 border border-brand-beige/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige text-sm" 
+                            placeholder="https://..." 
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-sm font-medium text-foreground/80 pl-1">Qikink Design Code (Optional)</label>
+                          <input 
+                            type="text" 
+                            value={formData.qikinkDesignCode}
+                            onChange={(e) => setFormData({...formData, qikinkDesignCode: e.target.value})}
+                            className="w-full px-4 py-2.5 bg-brand-cream/10 border border-brand-beige/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige text-sm" 
+                            placeholder="e.g. DGN-01" 
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-sm font-medium text-foreground/80 pl-1">Placement SKU</label>
+                          <input 
+                            type="text" 
+                            value={formData.qikinkPlacementSku}
+                            onChange={(e) => setFormData({...formData, qikinkPlacementSku: e.target.value})}
+                            className="w-full px-4 py-2.5 bg-brand-cream/10 border border-brand-beige/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige text-sm" 
+                            placeholder="fr (front), ba (back)" 
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-sm font-medium text-foreground/80 pl-1">Print Type ID</label>
+                          <input 
+                            type="number" 
+                            value={formData.qikinkPrintTypeId}
+                            onChange={(e) => setFormData({...formData, qikinkPrintTypeId: e.target.value})}
+                            className="w-full px-4 py-2.5 bg-brand-cream/10 border border-brand-beige/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige text-sm" 
+                            placeholder="1" 
+                          />
+                        </div>
+                      </>
+                    )}
                     <div className="space-y-1.5">
                       <label className="text-sm font-medium text-foreground/80 pl-1">Stock Quantity</label>
                       <input 

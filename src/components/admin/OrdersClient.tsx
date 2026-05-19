@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Search, Calendar, ChevronDown, PackageCheck, Clock, CheckCircle2, XCircle, Truck } from "lucide-react";
-import { updateOrderStatus } from "@/actions/orderActions";
+import { Search, Calendar, ChevronDown, PackageCheck, Clock, CheckCircle2, XCircle, Truck, Loader2, AlertCircle, RefreshCw } from "lucide-react";
+import { updateOrderStatus, retryQikinkFulfillment } from "@/actions/orderActions";
 
 interface OrderType {
   _id: string;
@@ -25,6 +25,8 @@ interface OrderType {
     phone: string;
   };
   createdAt: string;
+  qikinkLastError?: string;
+  qikinkOrderId?: string;
 }
 
 const statusStyles = {
@@ -46,6 +48,25 @@ export default function OrdersClient({
   const [orders, setOrders] = useState(initialOrders);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [retryingOrder, setRetryingOrder] = useState<string | null>(null);
+
+  const handleRetryQikink = async (orderId: string) => {
+    setRetryingOrder(orderId);
+    try {
+      const res = await retryQikinkFulfillment(orderId);
+      if (res.success) {
+        alert("Order successfully pushed to Qikink!");
+        // Optimistically clear the error in UI
+        setOrders(orders.map(o => o._id === orderId ? { ...o, qikinkLastError: undefined } : o));
+      } else {
+        alert("Retry failed: " + res.error);
+      }
+    } catch (err) {
+      alert("Something went wrong");
+    } finally {
+      setRetryingOrder(null);
+    }
+  };
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     // Optimistic update
@@ -156,13 +177,14 @@ export default function OrdersClient({
                 <th className="p-4 font-medium">Customer</th>
                 <th className="p-4 font-medium">Items</th>
                 <th className="p-4 font-medium">Total Price</th>
+                <th className="p-4 font-medium">Fulfillment</th>
                 <th className="p-4 font-medium pr-6">Status Control</th>
               </tr>
             </thead>
             <tbody>
               {filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-16 text-foreground/40 text-sm">
+                  <td colSpan={6} className="text-center py-16 text-foreground/40 text-sm">
                     No orders found matching your search.
                   </td>
                 </tr>
@@ -191,6 +213,29 @@ export default function OrdersClient({
                     </div>
                   </td>
                   <td className="p-4 text-sm font-semibold">₹{order.totalAmount.toLocaleString('en-IN')}</td>
+                  <td className="p-4">
+                    {order.qikinkLastError ? (
+                      <div className="flex flex-col items-start gap-1">
+                        <span className="flex items-center gap-1 text-[10px] font-bold bg-red-50 text-red-600 px-2 py-1 rounded-full border border-red-200">
+                          <AlertCircle className="w-3 h-3" /> Push Failed
+                        </span>
+                        <button
+                          onClick={() => handleRetryQikink(order._id)}
+                          disabled={retryingOrder === order._id}
+                          className="flex items-center gap-1 text-[10px] bg-foreground text-background px-2 py-1 rounded hover:bg-foreground/80 transition-colors disabled:opacity-50"
+                        >
+                          {retryingOrder === order._id ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+                          Retry Push
+                        </button>
+                      </div>
+                    ) : order.qikinkOrderId ? (
+                      <span className="text-[10px] font-bold bg-green-50 text-green-600 px-2 py-1 rounded-full border border-green-200">
+                        Pushed
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-foreground/40">N/A</span>
+                    )}
+                  </td>
                   <td className="p-4 pr-6">
                     <div className="relative inline-block w-32">
                       <select 

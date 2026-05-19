@@ -24,6 +24,11 @@ export async function createProduct(formData: any) {
       colors: typeof formData.colors === 'string' ? formData.colors.split(',').map((c: string) => c.trim()) : (formData.colors || ["Black", "White"]),
       qikink_sku: formData.sku,
       qikinkFulfillmentMode: formData.qikinkFulfillmentMode || "catalog_design",
+      qikinkDesignUrl: formData.qikinkDesignUrl,
+      qikinkMockupUrl: formData.qikinkMockupUrl,
+      qikinkDesignCode: formData.qikinkDesignCode,
+      qikinkPlacementSku: formData.qikinkPlacementSku,
+      qikinkPrintTypeId: formData.qikinkPrintTypeId ? Number(formData.qikinkPrintTypeId) : undefined,
       stock: Number(formData.stock) || 0,
     });
 
@@ -65,6 +70,11 @@ export async function updateProduct(id: string, formData: any) {
         colors: typeof formData.colors === 'string' ? formData.colors.split(',').map((c: string) => c.trim()) : formData.colors,
         qikink_sku: formData.sku,
         qikinkFulfillmentMode: formData.qikinkFulfillmentMode || "catalog_design",
+        qikinkDesignUrl: formData.qikinkDesignUrl,
+        qikinkMockupUrl: formData.qikinkMockupUrl,
+        qikinkDesignCode: formData.qikinkDesignCode,
+        qikinkPlacementSku: formData.qikinkPlacementSku,
+        qikinkPrintTypeId: formData.qikinkPrintTypeId ? Number(formData.qikinkPrintTypeId) : undefined,
         stock: Number(formData.stock) || 0,
       },
       { new: true }

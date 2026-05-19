@@ -30,3 +30,29 @@ export async function updateOrderStatus(orderId: string, status: string) {
     return { success: false, error: error.message };
   }
 }
+
+/**
+ * Retry pushing an order to Qikink
+ */
+export async function retryQikinkFulfillment(orderId: string) {
+  await verifyAdmin();
+  await dbConnect();
+  
+  // Dynamic import to avoid circular dependencies if any
+  const { pushOrderToQikink } = await import("@/lib/qikink");
+
+  try {
+    const result = await pushOrderToQikink(orderId);
+    
+    revalidatePath("/admin/orders");
+    
+    if (result.success) {
+      return { success: true };
+    } else {
+      return { success: false, error: (result as any).error || "Failed to push to Qikink" };
+    }
+  } catch (error: any) {
+    console.error("Error retrying Qikink push:", error);
+    return { success: false, error: error.message };
+  }
+}

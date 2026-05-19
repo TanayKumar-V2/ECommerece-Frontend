@@ -1,10 +1,12 @@
 import dbConnect from "@/lib/db";
 import ContactMessage from "@/models/ContactMessage";
 import ContactsClient from "@/components/admin/ContactsClient";
+import { verifyAdmin } from "@/lib/authUtils";
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminContactsPage() {
+  await verifyAdmin();
   await dbConnect();
   const raw = await ContactMessage.find({}).sort({ createdAt: -1 }).lean() as any[];
   const messages = raw.map((m: any) => ({

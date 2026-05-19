@@ -2,41 +2,12 @@
 
 import Image from 'next/image'
 
-const topProducts = [
-    {
-        id: "vr-001",
-        name: "Cyberpunk Oversized Tee",
-        image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?fit=crop&w=400&q=80",
-        sales: 58,
-        revenue: 86942
-    },
-    {
-        id: "vr-002",
-        name: "Street Ninja Cargo Pants",
-        image: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?fit=crop&w=400&q=80",
-        sales: 41,
-        revenue: 102459
-    },
-    {
-        id: "vr-003",
-        name: "Glitch Art Hoodie",
-        image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?fit=crop&w=400&q=80",
-        sales: 36,
-        revenue: 93564
-    },
-    {
-        id: "vr-004",
-        name: "Minimalist Beige Turtle",
-        image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?fit=crop&w=400&q=80",
-        sales: 29,
-        revenue: 43471
-    }
-]
+export default function TopProducts({ products }: { products?: any[] }) {
+    if (!products || products.length === 0) return <div className="text-sm text-foreground/50">No products found.</div>;
 
-export default function TopProducts() {
     return (
         <div className="flex flex-col gap-4">
-            {topProducts.map((product) => (
+            {products.map((product) => (
                 <div 
                     key={product.id} 
                     className="flex items-center gap-4 p-3 rounded-2xl hover:bg-brand-cream/30 transition-colors group cursor-pointer border border-transparent hover:border-foreground/5"
