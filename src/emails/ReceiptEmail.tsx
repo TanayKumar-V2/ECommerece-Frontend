@@ -48,8 +48,11 @@ export default function ReceiptEmail({
   totalAmount,
   shippingAddress,
 }: ReceiptEmailProps) {
-  const displayId = orderId.slice(-8).toUpperCase();
+  const displayId = `570176_${orderId.slice(-10)}`;
   const formattedTotal = `₹${totalAmount.toLocaleString('en-IN')}`;
+  const itemsText = items.length === 1
+    ? `your "${items[0].title}" is`
+    : 'your items are';
 
   return (
     <Html>
@@ -73,8 +76,7 @@ export default function ReceiptEmail({
           <Section style={contentSection}>
             <Text style={greeting}>Hi {customerName},</Text>
             <Text style={bodyText}>
-              Thank you for your order! We&apos;ve received your payment and your
-              kurta is already being prepared with care. You&apos;ll receive a
+              Thank you for your order! We&apos;ve received your payment and {itemsText} already being prepared with care. You&apos;ll receive a
               shipping notification as soon as it&apos;s dispatched.
             </Text>
           </Section>

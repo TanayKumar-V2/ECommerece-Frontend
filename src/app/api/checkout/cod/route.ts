@@ -121,7 +121,7 @@ export async function POST(req: Request) {
         await transporter.sendMail({
           from: `"Viraasat" <${process.env.GMAIL_USER}>`,
           to: user.email,
-          subject: `Your Viraasat COD order #${populatedOrder._id.toString().slice(-8).toUpperCase()} is confirmed!`,
+          subject: `Your Viraasat COD order #570176_${populatedOrder._id.toString().slice(-10)} is confirmed!`,
           html: emailHtml,
         });
 
