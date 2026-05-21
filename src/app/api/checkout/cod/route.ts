@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { Resend } from 'resend';
+import { render } from '@react-email/render';
+import { transporter } from '@/lib/nodemailer';
 import dbConnect from '@/lib/db';
 import Order from '@/models/Order';
 import Product from '@/models/Product';
@@ -8,8 +9,6 @@ import { pushOrderToQikink } from '@/lib/qikink';
 import ReceiptEmail from '@/emails/ReceiptEmail';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
-const resend = new Resend(process.env.RESEND_API_KEY || '');
 
 export async function POST(req: Request) {
   try {
@@ -110,25 +109,23 @@ export async function POST(req: Request) {
           price: item.product?.price,
         }));
 
-        const { data, error } = await resend.emails.send({
-          from: process.env.RESEND_FROM_EMAIL || 'Viraasat <onboarding@resend.dev>',
+        const emailHtml = await render(ReceiptEmail({
+          orderId: populatedOrder._id.toString(),
+          customerName: user.name ?? 'Valued Customer',
+          paymentId: 'Cash on Delivery',
+          items: emailItems,
+          totalAmount: populatedOrder.totalAmount,
+          shippingAddress: populatedOrder.shippingAddress,
+        }));
+
+        await transporter.sendMail({
+          from: `"Viraasat" <${process.env.GMAIL_USER}>`,
           to: user.email,
           subject: `Your Viraasat COD order #${populatedOrder._id.toString().slice(-8).toUpperCase()} is confirmed!`,
-          react: ReceiptEmail({
-            orderId: populatedOrder._id.toString(),
-            customerName: user.name ?? 'Valued Customer',
-            paymentId: 'Cash on Delivery',
-            items: emailItems,
-            totalAmount: populatedOrder.totalAmount,
-            shippingAddress: populatedOrder.shippingAddress,
-          }),
+          html: emailHtml,
         });
 
-        if (error) {
-          console.error("Resend API rejected the email:", error);
-        } else {
-          console.log(`Receipt email sent to ${user.email} for COD order ${populatedOrder._id}. Resend ID: ${data?.id}`);
-        }
+        console.log(`Receipt email sent to ${user.email} for COD order ${populatedOrder._id}`);
       }
     } catch (emailError) {
       console.error("Failed to send receipt email (non-fatal):", emailError);

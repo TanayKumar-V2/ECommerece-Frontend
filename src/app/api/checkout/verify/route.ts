@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { Resend } from 'resend';
+import { render } from '@react-email/render';
+import { transporter } from '@/lib/nodemailer';
 import dbConnect from '@/lib/db';
 import Order from '@/models/Order';
 import Product from '@/models/Product';
@@ -11,7 +12,6 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
-const resend = new Resend(process.env.RESEND_API_KEY || '');
 
 export async function POST(req: Request) {
   try {
@@ -107,25 +107,23 @@ export async function POST(req: Request) {
           price: item.product?.price,
         }));
 
-        const { data, error } = await resend.emails.send({
-          from: process.env.RESEND_FROM_EMAIL || 'Viraasat <onboarding@resend.dev>',
+        const emailHtml = await render(ReceiptEmail({
+          orderId: order._id.toString(),
+          customerName: user.name ?? 'Valued Customer',
+          paymentId: razorpay_payment_id,
+          items: emailItems,
+          totalAmount: order.totalAmount,
+          shippingAddress: order.shippingAddress,
+        }));
+
+        await transporter.sendMail({
+          from: `"Viraasat" <${process.env.GMAIL_USER}>`,
           to: user.email,
           subject: `Your Viraasat order #${order._id.toString().slice(-8).toUpperCase()} is confirmed!`,
-          react: ReceiptEmail({
-            orderId: order._id.toString(),
-            customerName: user.name ?? 'Valued Customer',
-            paymentId: razorpay_payment_id,
-            items: emailItems,
-            totalAmount: order.totalAmount,
-            shippingAddress: order.shippingAddress,
-          }),
+          html: emailHtml,
         });
 
-        if (error) {
-          console.error("Resend API rejected the email:", error);
-        } else {
-          console.log(`Receipt email sent to ${user.email} for order ${order._id}. Resend ID: ${data?.id}`);
-        }
+        console.log(`Receipt email sent to ${user.email} for order ${order._id}`);
       }
     } catch (emailError) {
       console.error("Failed to send receipt email (non-fatal):", emailError);
