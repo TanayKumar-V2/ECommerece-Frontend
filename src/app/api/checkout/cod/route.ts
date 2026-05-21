@@ -110,7 +110,7 @@ export async function POST(req: Request) {
           price: item.product?.price,
         }));
 
-        await resend.emails.send({
+        const { data, error } = await resend.emails.send({
           from: process.env.RESEND_FROM_EMAIL || 'Viraasat <onboarding@resend.dev>',
           to: user.email,
           subject: `Your Viraasat COD order #${populatedOrder._id.toString().slice(-8).toUpperCase()} is confirmed!`,
@@ -124,7 +124,11 @@ export async function POST(req: Request) {
           }),
         });
 
-        console.log(`Receipt email sent to ${user.email} for COD order ${populatedOrder._id}`);
+        if (error) {
+          console.error("Resend API rejected the email:", error);
+        } else {
+          console.log(`Receipt email sent to ${user.email} for COD order ${populatedOrder._id}. Resend ID: ${data?.id}`);
+        }
       }
     } catch (emailError) {
       console.error("Failed to send receipt email (non-fatal):", emailError);

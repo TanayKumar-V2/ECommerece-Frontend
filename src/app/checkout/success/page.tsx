@@ -23,8 +23,10 @@ function OrderSuccessContent() {
     const searchParams = useSearchParams()
     const id = searchParams.get('id')
     
-    // Format order ID for display
-    const displayOrderId = id ? `VR-${id.slice(-5).toUpperCase()}` : "VR-" + Math.floor(10000 + Math.random() * 90000)
+    // Qikink automatically prepends the merchant ID (570176_) to the order_number we send (last 10 chars of Mongo ID).
+    // We dynamically reconstruct exactly what is shown in the Qikink dashboard.
+    const qikinkOrderNumber = id ? `570176_${id.slice(-10)}` : "Loading...";
+    const finalOrderId = orderData?.qikinkOrderId ? qikinkOrderNumber : "VR-" + Math.floor(10000 + Math.random() * 90000);
 
     useEffect(() => {
         setMounted(true)
@@ -130,7 +132,7 @@ function OrderSuccessContent() {
                                 transition={{ duration: 1.5, delay: 1, ease: "easeInOut" }}
                                 className="absolute top-0 w-1/2 h-full bg-gradient-to-r from-transparent via-brand-beige/30 to-transparent skew-x-12"
                             />
-                            <p className="text-sm font-medium text-foreground/80">Order Number: <span className="font-heading font-semibold text-foreground ml-1">{displayOrderId}</span></p>
+                            <p className="text-sm font-medium text-foreground/80">Order Number: <span className="font-heading font-semibold text-foreground ml-1">{isLoading ? "Loading..." : finalOrderId}</span></p>
                         </motion.div>
                     </div>
 
@@ -204,11 +206,7 @@ function OrderSuccessContent() {
                                 </div>
                             </motion.button>
                             
-                            {/* Track Order Button */}
-                            <button className="w-full bg-white px-6 py-4 rounded-2xl flex items-center justify-between text-foreground hover:bg-brand-cream/10 transition-colors shadow-sm border border-foreground/10 group">
-                                <span className="font-medium font-heading">Track Order Flow</span>
-                                <ArrowRight className="w-4 h-4 text-foreground/50 group-hover:translate-x-1 group-hover:text-foreground transition-all" />
-                            </button>
+
 
                             <Link href="/" className="block w-full cursor-pointer mt-8">
                                 <button className="w-full bg-foreground text-background py-4 rounded-2xl font-medium hover:bg-foreground/90 transition-all hover:-translate-y-0.5 shadow-md">
