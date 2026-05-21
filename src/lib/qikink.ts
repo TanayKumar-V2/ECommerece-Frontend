@@ -11,14 +11,23 @@ const QIKINK_DEFAULT_DESIGN_HEIGHT = process.env.QIKINK_DEFAULT_DESIGN_HEIGHT ||
 const QIKINK_DEFAULT_FULFILLMENT_MODE =
   process.env.QIKINK_DEFAULT_FULFILLMENT_MODE === 'my_products' ? 'my_products' : 'catalog_design';
 
-// Auth and order endpoints must target the same Qikink environment.
-const QIKINK_ROOT_URL = process.env.QIKINK_API_URL
-  ? new URL(process.env.QIKINK_API_URL).origin
-  : 'https://sandbox.qikink.com';
-// Base URL for Qikink API
-const QIKINK_BASE_URL = process.env.QIKINK_API_URL 
-  ? new URL(process.env.QIKINK_API_URL).origin + '/api'
-  : 'https://sandbox.qikink.com/api';
+function getQikinkApiUrl() {
+  const envUrl = process.env.QIKINK_API_URL;
+  if (!envUrl) return 'https://sandbox.qikink.com/api';
+  
+  try {
+    const parsed = new URL(envUrl);
+    // Auto-correct qikink.com to api.qikink.com (user likely forgot the subdomain)
+    if (parsed.hostname === 'qikink.com') {
+      parsed.hostname = 'api.qikink.com';
+    }
+    return parsed.origin + '/api';
+  } catch {
+    return 'https://sandbox.qikink.com/api';
+  }
+}
+
+const QIKINK_BASE_URL = getQikinkApiUrl();
 
 type FulfillmentMode = 'catalog_design' | 'my_products';
 
@@ -185,12 +194,12 @@ export async function pushOrderToQikink(orderId: string) {
       throw new Error(`Order ${orderId} not found`);
     }
 
-    if (order.status !== 'paid') {
-      throw new Error(`Order ${orderId} is not paid. Status: ${order.status}`);
+    if (order.status !== 'paid' && order.paymentMethod !== 'cod') {
+      throw new Error(`Order ${orderId} is not paid and not COD. Status: ${order.status}`);
     }
 
-    // 1. Fetch Qikink Access Token (Auth endpoint usually at /api/token)
-    const tokenUrl = `${QIKINK_ROOT_URL}/api/token`;
+    // 1. Fetch Qikink Access Token
+    const tokenUrl = `${QIKINK_BASE_URL}/token`;
     const params = new URLSearchParams();
     params.append('ClientId', QIKINK_API_KEY);
     params.append('client_secret', QIKINK_API_SECRET);
@@ -201,7 +210,14 @@ export async function pushOrderToQikink(orderId: string) {
         body: params.toString()
     });
     
-    const tokenData = await tokenRes.json();
+    const tokenText = await tokenRes.text();
+    let tokenData;
+    try {
+        tokenData = JSON.parse(tokenText);
+    } catch (e) {
+        throw new Error(`Qikink Auth Error (Not JSON): Status ${tokenRes.status}. Response preview: ${tokenText.slice(0, 100)}`);
+    }
+    
     if (!tokenRes.ok || !tokenData.Accesstoken) {
         throw new Error(`Qikink Auth Error: ${JSON.stringify(tokenData)}`);
     }
@@ -214,8 +230,8 @@ export async function pushOrderToQikink(orderId: string) {
     const payload = {
       order_number: orderId.toString().slice(-10), // Required unique string
       qikink_shipping: "1",
-      gateway: "Prepaid",
-      total_order_value: order.totalAmount.toString(),
+      gateway: order.paymentMethod === 'cod' ? "COD" : "Prepaid",
+      total_order_value: order.paymentMethod === 'cod' ? order.totalAmount.toString() : "0", // Prevent double payment if admin accidentally switches to COD in Qikink dashboard
       line_items: buildLineItems(order),
       shipping_address: {
         first_name: order.shippingAddress.name.split(' ')[0] || 'Customer',

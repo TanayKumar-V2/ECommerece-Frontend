@@ -23,6 +23,7 @@ export interface IOrder extends Document {
   user: mongoose.Types.ObjectId;
   products: IOrderItem[];
   totalAmount: number;
+  paymentMethod: 'online' | 'cod';
   paymentId?: string;
   razorpayOrderId?: string;
   qikinkOrderId?: string;
@@ -45,8 +46,9 @@ const OrderSchema: Schema = new Schema(
       },
     ],
     totalAmount: { type: Number, required: true },
+    paymentMethod: { type: String, enum: ['online', 'cod'], default: 'online' },
     paymentId: { type: String },
-    razorpayOrderId: { type: String, required: true },
+    razorpayOrderId: { type: String },
     qikinkOrderId: { type: String },
     qikinkLastError: { type: String },
     qikinkLastAttemptAt: { type: Date },

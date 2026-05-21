@@ -72,6 +72,7 @@ export async function POST(req: Request) {
       user: userId,
       products: orderProducts,
       totalAmount: calculatedTotal,
+      paymentMethod: 'online',
       razorpayOrderId: razorpayOrder.id,
       status: 'pending',
       shippingAddress: {

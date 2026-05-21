@@ -49,6 +49,7 @@ export default function CheckoutPage() {
     const [state, setState] = useState('')
     const [pincode, setPincode] = useState('')
     const [phone, setPhone] = useState('')
+    const [paymentMethod, setPaymentMethod] = useState<'online' | 'cod'>('online')
 
     useEffect(() => setMounted(true), [])
 
@@ -62,6 +63,26 @@ export default function CheckoutPage() {
         setIsProcessing(true)
 
         try {
+            if (paymentMethod === 'cod') {
+                const orderRes = await fetch('/api/checkout/cod', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        items: cart,
+                        shippingAddress: { email, firstName, lastName, address, city, state, pincode, phone }
+                    })
+                });
+                const orderData = await orderRes.json();
+                
+                if (!orderRes.ok) throw new Error(orderData.error);
+                
+                setOrderId(orderData.order_id);
+                setIsSuccess(true);
+                clearCart();
+                setIsProcessing(false);
+                return;
+            }
+
             // 1. Create Order on Server
             const orderRes = await fetch('/api/checkout/razorpay', {
                 method: 'POST',
@@ -180,12 +201,40 @@ export default function CheckoutPage() {
                                 </div>
                             </div>
 
+                            <div>
+                                <h3 className="text-xl font-heading mb-6 border-b border-foreground/10 pb-4">Payment Method</h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div 
+                                      onClick={() => setPaymentMethod('online')}
+                                      className={`p-4 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'online' ? 'border-brand-beige bg-brand-cream/20 shadow-sm' : 'border-foreground/10 hover:border-foreground/30'}`}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${paymentMethod === 'online' ? 'border-brand-beige' : 'border-foreground/30'}`}>
+                                                {paymentMethod === 'online' && <div className="w-2 h-2 rounded-full bg-brand-beige" />}
+                                            </div>
+                                            <span className="font-medium">Pay Online</span>
+                                        </div>
+                                    </div>
+                                    <div 
+                                      onClick={() => setPaymentMethod('cod')}
+                                      className={`p-4 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'cod' ? 'border-brand-beige bg-brand-cream/20 shadow-sm' : 'border-foreground/10 hover:border-foreground/30'}`}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${paymentMethod === 'cod' ? 'border-brand-beige' : 'border-foreground/30'}`}>
+                                                {paymentMethod === 'cod' && <div className="w-2 h-2 rounded-full bg-brand-beige" />}
+                                            </div>
+                                            <span className="font-medium">Cash on Delivery</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <button
                                 type="submit"
                                 disabled={isProcessing}
                                 className="w-full bg-foreground text-background py-4 flex items-center justify-center gap-2 rounded-xl font-medium hover:bg-foreground/90 transition-all hover:shadow-lg hover:-translate-y-1 transform duration-300 disabled:opacity-70 disabled:hover:translate-y-0"
                             >
-                                {isProcessing ? 'Processing...' : `Pay Rs. ${total.toLocaleString('en-IN')}`}
+                                {isProcessing ? 'Processing...' : paymentMethod === 'cod' ? `Complete Order (COD)` : `Pay Rs. ${total.toLocaleString('en-IN')}`}
                             </button>
                         </form>
                     </motion.div>

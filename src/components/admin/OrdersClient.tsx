@@ -20,6 +20,7 @@ interface OrderType {
     color: string;
   }[];
   totalAmount: number;
+  paymentMethod?: string;
   status: string;
   shippingAddress: {
     phone: string;
@@ -212,7 +213,12 @@ export default function OrdersClient({
                       ))}
                     </div>
                   </td>
-                  <td className="p-4 text-sm font-semibold">₹{order.totalAmount.toLocaleString('en-IN')}</td>
+                  <td className="p-4">
+                    <p className="text-sm font-semibold">₹{order.totalAmount.toLocaleString('en-IN')}</p>
+                    <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wider mt-0.5">
+                      {order.paymentMethod === 'cod' ? 'COD' : 'Online'}
+                    </p>
+                  </td>
                   <td className="p-4">
                     {order.qikinkLastError ? (
                       <div className="flex flex-col items-start gap-1">
