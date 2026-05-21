@@ -41,7 +41,8 @@ function ReceiptContent() {
     const shipping = orderData ? 0 : (subtotal > 2000 ? 0 : 150)
     const total = subtotal + shipping
     
-    const displayOrderId = orderData ? `VR-${orderData._id.slice(-5).toUpperCase()}` : "VR-PREVIEW"
+    const qikinkOrderNumber = id ? `570176_${id.slice(-10)}` : "Loading...";
+    const displayOrderId = orderData?.qikinkOrderId ? qikinkOrderNumber : (orderData ? `VR-${orderData._id.slice(-5).toUpperCase()}` : "VR-PREVIEW");
     const dateStr = orderData 
         ? new Date(orderData.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
         : new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
@@ -112,6 +113,10 @@ function ReceiptContent() {
                         <div className="mt-4">
                             <p className="text-xs text-foreground/50 uppercase tracking-wider mb-1 font-medium">Date</p>
                             <p className="text-sm text-foreground/70">{dateStr}</p>
+                        </div>
+                        <div className="mt-4">
+                            <p className="text-xs text-foreground/50 uppercase tracking-wider mb-1 font-medium">Payment Method</p>
+                            <p className="text-sm text-foreground/70">{orderData?.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment (Razorpay)'}</p>
                         </div>
                     </div>
                 </div>
