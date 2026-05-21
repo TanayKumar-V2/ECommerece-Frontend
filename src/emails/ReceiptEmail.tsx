@@ -152,7 +152,7 @@ export default function ReceiptEmail({
           <Section style={footer}>
             <Text style={footerText}>
               Questions? Reply to this email or visit{' '}
-              <a href="https://viraasat.com/profile" style={footerLink}>
+              <a href="https://viraasatclothing.store/profile" style={footerLink}>
                 your account
               </a>
               .

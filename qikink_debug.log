@@ -1,0 +1,240 @@
+
+--- 2026-03-23T14:33:39.327Z ---
+OrderId: 69c14f27bc10e681f9f92d47
+Payload: {
+  "order_number": "81f9f92d47",
+  "qikink_shipping": "1",
+  "gateway": "Prepaid",
+  "total_order_value": "999",
+  "line_items": [
+    {
+      "search_from_my_products": 1,
+      "quantity": "1",
+      "sku": "UOSsMRnHs-Wh-XS"
+    }
+  ],
+  "shipping_address": {
+    "first_name": "Tanay",
+    "last_name": "Kumar",
+    "address1": "Poorvi Marg,Vasant Vihar,New Delhi-110057",
+    "phone": "07428624740",
+    "email": "user-69aeca130f42bb69ea3fd94a@viraasat.com",
+    "city": "New Delhi",
+    "zip": "110057",
+    "province": "Delhi",
+    "country_code": "IN"
+  }
+}
+Response: {
+  "error": "price  field is missing for one or more products",
+  "status_code": "400"
+}
+
+--- 2026-03-23T14:48:49.647Z ---
+OrderId: 69c15289bf65fe93ad7d1bbb
+Payload: {
+  "order_number": "93ad7d1bbb",
+  "qikink_shipping": "1",
+  "gateway": "Prepaid",
+  "total_order_value": "999",
+  "line_items": [
+    {
+      "search_from_my_products": 1,
+      "quantity": "1",
+      "price": "999",
+      "sku": "UOSsMRnHs-Wh-XS"
+    }
+  ],
+  "shipping_address": {
+    "first_name": "Tanay",
+    "last_name": "Kumar",
+    "address1": "Poorvi Marg,Vasant Vihar,New Delhi-110057",
+    "phone": "07428624740",
+    "email": "user-69aeca130f42bb69ea3fd94a@viraasat.com",
+    "city": "New Delhi",
+    "zip": "110057",
+    "province": "Delhi",
+    "country_code": "IN"
+  }
+}
+Response: {
+  "error": "Invalid SKU",
+  "status_code": "400"
+}
+
+--- 2026-03-25T16:24:09.057Z ---
+OrderId: 69c40c0c28dda0a1a61bb65e
+Payload: {
+  "order_number": "a1a61bb65e",
+  "qikink_shipping": "1",
+  "gateway": "Prepaid",
+  "total_order_value": "999",
+  "line_items": [
+    {
+      "search_from_my_products": 0,
+      "quantity": "1",
+      "print_type_id": 1,
+      "price": "999",
+      "sku": "UOSsMRnHs-Wh-XS",
+      "designs": [
+        {
+          "design_code": "Unisex-Oversized-Standard-T-Shirt-a0a265",
+          "width_inches": "10",
+          "height_inches": "12",
+          "placement_sku": "fr",
+          "design_link": "https://qikink-assets.s3.ap-south-1.amazonaws.com/clients/570176/clientProducts/31963312/images/Front_1_c_1.jpg",
+          "design_url": "https://qikink-assets.s3.ap-south-1.amazonaws.com/clients/570176/clientProducts/31963312/images/Front_1_c_1.jpg",
+          "mockup_link": "https://qikink-assets.s3.ap-south-1.amazonaws.com/clients/570176/clientProducts/31963312/images/Front_1_c_1.jpg",
+          "mockup_url": "https://qikink-assets.s3.ap-south-1.amazonaws.com/clients/570176/clientProducts/31963312/images/Front_1_c_1.jpg"
+        }
+      ]
+    }
+  ],
+  "shipping_address": {
+    "first_name": "Tanay",
+    "last_name": "Kumar",
+    "address1": "Poorvi Marg,Vasant Vihar,New Delhi-110057",
+    "phone": "07428624740",
+    "email": "tanayk726@gmail.com",
+    "city": "New Delhi",
+    "zip": "110057",
+    "province": "Delhi",
+    "country_code": "IN"
+  }
+}
+Response: {
+  "error": "Unexpected fields in designs: design_url, mockup_url",
+  "status_code": "400"
+}
+
+--- 2026-03-25T16:44:36.003Z ---
+OrderId: 69c410da28dda0a1a61bb676
+Payload: {
+  "order_number": "a1a61bb676",
+  "qikink_shipping": "1",
+  "gateway": "Prepaid",
+  "total_order_value": "999",
+  "line_items": [
+    {
+      "search_from_my_products": 0,
+      "quantity": "1",
+      "print_type_id": 1,
+      "price": "999",
+      "sku": "UOSsMRnHs-Wh-XS",
+      "designs": [
+        {
+          "design_code": "Unisex-Oversized-Sta",
+          "width_inches": "10",
+          "height_inches": "12",
+          "placement_sku": "fr",
+          "design_link": "https://qikink-assets.s3.ap-south-1.amazonaws.com/clients/570176/clientProducts/31963312/images/Front_1_c_1.jpg",
+          "mockup_link": "https://qikink-assets.s3.ap-south-1.amazonaws.com/clients/570176/clientProducts/31963312/images/Front_1_c_1.jpg"
+        }
+      ]
+    }
+  ],
+  "shipping_address": {
+    "first_name": "Tanay",
+    "last_name": "Kumar",
+    "address1": "Poorvi Marg,Vasant Vihar,New Delhi-110057",
+    "phone": "07428624740",
+    "email": "tanayk726@gmail.com",
+    "city": "New Delhi",
+    "zip": "110057",
+    "province": "Delhi",
+    "country_code": "IN"
+  }
+}
+Response: {
+  "message": "Order created successfully",
+  "order_id": 8777664,
+  "status_code": "200"
+}
+
+--- 2026-05-21T12:38:26.908Z ---
+OrderId: 6a0efcc2d7d0d99a60109701
+Payload: {
+  "order_number": "9a60109701",
+  "qikink_shipping": "1",
+  "gateway": "COD",
+  "total_order_value": "1",
+  "line_items": [
+    {
+      "search_from_my_products": 0,
+      "quantity": "1",
+      "print_type_id": 1,
+      "price": "1",
+      "sku": "UOsMRnHs-Wh-XL",
+      "designs": [
+        {
+          "design_code": "Unisex-Oversized-Cla",
+          "width_inches": "10",
+          "height_inches": "12",
+          "placement_sku": "fr",
+          "design_link": "https://drive.google.com/file/d/1wDmPfgxokezkZ8JZHcOHubM3WPB44vM-/view?usp=sharing",
+          "mockup_link": "https://drive.google.com/file/d/1wDmPfgxokezkZ8JZHcOHubM3WPB44vM-/view?usp=sharing"
+        }
+      ]
+    }
+  ],
+  "shipping_address": {
+    "first_name": "rahul",
+    "last_name": "chahar",
+    "address1": "624A/6,gali no.6,Govindpuri extension",
+    "phone": "08433492905",
+    "email": "rahul.s.chahar2004@gmail.com",
+    "city": "Delhi",
+    "zip": "110019",
+    "province": "Delhi",
+    "country_code": "IN"
+  }
+}
+Response: {
+  "message": "Order created successfully",
+  "order_id": 16251619104,
+  "status_code": "200"
+}
+
+--- 2026-05-21T12:50:07.123Z ---
+OrderId: 6a0eff7ed7d0d99a6010971b
+Payload: {
+  "order_number": "9a6010971b",
+  "qikink_shipping": "1",
+  "gateway": "COD",
+  "total_order_value": "1",
+  "line_items": [
+    {
+      "search_from_my_products": 0,
+      "quantity": "1",
+      "print_type_id": 1,
+      "price": "1",
+      "sku": "UOsMRnHs-Wh-XL",
+      "designs": [
+        {
+          "design_code": "Unisex-Oversized-Cla",
+          "width_inches": "10",
+          "height_inches": "12",
+          "placement_sku": "fr",
+          "design_link": "https://drive.google.com/file/d/1wDmPfgxokezkZ8JZHcOHubM3WPB44vM-/view?usp=sharing",
+          "mockup_link": "https://drive.google.com/file/d/1wDmPfgxokezkZ8JZHcOHubM3WPB44vM-/view?usp=sharing"
+        }
+      ]
+    }
+  ],
+  "shipping_address": {
+    "first_name": "rahul",
+    "last_name": "chahar",
+    "address1": "624A/6,gali no.6,Govindpuri extension",
+    "phone": "08433492905",
+    "email": "rahul.s.chahar2004@gmail.com",
+    "city": "Delhi",
+    "zip": "110019",
+    "province": "Delhi",
+    "country_code": "IN"
+  }
+}
+Response: {
+  "message": "Order created successfully",
+  "order_id": 16251732000,
+  "status_code": "200"
+}
