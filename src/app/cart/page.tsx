@@ -86,20 +86,20 @@ export default function CartPage() {
                                             <div className="w-full flex md:w-1/5 justify-between md:justify-center items-center mt-2 md:mt-0">
                                                 <span className="md:hidden text-sm text-foreground/60">Quantity:</span>
                                                 <div className="flex items-center gap-3 border border-foreground/20 rounded-full px-3 py-1">
-                                                    <button
-                                                        onClick={() => updateCartQuantity(item.id, item.size, item.color, Math.max(1, item.quantity - 1))}
-                                                        className="text-foreground/60 hover:text-foreground transition-colors"
-                                                        disabled={item.quantity <= 1}
-                                                    >
-                                                        <Minus className="w-4 h-4" />
-                                                    </button>
-                                                    <span className="w-4 text-center text-sm font-medium">{item.quantity}</span>
-                                                    <button
-                                                        onClick={() => updateCartQuantity(item.id, item.size, item.color, item.quantity + 1)}
-                                                        className="text-foreground/60 hover:text-foreground transition-colors"
-                                                    >
-                                                        <Plus className="w-4 h-4" />
-                                                    </button>
+                                                <button
+                                                    onClick={() => updateCartQuantity(item.id, item.size, item.color, Math.max(1, item.quantity - 1))}
+                                                    className="text-foreground/60 hover:text-foreground transition-colors p-2"
+                                                    disabled={item.quantity <= 1}
+                                                >
+                                                    <Minus className="w-5 h-5" />
+                                                </button>
+                                                <span className="w-6 text-center text-sm font-medium">{item.quantity}</span>
+                                                <button
+                                                    onClick={() => updateCartQuantity(item.id, item.size, item.color, item.quantity + 1)}
+                                                    className="text-foreground/60 hover:text-foreground transition-colors p-2"
+                                                >
+                                                    <Plus className="w-5 h-5" />
+                                                </button>
                                                 </div>
                                             </div>
 

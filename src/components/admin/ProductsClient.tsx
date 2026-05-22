@@ -251,7 +251,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     </td>
                     <td className="p-4 text-sm text-foreground/60 font-mono tracking-tighter">{product.qikink_sku}</td>
                     <td className="p-4 pr-6 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                         <button 
                           onClick={() => openEditModal(product)}
                           className="p-2 text-foreground/60 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"

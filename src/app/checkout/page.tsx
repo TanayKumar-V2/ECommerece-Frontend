@@ -23,7 +23,7 @@ const InputField = ({ label, type = "text", placeholder, value, onChange }: { la
             value={value}
             onChange={onChange}
             required
-            className="px-4 py-3 bg-white border border-foreground/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige focus:border-transparent transition-all"
+            className="px-4 py-3.5 bg-white border border-foreground/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige focus:border-transparent transition-all"
         />
     </div>
 )

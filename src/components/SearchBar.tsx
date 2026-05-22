@@ -35,8 +35,8 @@ function SearchBarInner() {
   return (
     <form
       onSubmit={handleSubmit}
-      className={`relative hidden lg:flex items-center transition-all duration-300 ${
-        isFocused ? "w-56" : "w-40"
+      className={`relative hidden md:flex items-center transition-all duration-300 ${
+        isFocused ? "w-44 lg:w-56" : "w-36 lg:w-40"
       }`}
     >
       <Search className="absolute left-3 w-3.5 h-3.5 text-foreground/40 pointer-events-none" />
@@ -64,7 +64,7 @@ function SearchBarInner() {
 
 export default function SearchBar() {
   return (
-    <Suspense fallback={<div className="w-40 hidden lg:block" />}>
+    <Suspense fallback={<div className="w-36 md:w-40 hidden md:block" />}>
       <SearchBarInner />
     </Suspense>
   );

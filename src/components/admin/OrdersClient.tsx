@@ -244,7 +244,7 @@ export default function OrdersClient({
                     )}
                   </td>
                   <td className="p-4 pr-6">
-                    <div className="relative inline-block w-32">
+                    <div className="relative inline-block w-full sm:w-32">
                       <select 
                         value={order.status.toLowerCase()}
                         onChange={(e) => handleStatusChange(order._id, e.target.value)}

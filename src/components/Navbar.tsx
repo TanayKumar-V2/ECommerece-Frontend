@@ -58,7 +58,7 @@ export default function Navbar() {
             >
                 <div className="container-custom flex items-center justify-between">
                     <div className="flex items-center gap-4 lg:hidden">
-                        <button onClick={() => setMobileMenuOpen(true)}>
+                        <button onClick={() => setMobileMenuOpen(true)} className="p-3 -ml-3">
                             <Menu className="w-6 h-6" />
                         </button>
                     </div>
@@ -89,17 +89,17 @@ export default function Navbar() {
 
                     <SearchBar />
 
-                    <div className="flex items-center gap-3 sm:gap-6 text-foreground/80">
+                    <div className="flex items-center gap-1 sm:gap-4 text-foreground/80">
                         <Link 
                             href={session ? "/profile" : "/login"} 
-                            className="flex flex-col items-center relative group hover:text-foreground transition-all duration-300"
+                            className="flex flex-col items-center relative group hover:text-foreground transition-all duration-300 p-2"
                         >
                             <User className="w-5 h-5 sm:mb-1 group-hover:scale-110 transition-transform" />
                             <span className="absolute top-full mt-1 text-[10px] items-center uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-foreground font-semibold hidden sm:block">
                                 {session ? "Profile" : "Login"}
                             </span>
                         </Link>
-                        <Link href="/wishlist" className="relative flex flex-col items-center group hover:text-foreground transition-all duration-300">
+                        <Link href="/wishlist" className="relative flex flex-col items-center group hover:text-foreground transition-all duration-300 p-2">
                             <Heart className="w-5 h-5 sm:mb-1 group-hover:scale-110 transition-transform" />
                             <span className="absolute top-full mt-1 text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-foreground font-semibold hidden sm:block">Wishlist</span>
                             {wishlistCount > 0 && (
@@ -108,7 +108,7 @@ export default function Navbar() {
                                 </span>
                             )}
                         </Link>
-                        <Link href="/cart" className="relative flex flex-col items-center group hover:text-foreground transition-all duration-300">
+                        <Link href="/cart" className="relative flex flex-col items-center group hover:text-foreground transition-all duration-300 p-2">
                             <ShoppingBag className="w-5 h-5 sm:mb-1 group-hover:scale-110 transition-transform" />
                             <span className="absolute top-full mt-1 text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-foreground font-semibold hidden sm:block">Cart</span>
                             {cartCount > 0 && (
@@ -131,7 +131,7 @@ export default function Navbar() {
                         className="fixed inset-0 z-[60] bg-background/95 backdrop-blur-sm lg:hidden flex flex-col pt-20 px-6"
                     >
                         <button
-                            className="absolute top-6 right-6"
+                            className="absolute top-6 right-6 p-3"
                             onClick={() => setMobileMenuOpen(false)}
                         >
                             <X className="w-8 h-8" />
@@ -153,7 +153,7 @@ export default function Navbar() {
                                     key={link.name}
                                     href={link.path}
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className={`border-b border-foreground/10 pb-4 transition-colors hover:text-foreground ${isActive(link.path) ? 'text-foreground font-bold' : 'text-foreground/60'}`}
+                                    className="block w-full border-b border-foreground/10 pb-4 transition-colors hover:text-foreground text-foreground/60"
                                 >
                                     {link.name}
                                 </Link>
@@ -161,7 +161,7 @@ export default function Navbar() {
                             <Link
                                 href={session ? "/profile" : "/login"}
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="border-b border-foreground/10 pb-4 transition-colors hover:text-foreground text-foreground/60"
+                                className="block w-full border-b border-foreground/10 pb-4 transition-colors hover:text-foreground text-foreground/60"
                             >
                                 {session ? "Profile" : "Login"}
                             </Link>

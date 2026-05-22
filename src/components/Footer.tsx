@@ -29,13 +29,13 @@ export default function Footer() {
                         Wear your culture. Modern fashion rooted in tradition, bringing you cozy, premium clothing for everyday life.
                     </p>
                     <div className="flex gap-4">
-                        <a href="#" className="p-2 bg-background/50 rounded-full hover:bg-brand-beige transition-colors">
+                        <a href="#" className="p-3 bg-background/50 rounded-full hover:bg-brand-beige transition-colors">
                             <Instagram className="w-5 h-5" />
                         </a>
-                        <a href="#" className="p-2 bg-background/50 rounded-full hover:bg-brand-beige transition-colors">
+                        <a href="#" className="p-3 bg-background/50 rounded-full hover:bg-brand-beige transition-colors">
                             <Twitter className="w-5 h-5" />
                         </a>
-                        <a href="#" className="p-2 bg-background/50 rounded-full hover:bg-brand-beige transition-colors">
+                        <a href="#" className="p-3 bg-background/50 rounded-full hover:bg-brand-beige transition-colors">
                             <Facebook className="w-5 h-5" />
                         </a>
                     </div>
