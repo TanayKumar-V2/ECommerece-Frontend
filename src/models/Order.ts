@@ -30,7 +30,7 @@ export interface IOrder extends Document {
   qikinkLastError?: string;
   qikinkLastAttemptAt?: Date;
   qikinkFulfilledAt?: Date;
-  status: 'pending' | 'paid' | 'processing' | 'shipped';
+  status: 'pending' | 'paid' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   shippingAddress: IShippingAddress;
 }
 
@@ -55,7 +55,7 @@ const OrderSchema: Schema = new Schema(
     qikinkFulfilledAt: { type: Date },
     status: {
       type: String,
-      enum: ['pending', 'paid', 'processing', 'shipped'],
+      enum: ['pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'],
       default: 'pending',
     },
     shippingAddress: {

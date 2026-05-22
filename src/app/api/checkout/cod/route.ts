@@ -125,7 +125,6 @@ export async function POST(req: Request) {
           html: emailHtml,
         });
 
-        console.log(`Receipt email sent to ${user.email} for COD order ${populatedOrder._id}`);
       }
     } catch (emailError) {
       console.error("Failed to send receipt email (non-fatal):", emailError);

@@ -5,14 +5,24 @@ export interface IUser extends Document {
   email: string;
   password?: string;
   role: 'admin' | 'user';
+  emailVerified: boolean;
+  verificationToken?: string;
+  verificationTokenExpiry?: Date;
+  resetPasswordToken?: string;
+  resetPasswordExpiry?: Date;
 }
 
 const UserSchema: Schema = new Schema(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String }, // optional for OAuth users
+    password: { type: String },
     role: { type: String, enum: ['admin', 'user'], default: 'user' },
+    emailVerified: { type: Boolean, default: false },
+    verificationToken: { type: String },
+    verificationTokenExpiry: { type: Date },
+    resetPasswordToken: { type: String },
+    resetPasswordExpiry: { type: Date },
   },
   { timestamps: true }
 );

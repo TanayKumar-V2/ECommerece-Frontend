@@ -30,6 +30,10 @@ export const authOptions: AuthOptions = {
           throw new Error('No account found with this email.');
         }
 
+        if (user.emailVerified === false) {
+          throw new Error('Please verify your email before signing in. Check your inbox for the verification link.');
+        }
+
         const isValid = await bcrypt.compare(credentials.password, user.password);
 
         if (!isValid) {
@@ -53,15 +57,10 @@ export const authOptions: AuthOptions = {
 
   callbacks: {
     async signIn({ user, account }) {
-      console.log('--- DBG: signIn callback start ---');
-      console.log('Provider:', account?.provider);
-      console.log('User Email:', user.email);
-
       if (account?.provider === 'google') {
         try {
           await dbConnect();
-          console.log('DB Connected');
-          
+
           const userEmail = user.email?.toLowerCase();
           if (!userEmail) {
             console.error('No email provided by Google');
@@ -69,29 +68,24 @@ export const authOptions: AuthOptions = {
           }
 
           const existingUser = await User.findOne({ email: userEmail });
-          console.log('Existing User Found:', !!existingUser);
-          
+
           if (!existingUser) {
-            console.log('Creating new Google user...');
             const newUser = await User.create({
               name: user.name || 'User',
               email: userEmail,
               role: 'user',
+              emailVerified: true,
             });
-            console.log('New User Created:', newUser._id);
             user.id = newUser._id.toString();
             (user as any).role = newUser.role;
           } else {
-            console.log('Syncing existing Google user...');
             user.id = existingUser._id.toString();
             (user as any).role = existingUser.role;
           }
-          
-          console.log('Assigned user.id:', user.id);
-          console.log('--- DBG: signIn callback success ---');
+
           return true;
         } catch (error) {
-          console.error('CRITICAL: Error during Google Sign-In DB check:', error);
+          console.error('Error during Google Sign-In DB check:', error);
           return false;
         }
       }
@@ -99,7 +93,6 @@ export const authOptions: AuthOptions = {
     },
     async jwt({ token, user }) {
       if (user) {
-        console.log('JWT Callback - User Object present:', user.id);
         token.id = user.id;
         token.role = (user as any).role;
       }
@@ -107,7 +100,6 @@ export const authOptions: AuthOptions = {
     },
     async session({ session, token }) {
       if (token && session.user) {
-        console.log('Session Callback - Token present:', token.id);
         (session.user as any).id = token.id as string;
         (session.user as any).role = token.role as string;
       }

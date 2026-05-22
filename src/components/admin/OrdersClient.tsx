@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Search, Calendar, ChevronDown, PackageCheck, Clock, CheckCircle2, XCircle, Truck, Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import { updateOrderStatus, retryQikinkFulfillment } from "@/actions/orderActions";
+import { useToastStore } from "@/store/toastStore";
 
 interface OrderType {
   _id: string;
@@ -50,20 +51,20 @@ export default function OrdersClient({
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [retryingOrder, setRetryingOrder] = useState<string | null>(null);
+  const { addToast } = useToastStore();
 
   const handleRetryQikink = async (orderId: string) => {
     setRetryingOrder(orderId);
     try {
       const res = await retryQikinkFulfillment(orderId);
       if (res.success) {
-        alert("Order successfully pushed to Qikink!");
-        // Optimistically clear the error in UI
+        addToast('success', 'Order successfully pushed to Qikink!');
         setOrders(orders.map(o => o._id === orderId ? { ...o, qikinkLastError: undefined } : o));
       } else {
-        alert("Retry failed: " + res.error);
+        addToast('error', 'Retry failed: ' + res.error);
       }
-    } catch (err) {
-      alert("Something went wrong");
+    } catch {
+      addToast('error', 'Something went wrong');
     } finally {
       setRetryingOrder(null);
     }
@@ -80,11 +81,11 @@ export default function OrdersClient({
       const res = await updateOrderStatus(orderId, newStatus);
       if (!res.success) {
         setOrders(previousOrders);
-        alert(res.error || "Failed to update status");
+        addToast('error', res.error || 'Failed to update status');
       }
-    } catch (err) {
+    } catch {
       setOrders(previousOrders);
-      alert("Something went wrong");
+      addToast('error', 'Something went wrong');
     }
   };
 

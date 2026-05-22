@@ -31,14 +31,17 @@ const InputField = ({ label, type = "text", placeholder, value, onChange }: { la
 import { useRouter } from 'next/navigation'
 import OrderSuccess from '@/components/checkout/OrderSuccess'
 import PageTransition from '@/components/PageTransition'
+import { useToastStore } from '@/store/toastStore'
 
 export default function CheckoutPage() {
-    const { cart, clearCart } = useStore()
+    const { cart, clearCart, updateCartPrices } = useStore()
+    const { addToast } = useToastStore()
     const router = useRouter()
     const [mounted, setMounted] = useState(false)
     const [isProcessing, setIsProcessing] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
     const [orderId, setOrderId] = useState<string | null>(null)
+    const [priceChanges, setPriceChanges] = useState<{ id: string; name: string; oldPrice: number; newPrice: number }[]>([])
 
     // Form State
     const [email, setEmail] = useState('')
@@ -52,6 +55,35 @@ export default function CheckoutPage() {
     const [paymentMethod, setPaymentMethod] = useState<'online' | 'cod'>('online')
 
     useEffect(() => setMounted(true), [])
+
+    useEffect(() => {
+      if (!mounted || cart.length === 0) return
+
+      const ids = [...new Set(cart.map((i) => i.id))]
+      fetch(`/api/products/prices?ids=${ids.join(',')}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (!data.prices) return
+          const changes: typeof priceChanges = []
+          for (const item of cart) {
+            const serverPrice = data.prices[item.id]
+            if (serverPrice !== undefined && serverPrice !== item.price) {
+              changes.push({
+                id: item.id,
+                name: item.name,
+                oldPrice: item.price,
+                newPrice: serverPrice,
+              })
+            }
+          }
+          if (changes.length > 0) {
+            setPriceChanges(changes)
+            addToast('info', 'Some item prices have been updated to reflect current rates.')
+            updateCartPrices(data.prices)
+          }
+        })
+        .catch(() => {})
+    }, [mounted])
 
     const subtotal = mounted ? cart.reduce((acc, item) => acc + (item.price * item.quantity), 0) : 0
     const shipping = 0
@@ -128,7 +160,7 @@ export default function CheckoutPage() {
                         }
                     } catch (err) {
                         console.error('Verification error:', err);
-                        alert("Payment verification failed. Please contact support.");
+                        addToast('error', 'Payment verification failed. Please contact support.');
                     } finally {
                         setIsProcessing(false);
                     }
@@ -145,14 +177,14 @@ export default function CheckoutPage() {
 
             const rzp = new window.Razorpay(options);
             rzp.on('payment.failed', function (response: any){
-                alert("Payment failed. " + response.error.description);
+                addToast('error', 'Payment failed. ' + response.error.description);
                 setIsProcessing(false);
             });
             rzp.open();
 
         } catch (error: any) {
             console.error('Checkout error:', error);
-            alert(`Error: ${error.message}`);
+            addToast('error', 'Error: ' + error.message);
             setIsProcessing(false);
         }
     }
@@ -163,7 +195,7 @@ export default function CheckoutPage() {
 
     return (
         <PageTransition>
-            <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
+            <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
             <main className="min-h-screen bg-background flex flex-col relative">
             <Navbar />
             <div className="flex-1 py-24 container-custom max-w-6xl">
@@ -182,6 +214,20 @@ export default function CheckoutPage() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
                     >
+                        {priceChanges.length > 0 && (
+                          <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl text-sm">
+                            <p className="font-semibold text-amber-800 mb-2">Prices Updated</p>
+                            <ul className="space-y-1 text-amber-700">
+                              {priceChanges.map((c) => (
+                                <li key={c.id}>
+                                  {c.name}: <span className="line-through">Rs. {c.oldPrice.toLocaleString('en-IN')}</span>
+                                  {' → '}<span className="font-semibold">Rs. {c.newPrice.toLocaleString('en-IN')}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
                         <form onSubmit={handlePayment} className="space-y-8 bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-foreground/5 relative overflow-hidden">
                             <div>
                                 <h3 className="text-xl font-heading mb-6 border-b border-foreground/10 pb-4">Contact Information</h3>

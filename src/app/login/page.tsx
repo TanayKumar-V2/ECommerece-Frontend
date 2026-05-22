@@ -3,7 +3,7 @@
 import Navbar from '@/components/Navbar'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { useState, FormEvent } from 'react'
+import { useState, FormEvent, useEffect } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
@@ -13,7 +13,17 @@ export default function LoginPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
+    const [info, setInfo] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+
+    useEffect(() => {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('verified') === 'true') {
+        setInfo('Email verified successfully! You can now sign in.')
+      } else if (params.get('verified') === 'false') {
+        setError(params.get('error') || 'Verification failed. Please try again.')
+      }
+    }, [])
 
     async function handleSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
@@ -97,9 +107,16 @@ export default function LoginPage() {
                             />
                         </div>
 
+                        {/* Info Message */}
+                        {info && (
+                            <p className="text-green-600 text-sm text-center px-1 bg-green-50 py-2 rounded-xl">{info}
+                            </p>
+                        )}
+
                         {/* Error Message */}
                         {error && (
-                            <p className="text-red-500 text-sm text-center px-1">{error}</p>
+                            <p className="text-red-500 text-sm text-center px-1">{error}
+                            </p>
                         )}
 
                         <div className="flex items-center justify-between text-sm px-1">
@@ -107,7 +124,7 @@ export default function LoginPage() {
                                 <input type="checkbox" className="accent-brand-beige w-4 h-4 rounded border-foreground/20" />
                                 <span className="text-foreground/70 group-hover:text-foreground transition-colors">Remember me</span>
                             </label>
-                            <a href="#" className="font-medium text-brand-beige hover:text-foreground transition-colors">Forgot password?</a>
+                            <Link href="/forgot-password" className="font-medium text-brand-beige hover:text-foreground transition-colors">Forgot password?</Link>
                         </div>
 
                         <button

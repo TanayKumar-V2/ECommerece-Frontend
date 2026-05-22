@@ -5,9 +5,17 @@ import { revalidatePath } from 'next/cache';
 import { render } from '@react-email/render';
 import { transporter } from '@/lib/nodemailer';
 import ContactAdminEmail from '@/emails/ContactAdminEmail';
+import { rateLimit } from '@/lib/rateLimit';
+
+const limiter = rateLimit({ windowMs: 60_000, max: 3 });
 
 export async function POST(req: NextRequest) {
   try {
+    const { passed, message, status } = limiter(req);
+    if (!passed) {
+      return NextResponse.json({ error: message }, { status });
+    }
+
     await dbConnect();
     const body = await req.json();
     const { name, email, phone, query } = body;

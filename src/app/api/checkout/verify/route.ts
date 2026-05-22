@@ -11,10 +11,14 @@ import ReceiptEmail from '@/emails/ReceiptEmail';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
-const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
-
 export async function POST(req: Request) {
   try {
+    const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
+    if (!RAZORPAY_KEY_SECRET) {
+      console.error('Missing RAZORPAY_KEY_SECRET');
+      return NextResponse.json({ error: 'Server misconfiguration: payment verification not available' }, { status: 500 });
+    }
+
     // Authentication check - verify user is logged in
     const session = await getServerSession(authOptions);
     if (!session || !session.user || !(session.user as any).id) {
@@ -123,7 +127,6 @@ export async function POST(req: Request) {
           html: emailHtml,
         });
 
-        console.log(`Receipt email sent to ${user.email} for order ${order._id}`);
       }
     } catch (emailError) {
       console.error("Failed to send receipt email (non-fatal):", emailError);

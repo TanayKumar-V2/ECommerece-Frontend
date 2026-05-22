@@ -24,6 +24,7 @@ interface AppState {
     addToCart: (item: CartItem) => void
     removeFromCart: (id: string, size: string, color: string) => void
     updateCartQuantity: (id: string, size: string, color: string, quantity: number) => void
+    updateCartPrices: (prices: Record<string, number>) => void
     toggleWishlist: (item: Product) => void
     isInWishlist: (id: string) => boolean
     addRecentlyViewed: (item: Product) => void
@@ -79,7 +80,14 @@ export const useStore = create<AppState>()(
                 set({ recentlyViewed: [item, ...filtered].slice(0, 10) })
             },
 
-            clearCart: () => set({ cart: [] })
+            clearCart: () => set({ cart: [] }),
+
+            updateCartPrices: (prices) => set((state) => ({
+              cart: state.cart.map((item) => ({
+                ...item,
+                price: prices[item.id] ?? item.price,
+              })),
+            })),
         }),
         {
             name: 'viraasat-storage',

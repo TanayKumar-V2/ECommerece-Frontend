@@ -8,9 +8,17 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function POST(req: Request) {
   try {
+    const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
+    const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (!razorpayKeyId || !razorpayKeySecret) {
+      console.error('Missing RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET');
+      return NextResponse.json({ error: 'Server misconfiguration: payment gateway not configured' }, { status: 500 });
+    }
+
     const razorpay = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID || '',
-      key_secret: process.env.RAZORPAY_KEY_SECRET || '',
+      key_id: razorpayKeyId,
+      key_secret: razorpayKeySecret,
     });
 
     const session = await getServerSession(authOptions);

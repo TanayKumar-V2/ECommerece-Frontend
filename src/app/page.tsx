@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Hero from "@/components/home/Hero";
@@ -7,6 +8,28 @@ import RecentlyViewed from "@/components/home/RecentlyViewed";
 import dbConnect from "@/lib/db";
 import Product from "@/models/Product";
 import SearchPageClient from "@/components/search/SearchPageClient";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ query?: string }>;
+}): Promise<Metadata> {
+  const resolved = await searchParams;
+  const query = resolved.query?.trim();
+
+  if (query) {
+    return {
+      title: `Search results for "${query}" | Viraasat`,
+      description: `Browse search results for "${query}" at Viraasat. Discover fashion rooted in tradition.`,
+    };
+  }
+
+  return {
+    title: "Viraasat | Wear Your Culture",
+    description:
+      "Modern fashion rooted in tradition. Premium clothing brand — discover timeless style at Viraasat.",
+  };
+}
 
 export default async function Home({
   searchParams,

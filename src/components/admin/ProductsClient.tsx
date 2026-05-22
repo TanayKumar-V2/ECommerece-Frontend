@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Search, Edit2, Trash2, Image as ImageIcon, X, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { createProduct, updateProduct, deleteProduct } from "@/actions/productActions";
+import { useToastStore } from "@/store/toastStore";
 
 interface ProductType {
   _id: string;
@@ -32,6 +33,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
   const [editingProduct, setEditingProduct] = useState<ProductType | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const { addToast } = useToastStore();
   
   // Form State
   const [formData, setFormData] = useState({
@@ -106,21 +108,22 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
         if (res.success) {
           setProducts(products.map(p => p._id === editingProduct._id ? res.product : p));
           setIsModalOpen(false);
+          addToast('success', 'Product updated successfully');
         } else {
-          alert(res.error || "Failed to update product");
+          addToast('error', res.error || 'Failed to update product');
         }
       } else {
         const res = await createProduct(formData);
         if (res.success) {
           setProducts([res.product, ...products]);
           setIsModalOpen(false);
+          addToast('success', 'Product created successfully');
         } else {
-          alert(res.error || "Failed to create product");
+          addToast('error', res.error || 'Failed to create product');
         }
       }
-    } catch (err) {
-      console.error(err);
-      alert("Something went wrong");
+    } catch {
+      addToast('error', 'Something went wrong');
     } finally {
       setIsSubmitting(false);
     }
@@ -133,12 +136,12 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       const res = await deleteProduct(id);
       if (res.success) {
         setProducts(products.filter(p => p._id !== id));
+        addToast('success', 'Product deleted successfully');
       } else {
-        alert(res.error || "Failed to delete product");
+        addToast('error', res.error || 'Failed to delete product');
       }
-    } catch (err) {
-      console.error(err);
-      alert("Something went wrong");
+    } catch {
+      addToast('error', 'Something went wrong');
     }
   };
 
