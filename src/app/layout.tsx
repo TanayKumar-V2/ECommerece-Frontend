@@ -4,6 +4,7 @@ import "./globals.css";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import { Providers } from "@/components/Providers";
 import ToastContainer from "@/components/ToastContainer";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -38,6 +39,7 @@ export default function RootLayout({
             <ToastContainer />
           </SmoothScrollProvider>
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
