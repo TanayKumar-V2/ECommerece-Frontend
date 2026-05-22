@@ -57,6 +57,18 @@ export default function CheckoutPage() {
     useEffect(() => setMounted(true), [])
 
     useEffect(() => {
+      if (!mounted || cart.length === 0 || !email) return
+      const timer = setTimeout(() => {
+        fetch('/api/cart/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, items: cart }),
+        }).catch(() => {})
+      }, 2000)
+      return () => clearTimeout(timer)
+    }, [email, mounted])
+
+    useEffect(() => {
       if (!mounted || cart.length === 0) return
 
       const ids = [...new Set(cart.map((i) => i.id))]
