@@ -18,6 +18,7 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Viraasat | Wear Your Culture",
   description: "Modern fashion rooted in tradition. Premium clothing brand.",
+  icons: [{ rel: "icon", url: "/favicon.jpeg" }],
 };
 
 export default function RootLayout({
