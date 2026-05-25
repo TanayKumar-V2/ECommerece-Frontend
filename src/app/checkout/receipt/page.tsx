@@ -37,8 +37,8 @@ function ReceiptContent() {
     
     // Fallback logic if no orderData is found (e.g. preview mode)
     const displayItems = orderData?.products || cart
-    const subtotal = orderData ? orderData.totalAmount : displayItems.reduce((acc: any, item: any) => acc + ((item.product?.price || item.price) * item.quantity), 0)
-    const shipping = orderData ? 0 : (subtotal > 2000 ? 0 : 150)
+    const shipping = 63
+    const subtotal = orderData ? orderData.totalAmount - shipping : displayItems.reduce((acc: any, item: any) => acc + ((item.product?.price || item.price) * item.quantity), 0)
     const total = subtotal + shipping
     
     const qikinkOrderNumber = id ? `570176_${id.slice(-10)}` : "Loading...";
@@ -163,7 +163,7 @@ function ReceiptContent() {
                         </div>
                         <div className="flex justify-between text-foreground/70">
                             <span>Shipping</span>
-                            <span className="font-medium text-foreground">{shipping === 0 ? "Free" : `Rs. ${shipping}`}</span>
+                            <span className="font-medium text-foreground">Rs. {shipping}</span>
                         </div>
                         <div className="flex justify-between text-foreground/70">
                             <span>Tax (Included)</span>
