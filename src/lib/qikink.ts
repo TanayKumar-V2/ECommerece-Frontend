@@ -230,7 +230,6 @@ export async function pushOrderToQikink(orderId: string) {
     const payload = {
       order_number: orderId.toString().slice(-10), // Required unique string
       qikink_shipping: "1",
-      courier_type: "Bluedart Air",
       gateway: order.paymentMethod === 'cod' ? "COD" : "Prepaid",
       total_order_value: order.paymentMethod === 'cod' ? order.totalAmount.toString() : "0", // Prevent double payment if admin accidentally switches to COD in Qikink dashboard
       line_items: buildLineItems(order),
