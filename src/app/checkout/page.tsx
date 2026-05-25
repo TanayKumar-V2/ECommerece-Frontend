@@ -331,7 +331,7 @@ export default function CheckoutPage() {
                                 </div>
                                 <div className="flex justify-between">
                                     <span>Shipping</span>
-                                    <span>{shipping === 0 ? "Free" : `Rs. ${shipping}`}</span>
+                                    <span>Rs. {shipping}</span>
                                 </div>
                             </div>
 
