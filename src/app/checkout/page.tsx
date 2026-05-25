@@ -98,7 +98,7 @@ export default function CheckoutPage() {
     }, [mounted])
 
     const subtotal = mounted ? cart.reduce((acc, item) => acc + (item.price * item.quantity), 0) : 0
-    const shipping = 0
+    const shipping = 63
     const total = subtotal + shipping
 
     const handlePayment = async (e: React.FormEvent) => {

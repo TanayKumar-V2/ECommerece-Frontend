@@ -53,7 +53,7 @@ export async function POST(req: Request) {
       });
     }
 
-    const shipping = 0;
+    const shipping = 63;
     const calculatedTotal = calculatedSubtotal + shipping;
 
     // Create MongoDB Order
