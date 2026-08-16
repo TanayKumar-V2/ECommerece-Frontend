@@ -17,7 +17,8 @@ export default async function OrdersPage() {
   // Calculate stats
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const thisWeek = new Date(now.setDate(now.getDate() - 7));
+  const thisWeek = new Date(now);
+  thisWeek.setDate(thisWeek.getDate() - 7);
   const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
   const ordersToday = await Order.countDocuments({ createdAt: { $gte: today } });

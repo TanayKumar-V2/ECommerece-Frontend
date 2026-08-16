@@ -1,18 +1,20 @@
 "use client"
 
 import { motion } from 'framer-motion'
-import { IndianRupee, ShoppingBag, Box, Users, ArrowUpRight } from 'lucide-react'
+import { IndianRupee, ShoppingBag, Box, Users, AlertCircle, ArrowRight } from 'lucide-react'
 import RevenueChart from '@/components/admin/RevenueChart'
 import TopProducts from '@/components/admin/TopProducts'
 
 export default function DashboardClient({ 
   analyticsData, 
   revenueData, 
-  topProducts 
+  topProducts,
+  attentionItems,
 }: { 
   analyticsData: any[], 
   revenueData: any[], 
-  topProducts: any[] 
+  topProducts: any[],
+  attentionItems: { id: string; label: string; detail: string; href: string; tone: 'error' | 'warning' }[],
 }) {
     const handleDownloadReport = () => {
         const headers = ["Title", "Value", "Trend", "Subtitle"];
@@ -64,6 +66,27 @@ export default function DashboardClient({
                 </button>
             </div>
 
+            <section aria-labelledby="attention-heading" className="border border-foreground/10 bg-white rounded-2xl p-5">
+                <div className="flex items-center justify-between gap-4 mb-4">
+                    <div>
+                        <h2 id="attention-heading" className="text-xl font-heading font-semibold text-foreground">Needs attention</h2>
+                        <p className="text-sm text-muted mt-1">Exceptions that need an operator decision.</p>
+                    </div>
+                    <a href="/admin/orders" className="text-sm font-medium text-foreground underline underline-offset-4">Open orders</a>
+                </div>
+                {attentionItems.length > 0 ? (
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                        {attentionItems.map((item) => (
+                            <a key={item.id} href={item.href} className={`flex items-start gap-3 rounded-xl border p-3 transition-colors hover:bg-brand-cream/20 ${item.tone === 'error' ? 'border-red-200' : 'border-amber-200'}`}>
+                                <AlertCircle className={`mt-0.5 h-4 w-4 shrink-0 ${item.tone === 'error' ? 'text-error' : 'text-warning'}`} />
+                                <span className="min-w-0"><span className="block text-sm font-semibold text-foreground">{item.label}</span><span className="block truncate text-xs text-muted mt-1">{item.detail}</span></span>
+                                <ArrowRight className="ml-auto mt-0.5 h-4 w-4 shrink-0 text-muted" />
+                            </a>
+                        ))}
+                    </div>
+                ) : <p className="rounded-xl bg-brand-cream/20 px-4 py-3 text-sm text-muted">No exceptions are waiting for review.</p>}
+            </section>
+
             {/* Analytics Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {analyticsData.map((item, index) => {
@@ -74,18 +97,18 @@ export default function DashboardClient({
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: index * 0.1 }}
-                        className="bg-white p-6 rounded-[2rem] shadow-sm border border-foreground/5 hover:shadow-md hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
+                        className="bg-white p-5 rounded-2xl shadow-sm border border-foreground/5"
                     >
                         <div className="flex justify-between items-start mb-4">
-                            <div className={`p-3 rounded-2xl ${item.color} group-hover:scale-110 transition-transform duration-300 shrink-0`}>
+                             <div className={`p-3 rounded-2xl ${item.color} shrink-0`}>
                                 <Icon className="w-6 h-6" />
                             </div>
-                            <span className="flex items-center text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full whitespace-nowrap">
-                                {item.trend} <ArrowUpRight className="w-3 h-3 ml-0.5" />
+                            <span className="text-xs font-medium text-muted bg-brand-cream/30 px-2 py-1 rounded-full whitespace-nowrap">
+                                {item.trend}
                             </span>
                         </div>
                         <h3 className="text-foreground/60 text-sm font-medium mb-1">{item.title}</h3>
-                         <p className="text-2xl md:text-3xl font-heading font-semibold text-foreground mb-1 group-hover:text-muted transition-colors truncate">{item.value}</p>
+                         <p className="text-2xl md:text-3xl font-heading font-semibold text-foreground mb-1 truncate">{item.value}</p>
                          <p className="text-xs text-muted line-clamp-1">{item.subtitle}</p>
                     </motion.div>
                 )})}
@@ -100,8 +123,8 @@ export default function DashboardClient({
                     className="lg:col-span-2 bg-white p-6 rounded-[2rem] shadow-sm border border-foreground/5"
                 >
                     <div className="mb-6">
-                        <h2 className="text-xl font-heading font-semibold text-foreground">Monthly Revenue</h2>
-                        <p className="text-sm text-foreground/60">Revenue growth over the past 12 months</p>
+                        <h2 className="text-xl font-heading font-semibold text-foreground">Year-to-date revenue</h2>
+                        <p className="text-sm text-foreground/60">Recorded revenue from January through December {new Date().getFullYear()}.</p>
                     </div>
                     <div className="h-[300px] w-full">
                         <RevenueChart data={revenueData} />

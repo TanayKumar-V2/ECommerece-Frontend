@@ -57,6 +57,20 @@ export default async function AdminDashboardPage() {
         stock: product.stock,
     }));
 
+    const attentionOrdersRaw = await Order.find({
+        $or: [
+            { qikinkLastError: { $exists: true, $nin: [null, ""] } },
+            { status: "pending" },
+        ],
+    }).sort({ createdAt: -1 }).limit(6).lean() as any[];
+    const attentionItems = attentionOrdersRaw.map((order) => ({
+        id: order._id.toString(),
+        label: order.qikinkLastError ? "Fulfillment failed" : "Payment pending",
+        detail: order.qikinkLastError || `Order #${order._id.toString().slice(-8).toUpperCase()} needs review`,
+        href: "/admin/orders",
+        tone: order.qikinkLastError ? "error" as const : "warning" as const,
+    }));
+
     const analyticsData = [
         {
             title: "Total Revenue",
@@ -93,6 +107,7 @@ export default async function AdminDashboardPage() {
             analyticsData={analyticsData} 
             revenueData={fullYearData}
             topProducts={topProducts}
+            attentionItems={attentionItems}
         />
     );
 }

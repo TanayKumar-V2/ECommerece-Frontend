@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useEffect, useRef } from 'react'
-import { Bell, Menu, Search, User, X, Check, Trash2, Clock } from 'lucide-react'
+import { Bell, Menu, Check, Trash2, Clock } from 'lucide-react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { getNotifications, markAsRead, markAllAsRead, deleteNotification } from '@/actions/notificationActions'
 import { formatDistanceToNow } from 'date-fns'
 
@@ -10,12 +11,24 @@ export default function AdminNavbar({ onMenuClick }: { onMenuClick: () => void }
     const [notifications, setNotifications] = useState<any[]>([])
     const [isNotificationOpen, setIsNotificationOpen] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [notificationError, setNotificationError] = useState('')
     const dropdownRef = useRef<HTMLDivElement>(null)
+    const { data: session } = useSession()
 
     const fetchNotifications = async () => {
-        const res = await getNotifications()
-        if (res.success) {
-            setNotifications(res.notifications)
+        setLoading(true)
+        try {
+            const res = await getNotifications()
+            if (res.success) {
+                setNotifications(res.notifications)
+                setNotificationError('')
+            } else {
+                setNotificationError('Notifications could not be loaded.')
+            }
+        } catch {
+            setNotificationError('Notifications could not be loaded.')
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -71,16 +84,7 @@ export default function AdminNavbar({ onMenuClick }: { onMenuClick: () => void }
                     <Menu className="w-5 h-5" />
                 </button>
                 
-                {/* Desktop Search */}
-                <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-brand-cream/20 border border-foreground/10 rounded-full focus-within:ring-2 focus-within:ring-brand-beige focus-within:border-transparent transition-all">
-                    <Search className="w-4 h-4 text-foreground/40" />
-                    <input 
-                        aria-label="Search admin"
-                        type="text" 
-                        placeholder="Search..." 
-                        className="bg-transparent border-none outline-none text-sm w-48 placeholder:text-foreground/40"
-                    />
-                </div>
+                <p className="hidden md:block text-sm text-muted">Operations workspace</p>
             </div>
 
             <div className="flex items-center gap-3 md:gap-4">
@@ -105,8 +109,8 @@ export default function AdminNavbar({ onMenuClick }: { onMenuClick: () => void }
                     </button>
 
                     {/* Notification Dropdown */}
-                    {isNotificationOpen && (
-                        <div className="absolute right-0 mt-2 w-80 md:w-96 bg-white border border-foreground/10 rounded-2xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                     {isNotificationOpen && (
+                         <div className="absolute right-0 mt-2 w-80 md:w-96 bg-white border border-foreground/10 rounded-2xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                             <div className="p-4 border-b border-foreground/5 flex items-center justify-between">
                                 <h3 className="font-heading font-semibold text-foreground">Notifications</h3>
                                 {unreadCount > 0 && (
@@ -119,8 +123,10 @@ export default function AdminNavbar({ onMenuClick }: { onMenuClick: () => void }
                                 )}
                             </div>
 
-                            <div className="max-h-[400px] overflow-y-auto">
-                                {notifications.length > 0 ? (
+                             <div className="max-h-[400px] overflow-y-auto">
+                                 {notificationError && <div role="alert" className="m-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">{notificationError} <button type="button" onClick={fetchNotifications} className="font-semibold underline">Retry</button></div>}
+                                 {loading && <p className="px-4 py-3 text-sm text-muted" role="status">Loading notifications…</p>}
+                                 {notifications.length > 0 ? (
                                     <div className="divide-y divide-foreground/5">
                                         {notifications.map((n) => (
                                             <div 
@@ -190,13 +196,13 @@ export default function AdminNavbar({ onMenuClick }: { onMenuClick: () => void }
                 
                 <div className="h-8 w-px bg-foreground/10 mx-1 hidden sm:block"></div>
                 
-                <div className="flex items-center gap-3 pl-1 cursor-pointer group">
+                 <div className="flex items-center gap-3 pl-1">
                     <div className="w-8 h-8 rounded-full bg-brand-beige flex items-center justify-center text-foreground font-medium group-hover:scale-105 transition-transform">
                         AD
                     </div>
                     <div className="hidden sm:block">
-                        <p className="text-sm font-medium leading-none mb-1">Admin User</p>
-                        <p className="text-xs text-foreground/50 leading-none">Store Owner</p>
+                         <p className="text-sm font-medium leading-none mb-1">{session?.user?.name || 'Admin workspace'}</p>
+                         <p className="text-xs text-foreground/50 leading-none">{session?.user?.email || 'Viraasat operations'}</p>
                     </div>
                 </div>
             </div>

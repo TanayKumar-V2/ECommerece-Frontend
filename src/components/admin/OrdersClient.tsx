@@ -51,6 +51,9 @@ export default function OrdersClient({
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [retryingOrder, setRetryingOrder] = useState<string | null>(null);
+  const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
+  const [bulkStatus, setBulkStatus] = useState("processing");
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
   const { addToast } = useToastStore();
 
   const handleRetryQikink = async (orderId: string) => {
@@ -86,6 +89,25 @@ export default function OrdersClient({
     } catch {
       setOrders(previousOrders);
       addToast('error', 'Something went wrong');
+    }
+  };
+
+  const handleBulkStatusChange = async () => {
+    if (!selectedOrderIds.length) return;
+    setIsBulkUpdating(true);
+    const previousOrders = [...orders];
+    setOrders(orders.map((order) => selectedOrderIds.includes(order._id) ? { ...order, status: bulkStatus } : order));
+    try {
+      const results = await Promise.all(selectedOrderIds.map((id) => updateOrderStatus(id, bulkStatus)));
+      const failed = results.find((result) => !result.success);
+      if (failed) throw new Error(failed.error || "Some statuses could not be updated");
+      addToast('success', `${selectedOrderIds.length} order${selectedOrderIds.length === 1 ? '' : 's'} updated.`);
+      setSelectedOrderIds([]);
+    } catch (error: any) {
+      setOrders(previousOrders);
+      addToast('error', error.message || 'Order statuses could not be updated.');
+    } finally {
+      setIsBulkUpdating(false);
     }
   };
 
@@ -144,7 +166,8 @@ export default function OrdersClient({
       <div className="bg-white p-4 rounded-2xl shadow-sm border border-foreground/5 flex flex-col sm:flex-row gap-4 justify-between items-center">
         <div className="relative w-full sm:w-80">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" />
-          <input 
+           <input 
+             aria-label="Search orders by ID or customer"
             type="text" 
             placeholder="Search orders by ID or customer..." 
             value={searchTerm}
@@ -153,7 +176,7 @@ export default function OrdersClient({
           />
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
-          <select 
+           <label className="sr-only" htmlFor="order-status-filter">Filter orders by status</label><select id="order-status-filter"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-4 py-2 bg-brand-cream/10 border border-brand-beige/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-beige"
@@ -166,15 +189,19 @@ export default function OrdersClient({
             <option value="delivered">Delivered</option>
             <option value="cancelled">Cancelled</option>
           </select>
+          {(searchTerm || statusFilter) && <button type="button" onClick={() => { setSearchTerm(''); setStatusFilter(''); }} className="px-3 py-2 text-sm text-muted underline underline-offset-2">Clear filters</button>}
         </div>
       </div>
 
+      {selectedOrderIds.length > 0 && <div className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-2xl border border-brand-beige/60 bg-brand-cream/20 p-4"><p className="text-sm font-medium">{selectedOrderIds.length} selected</p><label className="sr-only" htmlFor="bulk-order-status">Set status for selected orders</label><select id="bulk-order-status" value={bulkStatus} onChange={(event) => setBulkStatus(event.target.value)} className="rounded-xl border border-brand-beige/60 bg-white px-3 py-2 text-sm"><option value="processing">Processing</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option></select><button type="button" onClick={handleBulkStatusChange} disabled={isBulkUpdating} className="rounded-xl bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60">{isBulkUpdating ? 'Updating…' : 'Update selected'}</button></div>}
+
       {/* Table */}
       <div className="bg-white rounded-[2rem] shadow-sm border border-foreground/5 overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse font-sans">
             <thead>
               <tr className="border-b border-foreground/10 bg-brand-cream/10 text-xs uppercase tracking-wider text-foreground/60">
+                <th className="p-4 pl-6"><label className="sr-only" htmlFor="select-all-orders">Select all visible orders</label><input id="select-all-orders" type="checkbox" checked={filteredOrders.length > 0 && filteredOrders.every((order) => selectedOrderIds.includes(order._id))} onChange={(event) => setSelectedOrderIds(event.target.checked ? filteredOrders.map((order) => order._id) : [])} /></th>
                 <th className="p-4 font-medium pl-6">Order ID</th>
                 <th className="p-4 font-medium">Customer</th>
                 <th className="p-4 font-medium">Items</th>
@@ -186,7 +213,7 @@ export default function OrdersClient({
             <tbody>
               {filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-16 text-foreground/40 text-sm">
+                   <td colSpan={7} className="text-center py-16 text-foreground/40 text-sm">
                     No orders found matching your search.
                   </td>
                 </tr>
@@ -198,6 +225,7 @@ export default function OrdersClient({
                   key={order._id} 
                   className="border-b border-foreground/5 hover:bg-brand-cream/10 transition-colors"
                 >
+                  <td className="p-4 pl-6"><label className="sr-only" htmlFor={`select-order-${order._id}`}>Select order {order._id.slice(-8)}</label><input id={`select-order-${order._id}`} type="checkbox" checked={selectedOrderIds.includes(order._id)} onChange={(event) => setSelectedOrderIds((current) => event.target.checked ? [...current, order._id] : current.filter((id) => id !== order._id))} /></td>
                   <td className="p-4 pl-6 font-mono text-xs text-foreground uppercase">
                     #{order._id.slice(-8)}
                   </td>
@@ -226,7 +254,7 @@ export default function OrdersClient({
                         <span className="flex items-center gap-1 text-[10px] font-bold bg-red-50 text-red-600 px-2 py-1 rounded-full border border-red-200">
                           <AlertCircle className="w-3 h-3" /> Push Failed
                         </span>
-                        <button
+                         <button type="button"
                           onClick={() => handleRetryQikink(order._id)}
                           disabled={retryingOrder === order._id}
                           className="flex items-center gap-1 text-[10px] bg-foreground text-background px-2 py-1 rounded hover:bg-foreground/80 transition-colors disabled:opacity-50"
@@ -245,7 +273,7 @@ export default function OrdersClient({
                   </td>
                   <td className="p-4 pr-6">
                     <div className="relative inline-block w-full sm:w-32">
-                      <select 
+                       <select aria-label={`Update order ${order._id.slice(-8)} status`}
                         value={order.status.toLowerCase()}
                         onChange={(e) => handleStatusChange(order._id, e.target.value)}
                         className={`appearance-none w-full px-3 py-1.5 pr-8 rounded-lg text-xs font-semibold border focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-colors cursor-pointer capitalize ${statusStyles[order.status.toLowerCase()] || "bg-gray-50"}`}
@@ -264,6 +292,15 @@ export default function OrdersClient({
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="md:hidden divide-y divide-foreground/10">
+          {filteredOrders.length === 0 ? <p className="py-16 text-center text-sm text-muted">No orders match the current filters.</p> : filteredOrders.map((order) => (
+            <article key={order._id} className="p-4 space-y-3">
+              <div className="flex items-start justify-between gap-3"><div><p className="font-mono text-xs font-semibold">#{order._id.slice(-8)}</p><p className="text-sm font-medium mt-1">{order.user?.name || 'Guest'}</p><p className="text-xs text-muted">{order.user?.email || 'No email'}</p></div><label className="flex items-center gap-2 text-xs text-muted"><input type="checkbox" checked={selectedOrderIds.includes(order._id)} onChange={(event) => setSelectedOrderIds((current) => event.target.checked ? [...current, order._id] : current.filter((id) => id !== order._id))} /> Select</label></div>
+              <div className="flex items-center justify-between gap-3"><span className="text-sm font-semibold">₹{order.totalAmount.toLocaleString('en-IN')}</span><select aria-label={`Update order ${order._id.slice(-8)} status`} value={order.status.toLowerCase()} onChange={(event) => handleStatusChange(order._id, event.target.value)} className={`rounded-lg border px-3 py-2 text-xs font-semibold capitalize ${statusStyles[order.status.toLowerCase()] || 'bg-gray-50'}`}><option value="pending">Pending</option><option value="paid">Paid</option><option value="processing">Processing</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option></select></div>
+              {order.qikinkLastError && <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-800"><p className="font-semibold">Fulfillment failed</p><p className="mt-1">{order.qikinkLastError}</p><button type="button" onClick={() => handleRetryQikink(order._id)} disabled={retryingOrder === order._id} className="mt-2 inline-flex items-center gap-1 rounded-lg bg-foreground px-3 py-2 text-background disabled:opacity-60">{retryingOrder === order._id ? 'Retrying…' : 'Retry push'}</button></div>}
+            </article>
+          ))}
         </div>
       </div>
     </div>

@@ -10,15 +10,15 @@ export default function TopProducts({ products }: { products?: any[] }) {
             {products.map((product) => (
                 <div 
                     key={product.id} 
-                    className="flex items-center gap-4 p-3 rounded-2xl hover:bg-brand-cream/30 transition-colors group cursor-pointer border border-transparent hover:border-foreground/5"
+                    className="flex items-center gap-4 p-3 rounded-2xl border border-transparent"
                 >
-                    <div className="relative w-14 h-16 rounded-xl overflow-hidden shrink-0 bg-brand-cream/50 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                    <div className="relative w-14 h-16 rounded-xl overflow-hidden shrink-0 bg-brand-cream/50 shadow-sm">
                         <Image 
                             src={product.image} 
                             alt={product.name} 
                             fill 
                             sizes="56px"
-                            className="object-cover"
+                             className="object-cover"
                         />
                     </div>
                     

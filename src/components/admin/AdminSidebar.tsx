@@ -2,12 +2,22 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { signOut } from 'next-auth/react'
 import { LayoutDashboard, Package, ShoppingBag, BarChart3, LogOut, X, MessageSquare } from 'lucide-react'
 
 export default function AdminSidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (val: boolean) => void }) {
     const pathname = usePathname()
+    const [isMobile, setIsMobile] = useState(false)
+
+    useEffect(() => {
+        const media = window.matchMedia('(max-width: 1023px)')
+        const update = () => setIsMobile(media.matches)
+        update()
+        media.addEventListener('change', update)
+        return () => media.removeEventListener('change', update)
+    }, [])
 
     const navItems = [
         { title: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -33,6 +43,8 @@ export default function AdminSidebar({ isOpen, setIsOpen }: { isOpen: boolean, s
                 animate={{ x: isOpen ? 0 : -300 }}
                 className="fixed top-0 left-0 h-screen w-64 bg-white border-r border-foreground/10 z-50 lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-xl lg:shadow-none"
                 style={{ translateX: isOpen ? 0 : '-100%' }} // Fallback for initial render
+                aria-hidden={isMobile && !isOpen}
+                inert={isMobile && !isOpen ? true : undefined}
             >
                 {/* Mobile Close Button */}
                  <button 
@@ -52,12 +64,12 @@ export default function AdminSidebar({ isOpen, setIsOpen }: { isOpen: boolean, s
                 </div>
 
                 {/* Navigation */}
-                <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                <nav aria-label="Admin navigation" className="flex-1 p-4 space-y-2 overflow-y-auto">
                     {navItems.map((item) => {
                         const isActive = pathname === item.href
                         
                         return (
-                            <Link key={item.href} href={item.href}>
+                            <Link key={item.href} href={item.href} aria-current={isActive ? 'page' : undefined} onClick={() => setIsOpen(false)}>
                                 <div className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive ? 'bg-brand-beige text-foreground font-medium' : 'text-foreground/70 hover:bg-brand-cream/50 hover:text-foreground'}`}>
                                     <item.icon className={`w-5 h-5 ${isActive ? 'text-foreground' : 'text-foreground/50 group-hover:text-foreground/80'}`} />
                                     <span>{item.title}</span>

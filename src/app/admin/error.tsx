@@ -21,16 +21,11 @@ export default function AdminError({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01" />
           </svg>
         </div>
-        <h1 className="text-xl font-heading font-medium mb-3">Dashboard Error</h1>
+        <h1 className="text-xl font-heading font-medium mb-3">Admin workspace unavailable</h1>
         <p className="text-foreground/60 text-sm leading-relaxed mb-8">
-          Something went wrong loading this page. Please try again.
+          We could not load this admin page. Try again, or return to the dashboard if the problem continues.
         </p>
-        <button
-          onClick={reset}
-          className="bg-foreground text-background px-8 py-4 rounded-2xl font-medium hover:bg-foreground/90 transition-all shadow-lg"
-        >
-          Try Again
-        </button>
+        <div className="flex items-center justify-center gap-3"><button type="button" onClick={reset} className="bg-foreground text-background px-6 py-3 rounded-xl font-medium hover:bg-foreground/90 transition-all shadow-lg">Try again</button><a href="/admin" className="border border-foreground/20 px-6 py-3 rounded-xl font-medium">Dashboard</a></div>
       </div>
     </div>
   )

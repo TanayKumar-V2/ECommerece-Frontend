@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Search, Edit2, Trash2, Image as ImageIcon, X, Loader2 } from "lucide-react";
 import Image from "next/image";
@@ -33,6 +33,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
   const [editingProduct, setEditingProduct] = useState<ProductType | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const dialogRef = useRef<HTMLDivElement>(null);
   const { addToast } = useToastStore();
   
   // Form State
@@ -75,6 +76,28 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
     });
     setIsModalOpen(true);
   };
+
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const focusable = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsModalOpen(false);
+      if (event.key !== "Tab" || !dialogRef.current) return;
+      const elements = Array.from(dialogRef.current.querySelectorAll<HTMLElement>(focusable));
+      if (!elements.length) return;
+      const first = elements[0];
+      const last = elements[elements.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    requestAnimationFrame(() => dialogRef.current?.querySelector<HTMLElement>(focusable)?.focus());
+    return () => {
+      document.removeEventListener("keydown", closeOnEscape);
+      previouslyFocused?.focus();
+    };
+  }, [isModalOpen]);
 
   const openEditModal = (product: ProductType) => {
     setEditingProduct(product);
@@ -174,7 +197,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       <div className="bg-white p-4 rounded-2xl shadow-sm border border-foreground/5 flex flex-col sm:flex-row gap-4 justify-between items-center">
         <div className="relative w-full sm:w-80">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" />
-          <input 
+           <input aria-label="Search products"
             type="text" 
             placeholder="Search products..." 
             value={searchTerm}
@@ -183,7 +206,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
           />
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
-          <select 
+           <label className="sr-only" htmlFor="product-category-filter">Filter products by category</label><select id="product-category-filter"
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
             className="px-4 py-2 bg-brand-cream/10 border border-brand-beige/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-beige"
@@ -229,10 +252,11 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     <td className="p-4 pl-6">
                       <div className="flex items-center gap-4">
                         <div className="relative w-12 h-16 rounded-lg overflow-hidden bg-brand-cream/50 shadow-sm shrink-0">
-                          <Image 
+                           <Image 
                             src={product.images[0] || "/placeholder.jpg"} 
                             alt={product.title} 
-                            fill 
+                             fill 
+                             sizes="48px"
                             className="object-cover" 
                           />
                         </div>
@@ -251,14 +275,18 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                     </td>
                     <td className="p-4 text-sm text-foreground/60 font-mono tracking-tighter">{product.qikink_sku}</td>
                     <td className="p-4 pr-6 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                        <button 
+                        <div className="flex items-center justify-end gap-2">
+                         <button 
+                           type="button"
+                           aria-label={`Edit ${product.title}`}
                           onClick={() => openEditModal(product)}
                           className="p-2 text-foreground/60 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
-                        <button 
+                         <button 
+                           type="button"
+                           aria-label={`Delete ${product.title}`}
                           onClick={() => handleDelete(product._id)}
                           className="p-2 text-foreground/60 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         >
@@ -277,8 +305,12 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       {/* Add/Edit Product Modal */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 bg-foreground/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-foreground/30 backdrop-blur-sm z-50 flex items-center justify-center p-4" onMouseDown={(event) => { if (event.target === event.currentTarget) setIsModalOpen(false); }}>
             <motion.div 
+              ref={dialogRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="product-modal-title"
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -286,10 +318,10 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
             >
               <form onSubmit={handleSubmit}>
                 <div className="p-6 border-b flex-shrink-0 border-foreground/10 flex justify-between items-center bg-brand-cream/10 z-10 relative shadow-sm">
-                  <h2 className="text-xl font-heading font-semibold text-foreground">
+                  <h2 id="product-modal-title" className="text-xl font-heading font-semibold text-foreground">
                     {editingProduct ? "Edit Product" : "Add New Product"}
                   </h2>
-                  <button type="button" onClick={() => setIsModalOpen(false)} className="text-foreground/50 hover:text-foreground transition-colors p-1 rounded-full hover:bg-foreground/5">
+                  <button type="button" aria-label="Close product editor" onClick={() => setIsModalOpen(false)} className="min-w-11 min-h-11 flex items-center justify-center text-foreground/50 hover:text-foreground transition-colors rounded-full hover:bg-foreground/5">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
@@ -297,9 +329,10 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                 <div className="p-6 overflow-y-auto flex-1 h-full max-h-[60vh] md:max-h-[70vh] space-y-6 text-left">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="space-y-1.5 md:col-span-2">
-                      <label className="text-sm font-medium text-foreground/80 pl-1">Product Name</label>
+                       <label htmlFor="product-title" className="text-sm font-medium text-foreground/80 pl-1">Product Name</label>
                       <input 
-                        type="text" 
+                         id="product-title" type="text" 
+                         maxLength={120}
                         required
                         value={formData.title}
                         onChange={(e) => setFormData({...formData, title: e.target.value})}
@@ -308,9 +341,9 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       />
                     </div>
                     <div className="space-y-1.5 md:col-span-2">
-                      <label className="text-sm font-medium text-foreground/80 pl-1">Description</label>
+                       <label htmlFor="product-description" className="text-sm font-medium text-foreground/80 pl-1">Description</label>
                       <textarea 
-                        rows={3} 
+                         id="product-description" rows={3} maxLength={1000}
                         required
                         value={formData.description}
                         onChange={(e) => setFormData({...formData, description: e.target.value})}
@@ -318,22 +351,22 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                         placeholder="Describe the product details..." 
                       />
                     </div>
-                    <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-foreground/80 pl-1">Category</label>
+                         <div className="space-y-1.5">
+                       <label htmlFor="product-category" className="text-sm font-medium text-foreground/80 pl-1">Category</label>
                       <select 
-                        value={formData.category}
+                         id="product-category" value={formData.category}
                         onChange={(e) => setFormData({...formData, category: e.target.value})}
                         className="w-full px-4 py-2.5 bg-brand-cream/10 border border-brand-beige/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige text-sm"
                       >
                         <option>Men</option>
                         <option>Women</option>
                         <option>Unisex</option>
-                      </select>
+                        </select>
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-foreground/80 pl-1">Price (₹)</label>
+                       <label htmlFor="product-price" className="text-sm font-medium text-foreground/80 pl-1">Price (₹)</label>
                       <input 
-                        type="number" 
+                         id="product-price" type="number" min="1" step="1"
                         required
                         value={formData.price}
                         onChange={(e) => setFormData({...formData, price: e.target.value})}
@@ -342,9 +375,9 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-foreground/80 pl-1">SKU (Qikink)</label>
+                       <label htmlFor="product-sku" className="text-sm font-medium text-foreground/80 pl-1">Catalog SKU</label>
                       <input 
-                        type="text" 
+                         id="product-sku" type="text" maxLength={80}
                         required
                         value={formData.sku}
                         onChange={(e) => setFormData({...formData, sku: e.target.value})}
@@ -353,23 +386,24 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-foreground/80 pl-1">Qikink Mode</label>
+                       <label htmlFor="product-fulfillment-mode" className="text-sm font-medium text-foreground/80 pl-1">Fulfillment setup</label>
                       <select
-                        value={formData.qikinkFulfillmentMode}
+                         id="product-fulfillment-mode" value={formData.qikinkFulfillmentMode}
                         onChange={(e) => setFormData({...formData, qikinkFulfillmentMode: e.target.value as "catalog_design" | "my_products"})}
                         className="w-full px-4 py-2.5 bg-brand-cream/10 border border-brand-beige/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige text-sm"
                       >
                         <option value="catalog_design">Catalog SKU + Design</option>
                         <option value="my_products">My Products SKU</option>
-                      </select>
+                        </select>
+                        <p className="text-xs text-muted mt-1">Choose how this product is sent to fulfillment. Advanced print fields appear when needed.</p>
                     </div>
 
                     {formData.qikinkFulfillmentMode === "catalog_design" && (
                       <>
                         <div className="space-y-1.5 md:col-span-2">
-                          <label className="text-sm font-medium text-foreground/80 pl-1">Qikink Design URL (High-Res Print File)</label>
+                           <label htmlFor="product-design-url" className="text-sm font-medium text-foreground/80 pl-1">Design file URL</label>
                           <input 
-                            type="text" 
+                             id="product-design-url" type="url" 
                             value={formData.qikinkDesignUrl}
                             onChange={(e) => setFormData({...formData, qikinkDesignUrl: e.target.value})}
                             className="w-full px-4 py-2.5 bg-brand-cream/10 border border-brand-beige/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige text-sm" 
@@ -377,9 +411,9 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                           />
                         </div>
                         <div className="space-y-1.5 md:col-span-2">
-                          <label className="text-sm font-medium text-foreground/80 pl-1">Qikink Mockup URL (Optional)</label>
+                           <label htmlFor="product-mockup-url" className="text-sm font-medium text-foreground/80 pl-1">Mockup URL (optional)</label>
                           <input 
-                            type="text" 
+                             id="product-mockup-url" type="url" 
                             value={formData.qikinkMockupUrl}
                             onChange={(e) => setFormData({...formData, qikinkMockupUrl: e.target.value})}
                             className="w-full px-4 py-2.5 bg-brand-cream/10 border border-brand-beige/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige text-sm" 
@@ -387,9 +421,9 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <label className="text-sm font-medium text-foreground/80 pl-1">Qikink Design Code (Optional)</label>
+                           <label htmlFor="product-design-code" className="text-sm font-medium text-foreground/80 pl-1">Design code (optional)</label>
                           <input 
-                            type="text" 
+                             id="product-design-code" type="text" 
                             value={formData.qikinkDesignCode}
                             onChange={(e) => setFormData({...formData, qikinkDesignCode: e.target.value})}
                             className="w-full px-4 py-2.5 bg-brand-cream/10 border border-brand-beige/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige text-sm" 
@@ -397,9 +431,9 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <label className="text-sm font-medium text-foreground/80 pl-1">Placement SKU</label>
+                           <label htmlFor="product-placement-sku" className="text-sm font-medium text-foreground/80 pl-1">Print placement</label>
                           <input 
-                            type="text" 
+                             id="product-placement-sku" type="text" 
                             value={formData.qikinkPlacementSku}
                             onChange={(e) => setFormData({...formData, qikinkPlacementSku: e.target.value})}
                             className="w-full px-4 py-2.5 bg-brand-cream/10 border border-brand-beige/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige text-sm" 
@@ -407,9 +441,9 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <label className="text-sm font-medium text-foreground/80 pl-1">Print Type ID</label>
+                           <label htmlFor="product-print-type" className="text-sm font-medium text-foreground/80 pl-1">Print type</label>
                           <input 
-                            type="number" 
+                             id="product-print-type" type="number" min="1" step="1"
                             value={formData.qikinkPrintTypeId}
                             onChange={(e) => setFormData({...formData, qikinkPrintTypeId: e.target.value})}
                             className="w-full px-4 py-2.5 bg-brand-cream/10 border border-brand-beige/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-beige text-sm" 
@@ -419,9 +453,9 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       </>
                     )}
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-foreground/80 pl-1">Stock Quantity</label>
+                       <label htmlFor="product-stock" className="text-sm font-medium text-foreground/80 pl-1">Stock quantity</label>
                       <input 
-                        type="number" 
+                         id="product-stock" type="number" min="0" step="1"
                         required
                         value={formData.stock}
                         onChange={(e) => setFormData({...formData, stock: e.target.value})}
@@ -430,9 +464,9 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       />
                     </div>
                     <div className="space-y-1.5 md:col-span-2">
-                      <label className="text-sm font-medium text-foreground/80 pl-1">Image URL</label>
+                       <label htmlFor="product-image" className="text-sm font-medium text-foreground/80 pl-1">Storefront image URL</label>
                       <input 
-                        type="text" 
+                         id="product-image" type="url" 
                         required
                         value={formData.images}
                         onChange={(e) => setFormData({...formData, images: e.target.value})}
@@ -441,9 +475,9 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       />
                     </div>
                     <div className="space-y-1.5 md:col-span-2">
-                      <label className="text-sm font-medium text-foreground/80 pl-1">Available Colors (comma separated)</label>
+                       <label htmlFor="product-colors" className="text-sm font-medium text-foreground/80 pl-1">Available colors</label>
                       <input 
-                        type="text" 
+                         id="product-colors" type="text" 
                         required
                         value={formData.colors}
                         onChange={(e) => setFormData({...formData, colors: e.target.value})}
@@ -452,9 +486,9 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       />
                     </div>
                     <div className="space-y-1.5 md:col-span-2">
-                      <label className="text-sm font-medium text-foreground/80 pl-1">Available Sizes (comma separated)</label>
+                       <label htmlFor="product-sizes" className="text-sm font-medium text-foreground/80 pl-1">Available sizes</label>
                       <input 
-                        type="text" 
+                         id="product-sizes" type="text" 
                         required
                         value={formData.sizes}
                         onChange={(e) => setFormData({...formData, sizes: e.target.value})}

@@ -1,5 +1,6 @@
 import dbConnect from "@/lib/db";
 import Order from "@/models/Order";
+import Product from "@/models/Product";
 import RevenueChart from "@/components/admin/RevenueChart";
 import { verifyAdmin } from "@/lib/authUtils";
 
@@ -24,6 +25,11 @@ export default async function AnalyticsPage() {
       },
     },
     { $sort: { _id: 1 } },
+  ]);
+
+  const [lowStockCount, cancelledCount] = await Promise.all([
+    Product.countDocuments({ stock: { $lte: 5 } }),
+    Order.countDocuments({ status: "cancelled", createdAt: { $gte: new Date(`${currentYear}-01-01T00:00:00.000Z`) } }),
   ]);
 
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -60,12 +66,11 @@ export default async function AnalyticsPage() {
         </div>
       </div>
 
-      <div className="bg-brand-cream/20 border border-brand-beige/50 p-8 rounded-3xl text-center">
-        <h3 className="text-xl font-heading font-medium mb-2">More Analytics Coming Soon</h3>
-        <p className="text-foreground/60 text-sm max-w-md mx-auto">
-          We're building advanced conversion funnels, customer retention metrics, and traffic sources for your Viraasat dashboard.
-        </p>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="rounded-2xl border border-foreground/10 bg-white p-5"><p className="text-sm text-muted">Low-stock products</p><p className="mt-2 text-3xl font-heading font-semibold">{lowStockCount}</p><p className="mt-1 text-xs text-muted">Products with five or fewer units.</p></div>
+        <div className="rounded-2xl border border-foreground/10 bg-white p-5"><p className="text-sm text-muted">Cancelled orders this year</p><p className="mt-2 text-3xl font-heading font-semibold">{cancelledCount}</p><p className="mt-1 text-xs text-muted">Use Orders to review cancellation reasons.</p></div>
       </div>
+
     </div>
   );
 }

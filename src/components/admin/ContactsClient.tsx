@@ -29,6 +29,7 @@ export default function ContactsClient({ initialMessages }: ContactsClientProps)
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | "new" | "read" | "resolved">("all");
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [updateError, setUpdateError] = useState("");
 
   const updateStatus = async (id: string, status: "new" | "read" | "resolved") => {
     try {
@@ -39,8 +40,9 @@ export default function ContactsClient({ initialMessages }: ContactsClientProps)
       });
       if (!response.ok) throw new Error('Could not update contact status')
       setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, status } : m)));
+      setUpdateError("");
     } catch {
-      // silent fail
+      setUpdateError("This status could not be saved. Check your connection and try again.");
     }
   };
 
@@ -57,6 +59,7 @@ export default function ContactsClient({ initialMessages }: ContactsClientProps)
 
   return (
     <div className="space-y-6">
+      {updateError && <div role="alert" className="flex items-center justify-between gap-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><span>{updateError}</span><button type="button" onClick={() => setUpdateError("")} aria-label="Dismiss contact update error" className="font-semibold underline">Dismiss</button></div>}
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -96,7 +99,7 @@ export default function ContactsClient({ initialMessages }: ContactsClientProps)
       {/* Search */}
       <div className="relative">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40" />
-        <input
+        <input aria-label="Search contact messages"
           type="text"
           placeholder="Search by name, email or phone..."
           value={search}
