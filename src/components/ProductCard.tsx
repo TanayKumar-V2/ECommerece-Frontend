@@ -3,6 +3,7 @@
 import { Product, useStore } from '@/store/useStore'
 import { Heart, ShoppingCart } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import ProductQuickView from './ProductQuickView'
@@ -38,13 +39,15 @@ export default function ProductCard({ product, index = 0, onOpenQuickView }: Pro
                     onOpenQuickView?.(product)
                 }}
             >
-                <Image
-                    src={product.image || "/placeholder.jpg"}
-                    alt={product.name || "Product"}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                />
+                <Link href={`/product/${product.id}`} onClick={(event) => event.stopPropagation()} className="absolute inset-0 focus-visible:z-20" aria-label={`View ${product.name || 'product'} details`}>
+                    <Image
+                        src={product.image || "/placeholder.jpg"}
+                        alt={product.name || "Product"}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                    />
+                </Link>
 
                 {/* Wishlist Button */}
                 <button
@@ -79,7 +82,7 @@ export default function ProductCard({ product, index = 0, onOpenQuickView }: Pro
 
             <div className="p-5 flex flex-col gap-1">
                 <p className="text-xs text-foreground/60 uppercase tracking-wider">{product.category}</p>
-                <button type="button" onClick={() => { addRecentlyViewed(product); onOpenQuickView?.(product) }} className="text-left font-heading text-lg font-medium text-foreground line-clamp-1 hover:underline underline-offset-4 focus-visible:underline">{product.name}</button>
+                <Link href={`/product/${product.id}`} className="text-left font-heading text-lg font-medium text-foreground line-clamp-1 hover:underline underline-offset-4 focus-visible:underline">{product.name}</Link>
                 <p className="text-foreground/80">₹{product.price.toLocaleString('en-IN')}</p>
                 {product.stock === 0 ? <p className="text-xs font-medium text-error">Out of stock</p> : product.stock !== undefined && product.stock <= 5 ? <p className="text-xs font-medium text-warning">Only {product.stock} left</p> : null}
             </div>

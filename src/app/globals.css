@@ -12,6 +12,9 @@
   --success: #176B3A;
   --warning: #755000;
   --error: #A12622;
+  --chart-grid: #D8BFA8;
+  --chart-line: #3B2F2F;
+  --chart-fill: #F5E6DA;
 }
 
 @theme inline {
@@ -26,6 +29,9 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-error: var(--error);
+  --color-chart-grid: var(--chart-grid);
+  --color-chart-line: var(--chart-line);
+  --color-chart-fill: var(--chart-fill);
   --font-sans: var(--font-inter), sans-serif;
   --font-heading: var(--font-playfair), serif;
 }
@@ -54,6 +60,16 @@ body {
     padding-left: 2rem;
     padding-right: 2rem;
   }
+}
+
+/* Keep legacy opacity utilities readable while older surfaces migrate to text-muted. */
+.text-foreground\/30,
+.text-foreground\/40,
+.text-foreground\/45,
+.text-foreground\/50,
+.text-foreground\/55,
+.text-foreground\/60 {
+  color: var(--muted) !important;
 }
 
 * {

@@ -17,7 +17,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export default function RevenueChart({ data }: { data: { name: string; revenue: number }[] }) {
-  // If no data provided, use some sensible defaults or empty state
+  // Keep the chart frame stable when there is no revenue yet.
   const chartData = data && data.length > 0 ? data : [
     { name: "Jan", revenue: 0 },
     { name: "Feb", revenue: 0 },
@@ -27,31 +27,31 @@ export default function RevenueChart({ data }: { data: { name: string; revenue: 
   return (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#EED9C4" opacity={0.3} />
+        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid)" opacity={0.5} />
         <XAxis
           dataKey="name"
           axisLine={false}
           tickLine={false}
-          tick={{ fill: "#3B2F2F", opacity: 0.6, fontSize: 12 }}
+          tick={{ fill: "var(--muted)", fontSize: 12 }}
           dy={10}
         />
         <YAxis
           axisLine={false}
           tickLine={false}
-          tick={{ fill: "#3B2F2F", opacity: 0.6, fontSize: 12 }}
+          tick={{ fill: "var(--muted)", fontSize: 12 }}
            tickFormatter={(value) => `₹${value.toLocaleString("en-IN")}`}
         />
         <Tooltip
           content={<CustomTooltip />}
-          cursor={{ stroke: "#EED9C4", strokeWidth: 1, strokeDasharray: "4 4" }}
+          cursor={{ stroke: "var(--chart-grid)", strokeWidth: 1, strokeDasharray: "4 4" }}
         />
         <Line
           type="monotone"
           dataKey="revenue"
-          stroke="#3B2F2F"
+          stroke="var(--chart-line)"
           strokeWidth={3}
-          dot={{ fill: "#F5E6DA", stroke: "#3B2F2F", strokeWidth: 2, r: 4 }}
-          activeDot={{ r: 6, fill: "#EED9C4", stroke: "#3B2F2F" }}
+          dot={{ fill: "var(--chart-fill)", stroke: "var(--chart-line)", strokeWidth: 2, r: 4 }}
+          activeDot={{ r: 6, fill: "var(--brand-beige)", stroke: "var(--chart-line)" }}
           animationDuration={2000}
           animationEasing="ease-out"
         />

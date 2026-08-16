@@ -221,7 +221,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
 
       {/* Table */}
       <div className="bg-white rounded-[2rem] shadow-sm border border-foreground/5 overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-foreground/10 bg-brand-cream/10 text-xs uppercase tracking-wider text-foreground/60">
@@ -299,6 +299,14 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
               )}
             </tbody>
           </table>
+        </div>
+        <div className="md:hidden divide-y divide-foreground/10">
+          {filteredProducts.length === 0 ? <p className="py-16 text-center text-sm text-muted">No products match the current filters.</p> : filteredProducts.map((product) => (
+            <article key={product._id} className="p-4 space-y-4">
+              <div className="flex items-start gap-3"><div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-xl bg-brand-cream/40"><Image src={product.images[0] || "/placeholder.jpg"} alt={product.title} fill sizes="64px" className="object-cover" /></div><div className="min-w-0 flex-1"><h2 className="truncate font-medium">{product.title}</h2><p className="mt-1 text-xs text-muted">{product.category} · {product.qikink_sku}</p><p className="mt-2 text-sm font-semibold">₹{product.price.toLocaleString('en-IN')}</p></div></div>
+              <div className="flex items-center justify-between gap-3"><span className={`rounded-full px-3 py-1 text-xs font-semibold ${product.stock > 10 ? 'bg-green-100 text-green-700' : product.stock > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>{product.stock || 0} in stock</span><div className="flex gap-2"><button type="button" aria-label={`Edit ${product.title}`} onClick={() => openEditModal(product)} className="min-h-11 min-w-11 rounded-xl border border-foreground/15 flex items-center justify-center"><Edit2 className="h-4 w-4" /></button><button type="button" aria-label={`Delete ${product.title}`} onClick={() => handleDelete(product._id)} className="min-h-11 min-w-11 rounded-xl border border-red-200 text-error flex items-center justify-center"><Trash2 className="h-4 w-4" /></button></div></div>
+            </article>
+          ))}
         </div>
       </div>
 

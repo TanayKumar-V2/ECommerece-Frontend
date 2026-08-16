@@ -203,7 +203,7 @@ export default function ProductQuickView({ product, isOpen, onClose }: ProductQu
                                                 type="button"
                                                 aria-label="Decrease quantity"
                                                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                                className="text-foreground/60 hover:text-foreground p-1 transition-colors"
+                                                className="min-w-11 min-h-11 flex items-center justify-center text-foreground/60 hover:text-foreground p-1 transition-colors"
                                             >
                                                 -
                                             </button>
