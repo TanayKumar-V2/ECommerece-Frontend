@@ -82,28 +82,30 @@ export default function LoginPage() {
 
                     <form className="space-y-5" onSubmit={handleSubmit}>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-foreground/80 pl-1">Email</label>
+                            <label htmlFor="login-email" className="text-sm font-medium text-foreground/80 pl-1">Email</label>
                             <input
                                 type="email"
+                                id="login-email"
                                 placeholder="Enter your email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                                 disabled={isLoading}
-                                className="w-full px-5 py-4 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-beige focus:border-transparent transition-all placeholder:text-foreground/30"
+                                className="w-full px-5 py-4 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent transition-all placeholder:text-muted text-base"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-foreground/80 pl-1">Password</label>
+                            <label htmlFor="login-password" className="text-sm font-medium text-foreground/80 pl-1">Password</label>
                             <input
                                 type="password"
+                                id="login-password"
                                 placeholder="••••••••"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                                 disabled={isLoading}
-                                className="w-full px-5 py-4 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-beige focus:border-transparent transition-all placeholder:text-foreground/30"
+                                className="w-full px-5 py-4 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent transition-all placeholder:text-muted text-base"
                             />
                         </div>
 
@@ -120,11 +122,11 @@ export default function LoginPage() {
                         )}
 
                         <div className="flex items-center justify-between text-sm px-1">
-                            <label className="flex items-center gap-2 cursor-pointer group">
-                                <input type="checkbox" className="accent-brand-beige w-5 h-5 rounded border-foreground/20" />
+                                <label className="flex items-center gap-2 cursor-pointer group min-h-11">
+                                <input aria-label="Remember me" type="checkbox" className="accent-brand-beige w-5 h-5 rounded border-foreground/20" />
                                 <span className="text-foreground/70 group-hover:text-foreground transition-colors">Remember me</span>
                             </label>
-                            <Link href="/forgot-password" className="font-medium text-brand-beige hover:text-foreground transition-colors">Forgot password?</Link>
+                            <Link href="/forgot-password" className="font-medium text-muted hover:text-foreground transition-colors">Forgot password?</Link>
                         </div>
 
                         <button

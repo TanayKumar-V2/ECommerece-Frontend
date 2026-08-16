@@ -33,9 +33,10 @@ export default function RootLayout({
         className={`${inter.variable} ${playfair.variable} antialiased selection:bg-brand-beige selection:text-foreground`}
         suppressHydrationWarning
       >
+        <a className="skip-link" href="#main">Skip to content</a>
         <Providers>
           <SmoothScrollProvider>
-            {children}
+            <div id="main">{children}</div>
             <ToastContainer />
           </SmoothScrollProvider>
         </Providers>

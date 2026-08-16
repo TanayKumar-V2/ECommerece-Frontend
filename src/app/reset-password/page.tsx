@@ -109,29 +109,31 @@ function ResetPasswordForm() {
 
       <form className="space-y-5" onSubmit={handleSubmit}>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground/80 pl-1">New Password</label>
+          <label htmlFor="new-password" className="text-sm font-medium text-foreground/80 pl-1">New Password</label>
           <input
             type="password"
+            id="new-password"
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={6}
             disabled={isLoading}
-            className="w-full px-5 py-4 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-beige focus:border-transparent transition-all placeholder:text-foreground/30"
+            className="w-full px-5 py-4 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent transition-all placeholder:text-muted text-base"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground/80 pl-1">Confirm Password</label>
+          <label htmlFor="confirm-password" className="text-sm font-medium text-foreground/80 pl-1">Confirm Password</label>
           <input
             type="password"
+            id="confirm-password"
             placeholder="••••••••"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
             disabled={isLoading}
-            className="w-full px-5 py-4 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-beige focus:border-transparent transition-all placeholder:text-foreground/30"
+            className="w-full px-5 py-4 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent transition-all placeholder:text-muted text-base"
           />
         </div>
 

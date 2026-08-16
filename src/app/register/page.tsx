@@ -73,44 +73,47 @@ export default function RegisterPage() {
 
               <form className="space-y-4" onSubmit={handleSubmit}>
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground/80 pl-1">Full Name</label>
+                  <label htmlFor="register-name" className="text-sm font-medium text-foreground/80 pl-1">Full Name</label>
                   <input
                     type="text"
+                    id="register-name"
                     placeholder="Enter your name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
                     disabled={isLoading}
-                    className="w-full px-5 py-3.5 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-beige focus:border-transparent transition-all placeholder:text-foreground/30"
+                    className="w-full px-5 py-3.5 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent transition-all placeholder:text-muted text-base"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground/80 pl-1">Email</label>
+                  <label htmlFor="register-email" className="text-sm font-medium text-foreground/80 pl-1">Email</label>
                   <input
                     type="email"
+                    id="register-email"
                     placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     disabled={isLoading}
-                    className="w-full px-5 py-3.5 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-beige focus:border-transparent transition-all placeholder:text-foreground/30"
+                    className="w-full px-5 py-3.5 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent transition-all placeholder:text-muted text-base"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground/80 pl-1">Password</label>
+                  <label htmlFor="register-password" className="text-sm font-medium text-foreground/80 pl-1">Password</label>
                   <input
                     type="password"
+                    id="register-password"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={6}
                     disabled={isLoading}
-                    className="w-full px-5 py-3.5 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-beige focus:border-transparent transition-all placeholder:text-foreground/30"
+                    className="w-full px-5 py-3.5 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent transition-all placeholder:text-muted text-base"
                   />
-                  <p className="text-[10px] text-foreground/40 pl-1 italic">Must be at least 6 characters.</p>
+                  <p id="register-password-help" className="text-xs text-muted pl-1 italic">Must be at least 6 characters.</p>
                 </div>
 
                 {error && (

@@ -85,8 +85,8 @@ export default function DashboardClient({
                             </span>
                         </div>
                         <h3 className="text-foreground/60 text-sm font-medium mb-1">{item.title}</h3>
-                        <p className="text-2xl md:text-3xl font-heading font-semibold text-foreground mb-1 group-hover:text-brand-beige transition-colors truncate">{item.value}</p>
-                        <p className="text-xs text-foreground/40 line-clamp-1">{item.subtitle}</p>
+                         <p className="text-2xl md:text-3xl font-heading font-semibold text-foreground mb-1 group-hover:text-muted transition-colors truncate">{item.value}</p>
+                         <p className="text-xs text-muted line-clamp-1">{item.subtitle}</p>
                     </motion.div>
                 )})}
             </div>
@@ -117,7 +117,7 @@ export default function DashboardClient({
                 >
                     <div className="mb-6 flex justify-between items-center">
                         <h2 className="text-xl font-heading font-semibold text-foreground">Top Products</h2>
-                        <button className="text-xs text-brand-beige font-medium hover:text-foreground transition-colors">View All</button>
+                         <button className="text-xs text-muted font-medium hover:text-foreground transition-colors">View All</button>
                     </div>
                     <div className="flex-1 overflow-hidden">
                         <TopProducts products={topProducts} />

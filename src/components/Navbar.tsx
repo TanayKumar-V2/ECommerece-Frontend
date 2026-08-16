@@ -58,7 +58,7 @@ export default function Navbar() {
             >
                 <div className="container-custom flex items-center justify-between">
                     <div className="flex items-center gap-4 lg:hidden">
-                        <button onClick={() => setMobileMenuOpen(true)} className="p-3 -ml-3">
+                        <button aria-label="Open navigation menu" aria-expanded={mobileMenuOpen} onClick={() => setMobileMenuOpen(true)} className="p-3 -ml-3 min-w-11 min-h-11">
                             <Menu className="w-6 h-6" />
                         </button>
                     </div>
@@ -92,6 +92,7 @@ export default function Navbar() {
                     <div className="flex items-center gap-1 sm:gap-4 text-foreground/80">
                         <Link 
                             href={session ? "/profile" : "/login"} 
+                            aria-label={session ? "Open profile" : "Open login"}
                             className="flex flex-col items-center relative group hover:text-foreground transition-all duration-300 p-2"
                         >
                             <User className="w-5 h-5 sm:mb-1 group-hover:scale-110 transition-transform" />
@@ -99,7 +100,7 @@ export default function Navbar() {
                                 {session ? "Profile" : "Login"}
                             </span>
                         </Link>
-                        <Link href="/wishlist" className="relative flex flex-col items-center group hover:text-foreground transition-all duration-300 p-2">
+                        <Link href="/wishlist" aria-label={`Open wishlist${wishlistCount ? `, ${wishlistCount} items` : ''}`} className="relative flex flex-col items-center group hover:text-foreground transition-all duration-300 p-2 min-w-11 min-h-11">
                             <Heart className="w-5 h-5 sm:mb-1 group-hover:scale-110 transition-transform" />
                             <span className="absolute top-full mt-1 text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-foreground font-semibold hidden sm:block">Wishlist</span>
                             {wishlistCount > 0 && (
@@ -108,7 +109,7 @@ export default function Navbar() {
                                 </span>
                             )}
                         </Link>
-                        <Link href="/cart" className="relative flex flex-col items-center group hover:text-foreground transition-all duration-300 p-2">
+                        <Link href="/cart" aria-label={`Open cart${cartCount ? `, ${cartCount} items` : ''}`} className="relative flex flex-col items-center group hover:text-foreground transition-all duration-300 p-2 min-w-11 min-h-11">
                             <ShoppingBag className="w-5 h-5 sm:mb-1 group-hover:scale-110 transition-transform" />
                             <span className="absolute top-full mt-1 text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-foreground font-semibold hidden sm:block">Cart</span>
                             {cartCount > 0 && (
@@ -131,6 +132,7 @@ export default function Navbar() {
                         className="fixed inset-0 z-[60] bg-background/95 backdrop-blur-sm lg:hidden flex flex-col pt-20 px-6"
                     >
                         <button
+                            aria-label="Close navigation menu"
                             className="absolute top-6 right-6 p-3"
                             onClick={() => setMobileMenuOpen(false)}
                         >
@@ -146,7 +148,8 @@ export default function Navbar() {
                                 }}
                                 className="flex items-center gap-2 border border-foreground/20 rounded-2xl px-4 py-3 text-base focus-within:border-foreground/40"
                             >
-                                <input name="mq" type="text" placeholder="Search products..." className="flex-1 bg-transparent focus:outline-none text-foreground text-sm placeholder:text-foreground/40" />
+                                <label className="sr-only" htmlFor="mobile-search">Search products</label>
+                                <input id="mobile-search" name="mq" type="search" placeholder="Search products..." className="flex-1 bg-transparent focus:outline-none text-foreground text-base placeholder:text-muted" />
                             </form>
                             {navLinks.map((link) => (
                                 <Link

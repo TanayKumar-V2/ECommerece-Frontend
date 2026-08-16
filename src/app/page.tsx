@@ -65,7 +65,7 @@ export default async function Home({
         <Navbar />
         <div className="container-custom pt-36 pb-20">
           <div className="mb-8">
-            <p className="text-xs uppercase tracking-widest text-foreground/40 font-semibold mb-2">
+            <p className="text-xs uppercase tracking-widest text-muted font-semibold mb-2">
               Search Results
             </p>
             <h1 className="text-3xl md:text-4xl font-heading font-semibold">
@@ -81,7 +81,7 @@ export default async function Home({
           {results.length > 0 ? (
             <SearchPageClient products={results as any} />
           ) : (
-            <div className="py-24 text-center text-foreground/40">
+            <div className="py-24 text-center text-muted">
               <p className="text-4xl mb-4">🔍</p>
               <p className="font-heading text-xl mb-2">Nothing found</p>
               <p className="text-sm">

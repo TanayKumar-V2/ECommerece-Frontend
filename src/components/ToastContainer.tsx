@@ -27,7 +27,7 @@ export default function ToastContainer() {
   const { toasts, removeToast } = useToastStore()
 
   return (
-    <div className="fixed top-4 right-4 z-[100] flex flex-col gap-3 pointer-events-none">
+    <div className="fixed top-4 right-4 z-[100] flex flex-col gap-3 pointer-events-none" role="status" aria-live="polite">
       <AnimatePresence mode="popLayout">
         {toasts.map((toast) => {
           const Icon = iconMap[toast.type]
@@ -44,8 +44,10 @@ export default function ToastContainer() {
               <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${iconColorMap[toast.type]}`} />
               <p className="text-sm font-medium flex-1">{toast.message}</p>
               <button
+                type="button"
+                aria-label="Dismiss notification"
                 onClick={() => removeToast(toast.id)}
-                className="shrink-0 opacity-60 hover:opacity-100 transition-opacity"
+                className="shrink-0 min-w-11 min-h-11 -my-2 -mr-2 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity"
               >
                 <X className="w-4 h-4" />
               </button>

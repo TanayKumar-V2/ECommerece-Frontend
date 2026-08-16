@@ -63,6 +63,8 @@ export default function AdminNavbar({ onMenuClick }: { onMenuClick: () => void }
         <header className="h-16 bg-white border-b border-foreground/10 sticky top-0 z-30 flex items-center justify-between px-4 lg:px-8">
             <div className="flex items-center gap-4">
                 <button 
+                    type="button"
+                    aria-label="Open admin navigation"
                     onClick={onMenuClick}
                     className="p-2 -ml-2 text-foreground/60 hover:text-foreground hover:bg-brand-cream/50 rounded-lg transition-colors lg:hidden"
                 >
@@ -73,6 +75,7 @@ export default function AdminNavbar({ onMenuClick }: { onMenuClick: () => void }
                 <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-brand-cream/20 border border-foreground/10 rounded-full focus-within:ring-2 focus-within:ring-brand-beige focus-within:border-transparent transition-all">
                     <Search className="w-4 h-4 text-foreground/40" />
                     <input 
+                        aria-label="Search admin"
                         type="text" 
                         placeholder="Search..." 
                         className="bg-transparent border-none outline-none text-sm w-48 placeholder:text-foreground/40"

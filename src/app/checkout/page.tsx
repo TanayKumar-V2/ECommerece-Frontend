@@ -311,7 +311,7 @@ export default function CheckoutPage() {
                                 {!mounted ? null : cart.map((item) => (
                                     <div key={`${item.id}-${item.size}`} className="flex gap-4">
                                         <div className="relative w-16 h-20 rounded-lg overflow-hidden shrink-0">
-                                            <Image src={item.image} alt={item.name} fill className="object-cover" />
+                                            <Image src={item.image} alt={item.name} fill sizes="64px" className="object-cover" />
                                         </div>
                                         <div className="flex-1 flex flex-col justify-center">
                                             <h4 className="font-medium text-sm line-clamp-1">{item.name}</h4>

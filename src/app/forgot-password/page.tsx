@@ -72,15 +72,16 @@ export default function ForgotPasswordPage() {
 
               <form className="space-y-5" onSubmit={handleSubmit}>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground/80 pl-1">Email</label>
+                   <label htmlFor="forgot-email" className="text-sm font-medium text-foreground/80 pl-1">Email</label>
                   <input
-                    type="email"
+                     type="email"
+                     id="forgot-email"
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     disabled={isLoading}
-                    className="w-full px-5 py-4 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-beige focus:border-transparent transition-all placeholder:text-foreground/30"
+                    className="w-full px-5 py-4 bg-brand-cream/10 border border-brand-beige/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent transition-all placeholder:text-muted text-base"
                   />
                 </div>
 

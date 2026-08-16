@@ -53,7 +53,7 @@ export default function ContactPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-xs uppercase tracking-widest text-foreground/40 font-semibold mb-4"
+            className="text-xs uppercase tracking-widest text-muted font-semibold mb-4"
           >
             Get In Touch
           </motion.p>
@@ -64,7 +64,7 @@ export default function ContactPage() {
             className="text-4xl md:text-6xl font-heading font-medium tracking-tight mb-6"
           >
             We'd Love to Hear
-            <span className="block italic text-brand-beige font-serif"> from You</span>
+            <span className="block italic text-muted font-serif"> from You</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -123,7 +123,7 @@ export default function ContactPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-xs uppercase tracking-widest text-foreground/40 font-semibold mb-2">
+                    <label htmlFor="contact-name" className="block text-xs uppercase tracking-widest text-muted font-semibold mb-2">
                       Full Name
                     </label>
                     <input
@@ -138,7 +138,7 @@ export default function ContactPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-widest text-foreground/40 font-semibold mb-2">
+                    <label htmlFor="contact-email" className="block text-xs uppercase tracking-widest text-muted font-semibold mb-2">
                       Email Address
                     </label>
                     <input
@@ -155,7 +155,7 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-widest text-foreground/40 font-semibold mb-2">
+                  <label htmlFor="contact-phone" className="block text-xs uppercase tracking-widest text-muted font-semibold mb-2">
                     Phone Number
                   </label>
                   <input
@@ -171,7 +171,7 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-widest text-foreground/40 font-semibold mb-2">
+                  <label htmlFor="contact-query" className="block text-xs uppercase tracking-widest text-muted font-semibold mb-2">
                     Your Message / Query
                   </label>
                   <textarea

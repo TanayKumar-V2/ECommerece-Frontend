@@ -10,13 +10,9 @@ export default function Hero() {
             {/* Background Decor */}
             <div className="absolute inset-0 w-full h-full pointer-events-none">
                 <motion.div
-                    animate={{ y: [0, -20, 0], scale: [1, 1.05, 1] }}
-                    transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
                     className="absolute -top-40 -right-40 w-96 h-96 bg-brand-cream rounded-full blur-3xl opacity-50"
                 />
                 <motion.div
-                    animate={{ y: [0, 20, 0], scale: [1, 1.1, 1] }}
-                    transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1 }}
                     className="absolute -bottom-40 -left-40 w-96 h-96 bg-brand-beige rounded-full blur-3xl opacity-40"
                 />
             </div>
@@ -31,7 +27,7 @@ export default function Hero() {
                         className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-heading font-medium tracking-tight leading-[1.1]"
                     >
                         Wear Your <br className="hidden md:block" />
-                        <span className="italic text-brand-beige font-serif">Culture</span>
+                        <span className="italic text-muted font-serif">Culture</span>
                     </motion.h1>
 
                     <motion.p
@@ -76,6 +72,7 @@ export default function Hero() {
                                 alt="Viraasat Hero Fashion"
                                 fill
                                 priority
+                                sizes="(max-width: 768px) 320px, (max-width: 1280px) 45vw, 600px"
                                 className="object-cover"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />

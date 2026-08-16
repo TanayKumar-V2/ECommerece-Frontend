@@ -32,10 +32,20 @@ export default function ProductCard({ product, index = 0, onOpenQuickView }: Pro
             className="group relative flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
         >
             <div
+                role="button"
+                tabIndex={0}
+                aria-label={`View ${product.name || 'product'} details`}
                 className="relative aspect-[3/4] w-full overflow-hidden bg-brand-cream/30 cursor-pointer"
                 onClick={() => {
                     addRecentlyViewed(product)
                     onOpenQuickView?.(product)
+                }}
+                onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault()
+                        addRecentlyViewed(product)
+                        onOpenQuickView?.(product)
+                    }
                 }}
             >
                 <Image
@@ -48,11 +58,13 @@ export default function ProductCard({ product, index = 0, onOpenQuickView }: Pro
 
                 {/* Wishlist Button */}
                 <button
+                    type="button"
+                    aria-label={displayWished ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
                     onClick={(e) => {
                         e.stopPropagation()
                         toggleWishlist(product)
                     }}
-                    className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full sm:opacity-0 sm:translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:bg-white z-10 shadow-sm"
+                    className="absolute top-3 right-3 p-2 min-w-11 min-h-11 flex items-center justify-center bg-white/90 backdrop-blur-sm rounded-full sm:opacity-100 sm:translate-y-0 group-hover:bg-white transition-all duration-300 z-10 shadow-sm"
                 >
                     <motion.div whileTap={{ scale: 0.8 }}>
                         <Heart className={`w-5 h-5 transition-colors ${displayWished ? 'fill-red-500 text-red-500' : 'text-foreground'}`} />
@@ -60,12 +72,13 @@ export default function ProductCard({ product, index = 0, onOpenQuickView }: Pro
                 </button>
 
                 {/* Add to Cart Overlay */}
-                <div className="absolute inset-x-0 bottom-0 p-4 opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 flex justify-center z-10">
+                <div className="absolute inset-x-0 bottom-0 p-4 opacity-100 translate-y-0 sm:opacity-0 sm:translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 focus-within:translate-y-0 focus-within:opacity-100 transition-all duration-300 flex justify-center z-10">
                     <button
                         onClick={(e) => {
                             e.stopPropagation()
                             onOpenQuickView?.(product)
                         }}
+                        type="button"
                         className="w-full bg-foreground text-background py-3 rounded-xl flex items-center justify-center gap-2 font-medium hover:bg-foreground/90 transition-colors shadow-lg"
                     >
                         <ShoppingCart className="w-4 h-4" />
