@@ -338,11 +338,14 @@ export default function ClientProfileWrapper({
                     </div>
 
                     {/* Amount */}
-                    <div className="flex items-center gap-2 bg-brand-cream/50 border border-brand-beige/60 rounded-2xl px-5 py-3">
-                      <IndianRupee className="w-4 h-4 text-foreground/50" />
-                      <span className="text-xl font-heading font-bold text-foreground">
-                        {order.totalAmount.toLocaleString("en-IN")}
-                      </span>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 bg-brand-cream/50 border border-brand-beige/60 rounded-2xl px-5 py-3">
+                        <IndianRupee className="w-4 h-4 text-foreground/50" />
+                        <span className="text-xl font-heading font-bold text-foreground">
+                          {order.totalAmount.toLocaleString("en-IN")}
+                        </span>
+                      </div>
+                      <Link href={`/checkout/receipt?id=${order._id}`} className="text-xs font-semibold text-foreground underline underline-offset-4 hover:text-muted">View receipt</Link>
                     </div>
                   </div>
                 </div>
@@ -367,6 +370,7 @@ export default function ClientProfileWrapper({
                             src={item.product.images[0]}
                             alt={item.product?.title ?? "Product"}
                             fill
+                            sizes="56px"
                             className="object-cover"
                           />
                         ) : (

@@ -7,7 +7,7 @@ import Product from "@/models/Product";
 export default async function WomenPage({
   searchParams,
 }: {
-  searchParams: Promise<{ size?: string; sort?: string; minPrice?: string; maxPrice?: string }>;
+  searchParams: Promise<{ size?: string; sort?: string; minPrice?: string; maxPrice?: string; category?: string }>;
 }) {
   await dbConnect();
 
@@ -32,6 +32,13 @@ export default async function WomenPage({
     }
   }
 
+  if (resolvedSearchParams.category) {
+    filter.$or = [
+      { title: { $regex: resolvedSearchParams.category, $options: 'i' } },
+      { description: { $regex: resolvedSearchParams.category, $options: 'i' } },
+    ];
+  }
+
   // Sort direction
   const sortDir =
     resolvedSearchParams.sort === "asc"
@@ -51,6 +58,8 @@ export default async function WomenPage({
       p.category.slice(1)) as "Men" | "Women" | "Unisex",
     colors: p.colors,
     sizes: p.sizes,
+    description: p.description,
+    stock: p.stock,
   }));
 
   return (

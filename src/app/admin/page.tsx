@@ -28,8 +28,9 @@ export default async function AdminDashboardPage() {
     const totalCustomers = await User.countDocuments({ role: "user" });
 
     // 5. Monthly Revenue Data
+    const currentYear = new Date().getFullYear();
     const monthlyRevenueRaw = await Order.aggregate([
-        { $match: { status: { $in: ["paid", "processing", "shipped", "delivered"] } } },
+        { $match: { status: { $in: ["paid", "processing", "shipped", "delivered"] }, createdAt: { $gte: new Date(`${currentYear}-01-01T00:00:00.000Z`) } } },
         { $group: { _id: { $month: "$createdAt" }, revenue: { $sum: "$totalAmount" } } },
         { $sort: { _id: 1 } },
     ]);
@@ -45,43 +46,44 @@ export default async function AdminDashboardPage() {
         return existing || { name, revenue: 0 };
     });
 
-    // 6. Top Products (Just fetching a few products as an example)
+    // 6. Catalog snapshot. Sales attribution is not available in the current order model,
+    // so the dashboard does not present invented sales or revenue values.
     const topProductsRaw = await Product.find({}).limit(4).lean() as any[];
     const topProducts = topProductsRaw.map((product) => ({
         id: product._id.toString(),
         name: product.title,
-        image: product.images && product.images.length > 0 ? product.images[0] : "https://via.placeholder.com/400",
-        sales: Math.floor(Math.random() * 50) + 10, // Mock sales count for now
-        revenue: Math.floor(Math.random() * 50000) + 10000 // Mock revenue for now
+        image: product.images && product.images.length > 0 ? product.images[0] : "/placeholder.jpg",
+        price: product.price,
+        stock: product.stock,
     }));
 
     const analyticsData = [
         {
             title: "Total Revenue",
-            value: `Rs. ${totalRevenue.toLocaleString('en-IN')}`,
+            value: `₹${totalRevenue.toLocaleString('en-IN')}`,
             subtitle: "From completed orders",
-            trend: "+0%", // To be implemented
+            trend: "Current total",
             color: "bg-orange-50 text-orange-600"
         },
         {
             title: "Total Orders",
             value: totalOrders.toString(),
             subtitle: "All orders received",
-            trend: "+0%",
+            trend: "All statuses",
             color: "bg-blue-50 text-blue-600"
         },
         {
             title: "Active Products",
             value: activeProducts.toString(),
             subtitle: "Products currently available",
-            trend: "+0",
+            trend: "Catalog count",
             color: "bg-emerald-50 text-emerald-600"
         },
         {
             title: "Total Customers",
             value: totalCustomers.toString(),
             subtitle: "Registered accounts",
-            trend: "+0%",
+            trend: "Registered accounts",
             color: "bg-purple-50 text-purple-600"
         }
     ];

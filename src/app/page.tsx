@@ -58,6 +58,8 @@ export default async function Home({
         p.category.slice(1)) as "Men" | "Women" | "Unisex",
       colors: p.colors,
       sizes: p.sizes,
+      description: p.description,
+      stock: p.stock,
     }));
 
     return (
@@ -123,7 +125,7 @@ export default async function Home({
       <div className="bg-brand-cream/10 border-t border-brand-beige/20">
         <ProductCarousel
           title="Trending Now"
-          subtitle="Our most loved pieces this season, carefully crafted to elevate your everyday wardobe."
+          subtitle="Our most loved pieces this season, carefully crafted to elevate your everyday wardrobe."
           products={trendingProducts}
         />
       </div>

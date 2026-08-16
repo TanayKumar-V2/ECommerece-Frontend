@@ -90,6 +90,9 @@ export default function AdminNavbar({ onMenuClick }: { onMenuClick: () => void }
                 
                 <div className="relative" ref={dropdownRef}>
                     <button 
+                        type="button"
+                        aria-label={`Open notifications${unreadCount ? `, ${unreadCount} unread` : ''}`}
+                        aria-expanded={isNotificationOpen}
                         onClick={() => setIsNotificationOpen(!isNotificationOpen)}
                         className={`p-2 rounded-full transition-colors relative ${isNotificationOpen ? 'bg-brand-cream/50 text-foreground' : 'text-foreground/60 hover:text-foreground hover:bg-brand-cream/50'}`}
                     >
@@ -137,9 +140,11 @@ export default function AdminNavbar({ onMenuClick }: { onMenuClick: () => void }
                                                         <p className="text-xs text-foreground/60 line-clamp-2 leading-relaxed">{n.message}</p>
                                                     </div>
                                                 </div>
-                                                <div className="mt-3 flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                 <div className="mt-3 flex items-center justify-end gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                                                     {!n.read && (
-                                                        <button 
+                                                         <button 
+                                                             type="button"
+                                                             aria-label={`Mark ${n.title} as read`}
                                                             onClick={() => handleMarkAsRead(n._id)}
                                                             className="p-1.5 text-foreground/40 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
                                                             title="Mark as read"
@@ -147,7 +152,9 @@ export default function AdminNavbar({ onMenuClick }: { onMenuClick: () => void }
                                                             <Check className="w-4 h-4" />
                                                         </button>
                                                     )}
-                                                    <button 
+                                                         <button 
+                                                         type="button"
+                                                         aria-label={`Delete notification: ${n.title}`}
                                                         onClick={() => handleDeleteNotification(n._id)}
                                                         className="p-1.5 text-foreground/40 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                                                         title="Delete"

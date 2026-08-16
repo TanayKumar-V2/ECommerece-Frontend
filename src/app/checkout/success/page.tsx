@@ -1,10 +1,9 @@
 "use client"
 
 import { useEffect, useState, Suspense } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import confetti from 'canvas-confetti'
+import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { Download, ArrowRight, Package, Check, Loader2 } from 'lucide-react'
+import { Download, Package, Loader2 } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import Image from 'next/image'
@@ -16,7 +15,6 @@ function OrderSuccessContent() {
     const { cart } = useStore()
     const [mounted, setMounted] = useState(false)
     const [isDownloading, setIsDownloading] = useState(false)
-    const [showToast, setShowToast] = useState(false)
     const [orderData, setOrderData] = useState<any>(null)
     const [isLoading, setIsLoading] = useState(true)
     
@@ -26,7 +24,11 @@ function OrderSuccessContent() {
     // Qikink automatically prepends the merchant ID (570176_) to the order_number we send (last 10 chars of Mongo ID).
     // We dynamically reconstruct exactly what is shown in the Qikink dashboard.
     const qikinkOrderNumber = id ? `570176_${id.slice(-10)}` : "Loading...";
-    const finalOrderId = orderData?.qikinkOrderId ? qikinkOrderNumber : "VR-" + Math.floor(10000 + Math.random() * 90000);
+    const finalOrderId = orderData?.qikinkOrderId
+        ? qikinkOrderNumber
+        : orderData?._id
+            ? `VR-${orderData._id.slice(-5).toUpperCase()}`
+            : "Pending confirmation";
 
     useEffect(() => {
         setMounted(true)
@@ -44,31 +46,6 @@ function OrderSuccessContent() {
             setIsLoading(false)
         }
         
-        // Fire confetti
-        const duration = 2000
-        const end = Date.now() + duration
-
-        const frame = () => {
-            confetti({
-                particleCount: 4,
-                angle: 60,
-                spread: 55,
-                origin: { x: 0 },
-                colors: ['#F5E6DA', '#EED9C4', '#D4B895']
-            })
-            confetti({
-                particleCount: 4,
-                angle: 120,
-                spread: 55,
-                origin: { x: 1 },
-                colors: ['#F5E6DA', '#EED9C4', '#D4B895']
-            })
-
-            if (Date.now() < end) {
-                requestAnimationFrame(frame)
-            }
-        }
-        frame()
     }, [id])
 
     const router = useRouter()
@@ -77,10 +54,7 @@ function OrderSuccessContent() {
         if (isDownloading) return
         setIsDownloading(true)
         
-        // Add minimal shimmer effect before redirecting
-        setTimeout(() => {
-            router.push(`/checkout/receipt?id=${id || ''}`)
-        }, 1200)
+        router.push(`/checkout/receipt?id=${id || ''}`)
     }
 
     if (!mounted) return null
@@ -159,10 +133,11 @@ function OrderSuccessContent() {
                                         className="flex gap-4 p-4 bg-white rounded-2xl border border-foreground/5 shadow-sm hover:shadow-md transition-shadow duration-300"
                                     >
                                         <div className="relative w-20 h-24 rounded-xl overflow-hidden shrink-0 bg-brand-cream/30">
-                                            <Image 
+                                             <Image 
                                                 src={item.product?.images?.[0] || item.image || "/placeholder.jpg"} 
                                                 alt={item.product?.title || item.name} 
-                                                fill 
+                                                 fill 
+                                                 sizes="80px"
                                                 className="object-cover" 
                                             />
                                         </div>
@@ -171,7 +146,7 @@ function OrderSuccessContent() {
                                             <p className="text-foreground/60 text-sm mt-1">Size: {item.size} • Qty: {item.quantity}</p>
                                         </div>
                                         <div className="flex items-center pr-2">
-                                            <p className="font-heading font-semibold">Rs. {((item.product?.price || item.price) * item.quantity).toLocaleString('en-IN')}</p>
+                                            <p className="font-heading font-semibold">₹{((item.product?.price || item.price) * item.quantity).toLocaleString('en-IN')}</p>
                                         </div>
                                     </motion.div>
                                 ))}
@@ -187,6 +162,7 @@ function OrderSuccessContent() {
                         >
                             {/* Receipt Button */}
                             <motion.button 
+                                type="button"
                                 onClick={handleDownload}
                                 animate={isDownloading ? { scale: [1, 1.02, 1] } : {}}
                                 transition={{ duration: 0.5 }}
@@ -208,10 +184,8 @@ function OrderSuccessContent() {
                             
 
 
-                            <Link href="/" className="block w-full cursor-pointer mt-8">
-                                <button className="w-full bg-foreground text-background py-4 rounded-2xl font-medium hover:bg-foreground/90 transition-all hover:-translate-y-0.5 shadow-md">
+                            <Link href="/" className="block w-full cursor-pointer mt-8 bg-foreground text-background py-4 rounded-2xl font-medium text-center hover:bg-foreground/90 transition-all hover:-translate-y-0.5 shadow-md">
                                     Continue Shopping
-                                </button>
                             </Link>
 
                         </motion.div>
@@ -220,22 +194,6 @@ function OrderSuccessContent() {
                 </div>
                 <Footer />
 
-                {/* Toast Notification */}
-                <AnimatePresence>
-                    {showToast && (
-                        <motion.div 
-                            initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-                            className="fixed bottom-8 right-8 bg-foreground text-background px-6 py-4 rounded-2xl shadow-2xl z-50 flex items-center gap-3 font-medium text-sm"
-                        >
-                            <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
-                                <Check className="w-4 h-4" strokeWidth={3} />
-                            </div>
-                            Receipt downloaded successfully.
-                        </motion.div>
-                    )}
-                </AnimatePresence>
             </main>
         </PageTransition>
     )

@@ -1,6 +1,5 @@
 "use client"
 
-import { useStore } from '@/store/useStore'
 import { Printer, Download, ArrowLeft, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState, Suspense } from 'react'
@@ -8,10 +7,10 @@ import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 
 function ReceiptContent() {
-    const { cart } = useStore()
     const [mounted, setMounted] = useState(false)
     const [orderData, setOrderData] = useState<any>(null)
     const [isLoading, setIsLoading] = useState(true)
+    const [loadError, setLoadError] = useState('')
     
     const searchParams = useSearchParams()
     const id = searchParams.get('id')
@@ -24,38 +23,33 @@ function ReceiptContent() {
                 .then(res => res.json())
                 .then(data => {
                     if (!data.error) setOrderData(data)
+                    else setLoadError('We could not find that order.')
                 })
-                .catch(err => console.error('Fetch error:', err))
+                .catch(err => { console.error('Fetch error:', err); setLoadError('We could not load this receipt. Please try again from your order confirmation.') })
                 .finally(() => setIsLoading(false))
         } else {
+            setLoadError('A receipt link is required to view an order receipt.')
             setIsLoading(false)
         }
     }, [id])
 
     if (!mounted) return null
     if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-brand-cream/10"><Loader2 className="w-8 h-8 animate-spin text-foreground/20" /></div>
+    if (loadError || !orderData) return <div className="min-h-screen flex items-center justify-center bg-background p-6"><div className="max-w-md text-center"><h1 className="text-3xl font-heading mb-3">Receipt unavailable</h1><p className="text-foreground/70 mb-6">{loadError || 'This receipt is not available yet.'}</p><Link href={id ? `/checkout/success?id=${id}` : '/'} className="inline-flex items-center justify-center rounded-xl bg-foreground px-6 py-3 font-medium text-background">Back to order</Link></div></div>
     
     // Fallback logic if no orderData is found (e.g. preview mode)
-    const displayItems = orderData?.products || cart
+    const displayItems = orderData.products || []
     const shipping = 63
-    const subtotal = orderData ? orderData.totalAmount - shipping : displayItems.reduce((acc: any, item: any) => acc + ((item.product?.price || item.price) * item.quantity), 0)
+    const subtotal = orderData.totalAmount - shipping
     const total = subtotal + shipping
     
-    const qikinkOrderNumber = id ? `570176_${id.slice(-10)}` : "Loading...";
-    const displayOrderId = orderData?.qikinkOrderId ? qikinkOrderNumber : (orderData ? `VR-${orderData._id.slice(-5).toUpperCase()}` : "VR-PREVIEW");
+    const qikinkOrderNumber = id ? `570176_${id.slice(-10)}` : "";
+    const displayOrderId = orderData.qikinkOrderId ? qikinkOrderNumber : `VR-${orderData._id.slice(-5).toUpperCase()}`;
     const dateStr = orderData 
         ? new Date(orderData.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-        : new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+        : ''
 
-    const billingInfo = orderData?.shippingAddress || {
-        name: "John Doe",
-        addressLine1: "123 Cozy Street",
-        city: "Mumbai",
-        state: "Maharashtra",
-        pincode: "400001"
-    }
-    
-    const userEmail = orderData?.user?.email || "customer@example.com"
+    const billingInfo = orderData.shippingAddress
 
     const handlePrint = () => {
         window.print()
@@ -136,7 +130,8 @@ function ReceiptContent() {
                                         <Image 
                                             src={item.product?.images?.[0] || item.image || "/placeholder.jpg"} 
                                             alt={item.product?.title || item.name} 
-                                            fill 
+                                             fill 
+                                             sizes="40px"
                                             className="object-cover" 
                                         />
                                     </div>
@@ -146,8 +141,8 @@ function ReceiptContent() {
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <p className="font-medium text-sm text-foreground">Rs. {((item.product?.price || item.price) * item.quantity).toLocaleString('en-IN')}</p>
-                                    <p className="text-xs text-foreground/40 mt-0.5">Rs. {(item.product?.price || item.price).toLocaleString('en-IN')} each</p>
+                                    <p className="font-medium text-sm text-foreground">₹{((item.product?.price || item.price) * item.quantity).toLocaleString('en-IN')}</p>
+                                    <p className="text-xs text-foreground/60 mt-0.5">₹{(item.product?.price || item.price).toLocaleString('en-IN')} each</p>
                                 </div>
                             </div>
                         ))}
@@ -159,19 +154,19 @@ function ReceiptContent() {
                     <div className="space-y-3 w-full sm:w-1/2 ml-auto text-sm">
                         <div className="flex justify-between text-foreground/70">
                             <span>Subtotal</span>
-                            <span className="font-medium text-foreground">Rs. {subtotal.toLocaleString('en-IN')}</span>
+                            <span className="font-medium text-foreground">₹{subtotal.toLocaleString('en-IN')}</span>
                         </div>
                         <div className="flex justify-between text-foreground/70">
                             <span>Shipping</span>
-                            <span className="font-medium text-foreground">Rs. {shipping}</span>
+                            <span className="font-medium text-foreground">₹{shipping}</span>
                         </div>
                         <div className="flex justify-between text-foreground/70">
                             <span>Tax (Included)</span>
-                            <span className="font-medium text-foreground">Rs. 0</span>
+                            <span className="font-medium text-foreground">₹0</span>
                         </div>
                         <div className="flex justify-between items-center pt-3 mt-3 border-t border-foreground/10">
                             <span className="font-medium uppercase tracking-wider text-xs">Total Paid</span>
-                            <span className="font-heading font-bold text-2xl text-foreground">Rs. {total.toLocaleString('en-IN')}</span>
+                            <span className="font-heading font-bold text-2xl text-foreground">₹{total.toLocaleString('en-IN')}</span>
                         </div>
                     </div>
                 </div>

@@ -116,8 +116,8 @@ export default function DashboardClient({
                     className="bg-white p-6 rounded-[2rem] shadow-sm border border-foreground/5 flex flex-col"
                 >
                     <div className="mb-6 flex justify-between items-center">
-                        <h2 className="text-xl font-heading font-semibold text-foreground">Top Products</h2>
-                         <button className="text-xs text-muted font-medium hover:text-foreground transition-colors">View All</button>
+                        <h2 className="text-xl font-heading font-semibold text-foreground">Catalog Snapshot</h2>
+                        <a href="/admin/products" className="text-xs text-muted font-medium hover:text-foreground transition-colors">Manage products</a>
                     </div>
                     <div className="flex-1 overflow-hidden">
                         <TopProducts products={topProducts} />

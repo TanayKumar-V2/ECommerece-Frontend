@@ -2,7 +2,8 @@
 
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { Loader2, Check } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
+import Link from 'next/link'
 
 export default function OrderSuccess({ onComplete }: { onComplete: () => void }) {
     const [step, setStep] = useState<'processing' | 'success'>('processing')
@@ -12,18 +13,13 @@ export default function OrderSuccess({ onComplete }: { onComplete: () => void })
             setStep('success')
         }, 1500)
 
-        const timer2 = setTimeout(() => {
-            onComplete()
-        }, 3500)
-
         return () => {
             clearTimeout(timer1)
-            clearTimeout(timer2)
         }
     }, [onComplete])
 
     return (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div role="dialog" aria-modal="true" aria-labelledby="order-confirmed-title" className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -107,7 +103,7 @@ export default function OrderSuccess({ onComplete }: { onComplete: () => void })
                             transition={{ delay: 1 }}
                             className="text-2xl font-heading font-semibold text-foreground mb-2"
                         >
-                            Order Confirmed 🎉
+                            <span id="order-confirmed-title">Order Confirmed</span>
                         </motion.h3>
                         <motion.p 
                             initial={{ opacity: 0, y: 10 }}
@@ -115,8 +111,12 @@ export default function OrderSuccess({ onComplete }: { onComplete: () => void })
                             transition={{ delay: 1.2 }}
                             className="text-sm text-foreground/60 px-4"
                         >
-                            Your Viraasat order has been placed successfully.
+                            Your Viraasat order has been placed successfully. Your order details are ready to view.
                         </motion.p>
+                        <div className="flex gap-3 mt-6 w-full">
+                            <button type="button" onClick={onComplete} className="flex-1 bg-foreground text-background py-3 rounded-xl font-medium">View order</button>
+                            <Link href="/" className="flex-1 border border-foreground/20 text-foreground py-3 rounded-xl font-medium text-center">Continue shopping</Link>
+                        </div>
                     </motion.div>
                 )}
             </motion.div>

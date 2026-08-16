@@ -7,6 +7,8 @@ export interface Product {
     price: number
     image: string
     category: "Men" | "Women" | "Unisex"
+    description?: string
+    stock?: number
     sizes?: string[]
     colors?: string[]
 }

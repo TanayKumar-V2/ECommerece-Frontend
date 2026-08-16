@@ -17,17 +17,18 @@ export default function TopProducts({ products }: { products?: any[] }) {
                             src={product.image} 
                             alt={product.name} 
                             fill 
+                            sizes="56px"
                             className="object-cover"
                         />
                     </div>
                     
                     <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-sm text-foreground truncate">{product.name}</h4>
-                        <p className="text-xs text-foreground/50 mt-0.5">{product.sales} sales</p>
+                        <p className="text-xs text-foreground/60 mt-0.5">{product.stock ?? 0} in stock</p>
                     </div>
                     
                     <div className="text-right shrink-0">
-                        <p className="font-heading font-semibold text-foreground">Rs. {product.revenue.toLocaleString('en-IN')}</p>
+                        <p className="font-heading font-semibold text-foreground">₹{product.price.toLocaleString('en-IN')}</p>
                     </div>
                 </div>
             ))}

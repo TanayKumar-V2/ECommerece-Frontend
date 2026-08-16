@@ -7,11 +7,14 @@ export default async function AnalyticsPage() {
   await verifyAdmin();
   await dbConnect();
 
-  // Aggregate revenue by month
+  const currentYear = new Date().getFullYear();
+
+  // Aggregate revenue by month for the current calendar year.
   const revenueData = await Order.aggregate([
     {
-      $match: {
-        status: { $in: ["paid", "processing", "shipped", "delivered"] },
+        $match: {
+          status: { $in: ["paid", "processing", "shipped", "delivered"] },
+          createdAt: { $gte: new Date(`${currentYear}-01-01T00:00:00.000Z`) },
       },
     },
     {
@@ -49,7 +52,7 @@ export default async function AnalyticsPage() {
         <div className="mb-6 flex justify-between items-center">
           <div>
             <h2 className="text-xl font-heading font-semibold text-foreground">Revenue Over Time</h2>
-            <p className="text-sm text-foreground/60">Annual performance overview</p>
+            <p className="text-sm text-foreground/60">Revenue recorded from completed and active orders in {currentYear}.</p>
           </div>
         </div>
         <div className="flex-1 min-h-0">

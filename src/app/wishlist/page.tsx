@@ -225,6 +225,8 @@ function WishlistCard({
 
         {/* ── Remove button (top-right) ── */}
         <motion.button
+          type="button"
+          aria-label={`Remove ${item.name} from wishlist`}
           whileTap={{ scale: 0.82 }}
           onClick={onRemove}
           title="Remove from wishlist"
@@ -234,8 +236,9 @@ function WishlistCard({
         </motion.button>
 
         {/* ── Move to Cart CTA (slides up from bottom on hover) ── */}
-        <div className="absolute inset-x-4 bottom-4 z-10 translate-y-[110%] group-hover:translate-y-0 transition-transform duration-300 ease-out">
-          <button
+        <div className="absolute inset-x-4 bottom-4 z-10 translate-y-0 sm:translate-y-[110%] group-hover:translate-y-0 focus-within:translate-y-0 transition-transform duration-300 ease-out">
+           <button
+             type="button"
             onClick={onMoveToCart}
             className="w-full bg-foreground/90 backdrop-blur-md text-background py-3.5 rounded-2xl flex items-center justify-center gap-2 font-semibold text-sm hover:bg-foreground transition-colors shadow-2xl active:scale-[0.98]"
           >

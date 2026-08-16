@@ -243,7 +243,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       </div>
                     </td>
                     <td className="p-4 text-sm text-foreground/80 capitalize">{product.category}</td>
-                    <td className="p-4 text-sm font-medium">Rs. {product.price.toLocaleString('en-IN')}</td>
+                    <td className="p-4 text-sm font-medium">₹{product.price.toLocaleString('en-IN')}</td>
                     <td className="p-4 text-sm">
                       <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${product.stock > 10 ? 'bg-green-100 text-green-700' : product.stock > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
                         {product.stock || 0} left
@@ -331,7 +331,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                       </select>
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-foreground/80 pl-1">Price (Rs.)</label>
+                      <label className="text-sm font-medium text-foreground/80 pl-1">Price (₹)</label>
                       <input 
                         type="number" 
                         required

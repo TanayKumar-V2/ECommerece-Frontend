@@ -91,6 +91,7 @@ export default function ProductCard({ product, index = 0, onOpenQuickView }: Pro
                 <p className="text-xs text-foreground/60 uppercase tracking-wider">{product.category}</p>
                 <h3 className="font-heading text-lg font-medium text-foreground line-clamp-1">{product.name}</h3>
                 <p className="text-foreground/80">₹{product.price.toLocaleString('en-IN')}</p>
+                {product.stock === 0 ? <p className="text-xs font-medium text-error">Out of stock</p> : product.stock !== undefined && product.stock <= 5 ? <p className="text-xs font-medium text-warning">Only {product.stock} left</p> : null}
             </div>
         </motion.div>
     )

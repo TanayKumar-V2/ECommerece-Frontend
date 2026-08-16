@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ShoppingCart, Check, ChevronRight, ChevronLeft } from 'lucide-react'
 import Image from 'next/image'
@@ -26,18 +26,36 @@ export default function ProductQuickView({ product, isOpen, onClose }: ProductQu
     const [quantity, setQuantity] = useState(1);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [added, setAdded] = useState(false);
+    const dialogRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         if (!isOpen) return
+        const previouslyFocused = document.activeElement as HTMLElement | null
         const closeOnEscape = (event: KeyboardEvent) => {
             if (event.key === 'Escape') onClose()
         }
         document.addEventListener('keydown', closeOnEscape)
+        const focusable = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        const handleTab = (event: KeyboardEvent) => {
+            if (event.key !== 'Tab' || !dialogRef.current) return
+            const elements = Array.from(dialogRef.current.querySelectorAll<HTMLElement>(focusable))
+            if (!elements.length) return
+            const first = elements[0]
+            const last = elements[elements.length - 1]
+            if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
+            else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
+        }
+        document.addEventListener('keydown', handleTab)
+        requestAnimationFrame(() => {
+            dialogRef.current?.querySelector<HTMLElement>(focusable)?.focus()
+        })
         const previousOverflow = document.body.style.overflow
         document.body.style.overflow = 'hidden'
         return () => {
             document.removeEventListener('keydown', closeOnEscape)
+            document.removeEventListener('keydown', handleTab)
             document.body.style.overflow = previousOverflow
+            previouslyFocused?.focus()
         }
     }, [isOpen, onClose])
 
@@ -79,6 +97,7 @@ export default function ProductQuickView({ product, isOpen, onClose }: ProductQu
                             role="dialog"
                             aria-modal="true"
                             aria-labelledby="quick-view-title"
+                            ref={dialogRef}
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -119,6 +138,10 @@ export default function ProductQuickView({ product, isOpen, onClose }: ProductQu
                                 <p className="text-[10px] uppercase tracking-widest text-muted font-semibold mb-2">{product.category}</p>
                                 <h2 id="quick-view-title" className="text-2xl md:text-3xl font-heading mb-2 leading-tight">{product.name}</h2>
                                 <p className="text-2xl font-bold mb-8">₹{product.price.toLocaleString('en-IN')}</p>
+                                {product.description && <p className="text-sm text-foreground/70 leading-relaxed mb-6">{product.description}</p>}
+                                {product.stock === 0 && <p className="text-sm font-semibold text-error mb-6">Out of stock</p>}
+                                {product.stock !== undefined && product.stock > 0 && product.stock <= 5 && <p className="text-sm font-semibold text-warning mb-6">Only {product.stock} left in stock</p>}
+                                <p className="text-xs text-foreground/70 mb-6">Shipping is ₹63. Orders usually ship within 2–5 business days. Contact support for returns help.</p>
 
                                 <div className="space-y-6 flex-1">
                                     {/* Color Selection */}
@@ -193,13 +216,13 @@ export default function ProductQuickView({ product, isOpen, onClose }: ProductQu
                                     <button
                                         type="button"
                                         onClick={handleAddToCart}
-                                        disabled={added}
+                                        disabled={added || product.stock === 0}
                                         className={`flex-1 py-3.5 sm:py-4 rounded-xl flex items-center justify-center gap-2 font-medium transition-all ${added ? 'bg-success text-white shadow-lg' : 'bg-foreground text-background hover:bg-foreground/90 hover:shadow-lg'}`}
                                     >
                                         {added ? (
                                             <><Check className="w-5 h-5" /> Added to Cart</>
                                         ) : (
-                                            <><ShoppingCart className="w-5 h-5" /> Add {quantity} items - ₹{(product.price * quantity).toLocaleString('en-IN')}</>
+                                            <><ShoppingCart className="w-5 h-5" /> {product.stock === 0 ? 'Out of stock' : `Add ${quantity} items - ₹${(product.price * quantity).toLocaleString('en-IN')}`}</>
                                         )}
                                     </button>
                                 </div>

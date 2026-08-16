@@ -156,13 +156,12 @@ export default function ContactPage() {
 
                 <div>
                   <label htmlFor="contact-phone" className="block text-xs uppercase tracking-widest text-muted font-semibold mb-2">
-                    Phone Number
+                      Phone Number (optional)
                   </label>
                   <input
                     id="contact-phone"
                     name="phone"
                     type="tel"
-                    required
                     value={form.phone}
                     onChange={handleChange}
                     placeholder="Phone Number"

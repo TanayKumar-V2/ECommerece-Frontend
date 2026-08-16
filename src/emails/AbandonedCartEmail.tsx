@@ -28,7 +28,7 @@ export default function AbandonedCartEmail({
   totalAmount,
   checkoutLink,
 }: AbandonedCartEmailProps) {
-  const formattedTotal = `Rs. ${totalAmount.toLocaleString('en-IN')}`;
+  const formattedTotal = `₹${totalAmount.toLocaleString('en-IN')}`;
 
   return (
     <Html>
@@ -57,7 +57,7 @@ export default function AbandonedCartEmail({
               {items.map((item, i) => (
                 <Text key={i} style={itemText}>
                   {item.name} × {item.quantity} —{' '}
-                  <strong>Rs. {(item.price * item.quantity).toLocaleString('en-IN')}</strong>
+                  <strong>₹{(item.price * item.quantity).toLocaleString('en-IN')}</strong>
                 </Text>
               ))}
             </Section>

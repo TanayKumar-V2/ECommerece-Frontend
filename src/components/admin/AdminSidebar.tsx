@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { LayoutDashboard, Package, ShoppingBag, BarChart3, Settings, LogOut, Menu, X, MessageSquare } from 'lucide-react'
+import { signOut } from 'next-auth/react'
+import { LayoutDashboard, Package, ShoppingBag, BarChart3, LogOut, X, MessageSquare } from 'lucide-react'
 
 export default function AdminSidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (val: boolean) => void }) {
     const pathname = usePathname()
@@ -34,7 +35,9 @@ export default function AdminSidebar({ isOpen, setIsOpen }: { isOpen: boolean, s
                 style={{ translateX: isOpen ? 0 : '-100%' }} // Fallback for initial render
             >
                 {/* Mobile Close Button */}
-                <button 
+                 <button 
+                     type="button"
+                     aria-label="Close admin navigation"
                     onClick={() => setIsOpen(false)}
                     className="absolute top-4 right-4 p-2 text-foreground/60 hover:text-foreground lg:hidden"
                 >
@@ -66,11 +69,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }: { isOpen: boolean, s
 
                 {/* Bottom Actions */}
                 <div className="p-4 border-t border-foreground/10 space-y-2">
-                    <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-foreground/70 hover:bg-brand-cream/50 hover:text-foreground transition-all duration-200 group">
-                        <Settings className="w-5 h-5 text-foreground/50 group-hover:text-foreground/80" />
-                        <span>Settings</span>
-                    </button>
-                    <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500/70 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group">
+                    <button type="button" onClick={() => signOut({ callbackUrl: '/login' })} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500/70 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group">
                         <LogOut className="w-5 h-5 text-red-500/50 group-hover:text-red-500/80" />
                         <span>Logout</span>
                     </button>

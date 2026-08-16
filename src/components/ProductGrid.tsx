@@ -35,6 +35,7 @@ function ProductGridInner({ products, title, description }: ProductGridProps) {
     const activeSort = searchParams.get('sort') ?? ''
     const activeMinPrice = searchParams.get('minPrice') ?? ''
     const activeMaxPrice = searchParams.get('maxPrice') ?? ''
+    const activeCategory = searchParams.get('category') ?? ''
 
     const buildUrl = (updates: Record<string, string>) => {
         const params = new URLSearchParams(searchParams.toString())
@@ -69,7 +70,8 @@ function ProductGridInner({ products, title, description }: ProductGridProps) {
         router.replace(pathname, { scroll: false })
     }
 
-    const hasFilters = activeSize || activeSort || activeMinPrice || activeMaxPrice
+    const hasFilters = activeSize || activeSort || activeMinPrice || activeMaxPrice || activeCategory
+    const activeFilterSummary = [activeCategory && `Category: ${activeCategory}`, activeSize && `Size: ${activeSize}`, activeMinPrice && 'Price range', activeSort && `Sorted ${activeSort === 'asc' ? 'low to high' : 'high to low'}`].filter(Boolean).join(' · ')
 
     const SidebarContent = () => (
         <div className="sticky top-24 pr-4 border-r border-foreground/10 h-[calc(100vh-120px)] overflow-y-auto pb-10" style={{ scrollbarWidth: 'none' }}>
@@ -171,6 +173,7 @@ function ProductGridInner({ products, title, description }: ProductGridProps) {
                     >
                         <h1 className="text-4xl md:text-5xl font-heading mb-4">{title}</h1>
                         {description && <p className="text-foreground/70 max-w-2xl">{description}</p>}
+                        <p className="text-sm text-muted mt-3">{products.length} {products.length === 1 ? 'piece' : 'pieces'}{activeFilterSummary ? ` · ${activeFilterSummary}` : ''}</p>
                     </motion.div>
 
                     {/* Mobile filter toggle */}

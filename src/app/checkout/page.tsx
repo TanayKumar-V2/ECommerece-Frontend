@@ -14,10 +14,11 @@ declare global {
   }
 }
 
-const InputField = ({ label, type = "text", placeholder, value, onChange }: { label: string, type?: string, placeholder?: string, value?: string, onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void }) => (
+const InputField = ({ id, label, type = "text", placeholder, value, onChange }: { id: string, label: string, type?: string, placeholder?: string, value?: string, onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void }) => (
     <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-foreground/80">{label}</label>
+        <label htmlFor={id} className="text-sm font-medium text-foreground/80">{label}</label>
         <input
+            id={id}
             type={type}
             placeholder={placeholder}
             value={value}
@@ -29,6 +30,7 @@ const InputField = ({ label, type = "text", placeholder, value, onChange }: { la
 )
 
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import OrderSuccess from '@/components/checkout/OrderSuccess'
 import PageTransition from '@/components/PageTransition'
 import { useToastStore } from '@/store/toastStore'
@@ -42,6 +44,7 @@ export default function CheckoutPage() {
     const [isSuccess, setIsSuccess] = useState(false)
     const [orderId, setOrderId] = useState<string | null>(null)
     const [priceChanges, setPriceChanges] = useState<{ id: string; name: string; oldPrice: number; newPrice: number }[]>([])
+    const [paymentError, setPaymentError] = useState('')
 
     // Form State
     const [email, setEmail] = useState('')
@@ -105,6 +108,7 @@ export default function CheckoutPage() {
         e.preventDefault()
         if (cart.length === 0) return;
         setIsProcessing(true)
+        setPaymentError('')
 
         try {
             if (paymentMethod === 'cod') {
@@ -172,7 +176,7 @@ export default function CheckoutPage() {
                         }
                     } catch (err) {
                         console.error('Verification error:', err);
-                        addToast('error', 'Payment verification failed. Please contact support.');
+                        setPaymentError('Payment verification could not be completed. You can retry payment or contact support at messaging@viraasatclothing.store.');
                     } finally {
                         setIsProcessing(false);
                     }
@@ -189,20 +193,24 @@ export default function CheckoutPage() {
 
             const rzp = new window.Razorpay(options);
             rzp.on('payment.failed', function (response: any){
-                addToast('error', 'Payment failed. ' + response.error.description);
+                setPaymentError(`Payment failed${response?.error?.description ? `: ${response.error.description}` : '.'} You can try again or choose Cash on Delivery.`);
                 setIsProcessing(false);
             });
             rzp.open();
 
         } catch (error: any) {
             console.error('Checkout error:', error);
-            addToast('error', 'Error: ' + error.message);
+            setPaymentError(error?.message || 'We could not start checkout. Please try again.');
             setIsProcessing(false);
         }
     }
 
     const onAnimationComplete = () => {
         router.push(`/checkout/success?id=${orderId}`)
+    }
+
+    if (mounted && cart.length === 0 && !isSuccess) {
+        return <PageTransition><main className="min-h-screen bg-background flex flex-col"><Navbar /><div className="flex-1 container-custom py-32 text-center"><h1 className="text-4xl font-heading mb-4">Your bag is empty</h1><p className="text-foreground/70 mb-8">Add something you love before starting checkout.</p><Link href="/" className="inline-flex rounded-full bg-foreground px-7 py-3.5 font-medium text-background">Browse collection</Link></div><Footer /></main></PageTransition>
     }
 
     return (
@@ -232,8 +240,8 @@ export default function CheckoutPage() {
                             <ul className="space-y-1 text-amber-700">
                               {priceChanges.map((c) => (
                                 <li key={c.id}>
-                                  {c.name}: <span className="line-through">Rs. {c.oldPrice.toLocaleString('en-IN')}</span>
-                                  {' → '}<span className="font-semibold">Rs. {c.newPrice.toLocaleString('en-IN')}</span>
+                                   {c.name}: <span className="line-through">₹{c.oldPrice.toLocaleString('en-IN')}</span>
+                                   {' → '}<span className="font-semibold">₹{c.newPrice.toLocaleString('en-IN')}</span>
                                 </li>
                               ))}
                             </ul>
@@ -243,56 +251,51 @@ export default function CheckoutPage() {
                         <form onSubmit={handlePayment} className="space-y-8 bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-foreground/5 relative overflow-hidden">
                             <div>
                                 <h3 className="text-xl font-heading mb-6 border-b border-foreground/10 pb-4">Contact Information</h3>
-                                <InputField label="Email Address" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                                 <InputField id="checkout-email" label="Email Address" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
                             </div>
 
                             <div>
                                 <h3 className="text-xl font-heading mb-6 border-b border-foreground/10 pb-4">Shipping Address</h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <InputField label="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-                                    <InputField label="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-                                    <div className="sm:col-span-2"><InputField label="Address" placeholder="123 Cozy Street" value={address} onChange={(e) => setAddress(e.target.value)} /></div>
-                                    <InputField label="City" value={city} onChange={(e) => setCity(e.target.value)} />
-                                    <InputField label="State" value={state} onChange={(e) => setState(e.target.value)} />
-                                    <InputField label="PIN Code" value={pincode} onChange={(e) => setPincode(e.target.value)} />
-                                    <InputField label="Phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                                     <InputField id="checkout-first-name" label="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                                     <InputField id="checkout-last-name" label="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                                     <div className="sm:col-span-2"><InputField id="checkout-address" label="Address" placeholder="123 Cozy Street" value={address} onChange={(e) => setAddress(e.target.value)} /></div>
+                                     <InputField id="checkout-city" label="City" value={city} onChange={(e) => setCity(e.target.value)} />
+                                     <InputField id="checkout-state" label="State" value={state} onChange={(e) => setState(e.target.value)} />
+                                     <InputField id="checkout-pincode" label="PIN Code" value={pincode} onChange={(e) => setPincode(e.target.value)} />
+                                     <InputField id="checkout-phone" label="Phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
                                 </div>
                             </div>
 
                             <div>
-                                <h3 className="text-xl font-heading mb-6 border-b border-foreground/10 pb-4">Payment Method</h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div 
-                                      onClick={() => setPaymentMethod('online')}
-                                      className={`p-4 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'online' ? 'border-brand-beige bg-brand-cream/20 shadow-sm' : 'border-foreground/10 hover:border-foreground/30'}`}
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${paymentMethod === 'online' ? 'border-brand-beige' : 'border-foreground/30'}`}>
-                                                {paymentMethod === 'online' && <div className="w-2 h-2 rounded-full bg-brand-beige" />}
-                                            </div>
-                                            <span className="font-medium">Pay Online</span>
-                                        </div>
-                                    </div>
-                                    <div 
-                                      onClick={() => setPaymentMethod('cod')}
-                                      className={`p-4 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'cod' ? 'border-brand-beige bg-brand-cream/20 shadow-sm' : 'border-foreground/10 hover:border-foreground/30'}`}
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${paymentMethod === 'cod' ? 'border-brand-beige' : 'border-foreground/30'}`}>
-                                                {paymentMethod === 'cod' && <div className="w-2 h-2 rounded-full bg-brand-beige" />}
-                                            </div>
-                                            <span className="font-medium">Cash on Delivery</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                <fieldset>
+                                  <legend className="text-xl font-heading mb-6 border-b border-foreground/10 pb-4 w-full">Payment Method</legend>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {[
+                                      { value: 'online' as const, label: 'Pay Online', description: 'Secure payment via Razorpay' },
+                                      { value: 'cod' as const, label: 'Cash on Delivery', description: 'Pay when your order arrives' },
+                                    ].map((option) => (
+                                      <label key={option.value} className={`p-4 border rounded-xl cursor-pointer transition-all ${paymentMethod === option.value ? 'border-brand-beige bg-brand-cream/20 shadow-sm' : 'border-foreground/10 hover:border-foreground/30'}`}>
+                                        <span className="flex items-start gap-3">
+                                          <input type="radio" name="payment-method" value={option.value} checked={paymentMethod === option.value} onChange={() => setPaymentMethod(option.value)} className="mt-1 accent-foreground" />
+                                          <span><span className="font-medium block">{option.label}</span><span className="text-xs text-foreground/60">{option.description}</span></span>
+                                        </span>
+                                      </label>
+                                    ))}
+                                  </div>
+                                </fieldset>
+                             </div>
+
+                             {paymentError && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><p>{paymentError}</p><button type="button" onClick={() => setPaymentError('')} className="mt-2 font-semibold underline underline-offset-2">Try again</button></div>}
+
+                             <p className="text-xs text-foreground/70">Shipping is ₹63. Orders usually ship within 2–5 business days. Review your address before placing the order.</p>
 
                             <button
                                 type="submit"
                                 disabled={isProcessing}
                                 className="w-full bg-foreground text-background py-4 flex items-center justify-center gap-2 rounded-xl font-medium hover:bg-foreground/90 transition-all hover:shadow-lg hover:-translate-y-1 transform duration-300 disabled:opacity-70 disabled:hover:translate-y-0"
                             >
-                                {isProcessing ? 'Processing...' : paymentMethod === 'cod' ? `Complete Order (COD)` : `Pay Rs. ${total.toLocaleString('en-IN')}`}
+                                {isProcessing ? 'Processing...' : paymentMethod === 'cod' ? `Place COD order` : `Pay ₹${total.toLocaleString('en-IN')}`}
                             </button>
                         </form>
                     </motion.div>
@@ -318,7 +321,7 @@ export default function CheckoutPage() {
                                             <p className="text-foreground/60 text-xs">Size: {item.size} • Qty: {item.quantity}</p>
                                         </div>
                                         <div className="flex items-center">
-                                            <p className="font-semibold text-sm w-max whitespace-nowrap">Rs. {(item.price * item.quantity).toLocaleString('en-IN')}</p>
+                                             <p className="font-semibold text-sm w-max whitespace-nowrap">₹{(item.price * item.quantity).toLocaleString('en-IN')}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -327,18 +330,18 @@ export default function CheckoutPage() {
                             <div className="space-y-3 pt-6 border-t border-brand-beige/40 text-sm text-foreground/80">
                                 <div className="flex justify-between">
                                     <span>Subtotal</span>
-                                    <span>Rs. {subtotal.toLocaleString('en-IN')}</span>
+                                     <span>₹{subtotal.toLocaleString('en-IN')}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span>Shipping</span>
-                                    <span>Rs. {shipping}</span>
+                                     <span>₹{shipping}</span>
                                 </div>
                             </div>
 
                             <div className="border-t border-brand-beige/40 py-4 mt-4">
                                 <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-foreground/5 shadow-sm">
                                     <span className="font-medium">Total</span>
-                                    <span className="font-bold text-xl font-heading">Rs. {total.toLocaleString('en-IN')}</span>
+                                     <span className="font-bold text-xl font-heading">₹{total.toLocaleString('en-IN')}</span>
                                 </div>
                             </div>
                         </div>

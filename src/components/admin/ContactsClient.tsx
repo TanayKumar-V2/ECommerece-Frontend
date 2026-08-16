@@ -32,11 +32,12 @@ export default function ContactsClient({ initialMessages }: ContactsClientProps)
 
   const updateStatus = async (id: string, status: "new" | "read" | "resolved") => {
     try {
-      await fetch(`/api/admin/contacts/${id}`, {
+      const response = await fetch(`/api/admin/contacts/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
+      if (!response.ok) throw new Error('Could not update contact status')
       setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, status } : m)));
     } catch {
       // silent fail
@@ -87,7 +88,7 @@ export default function ContactsClient({ initialMessages }: ContactsClientProps)
               {s !== "all" && (
                 <span className="ml-1 opacity-60">({messages.filter((m) => m.status === s).length})</span>
               )}
-            </button>
+              </button>
           ))}
         </div>
       </div>
@@ -137,8 +138,11 @@ export default function ContactsClient({ initialMessages }: ContactsClientProps)
                 }`}
               >
                 {/* Card Header — always visible */}
-                <div
-                  className="flex flex-col sm:flex-row sm:items-center gap-3 px-6 py-4 cursor-pointer hover:bg-brand-cream/20 transition-colors"
+                  <button
+                    type="button"
+                    aria-expanded={isExpanded}
+                    aria-controls={`contact-message-${msg.id}`}
+                    className="flex flex-col sm:flex-row sm:items-center gap-3 px-6 py-4 cursor-pointer hover:bg-brand-cream/20 transition-colors"
                   onClick={() => {
                     setExpanded(isExpanded ? null : msg.id);
                     if (msg.status === "new") updateStatus(msg.id, "read");
@@ -170,8 +174,8 @@ export default function ContactsClient({ initialMessages }: ContactsClientProps)
                       <StatusIcon className="w-3 h-3" />
                       {label}
                     </span>
-                  </div>
-                </div>
+                   </div>
+                 </button>
 
                 {/* Expanded Query */}
                 {isExpanded && (
@@ -179,6 +183,7 @@ export default function ContactsClient({ initialMessages }: ContactsClientProps)
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
+                    id={`contact-message-${msg.id}`}
                     className="px-6 pb-5 border-t border-foreground/5"
                   >
                     <p className="text-xs uppercase tracking-widest text-foreground/40 font-semibold mt-4 mb-2">

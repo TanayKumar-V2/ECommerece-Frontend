@@ -8,7 +8,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       <div className="bg-white p-4 rounded-xl shadow-lg border border-foreground/10 flex flex-col gap-1">
         <p className="text-sm font-medium text-foreground">{label}</p>
         <p className="text-muted font-semibold font-heading text-lg">
-          Rs. {payload[0].value.toLocaleString("en-IN")}
+           ₹{payload[0].value.toLocaleString("en-IN")}
         </p>
       </div>
     );
@@ -39,7 +39,7 @@ export default function RevenueChart({ data }: { data: { name: string; revenue: 
           axisLine={false}
           tickLine={false}
           tick={{ fill: "#3B2F2F", opacity: 0.6, fontSize: 12 }}
-          tickFormatter={(value) => `Rs. ${value.toLocaleString("en-IN")}`}
+           tickFormatter={(value) => `₹${value.toLocaleString("en-IN")}`}
         />
         <Tooltip
           content={<CustomTooltip />}

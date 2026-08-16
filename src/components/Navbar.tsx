@@ -75,7 +75,7 @@ export default function Navbar() {
                     </Link>
 
                     <div className="hidden lg:flex items-center gap-8">
-                        {navLinks.map((link) => (
+                             {navLinks.map((link) => (
                             <Link
                                 key={link.name}
                                 href={link.path}
@@ -159,8 +159,10 @@ export default function Navbar() {
                                     className="block w-full border-b border-foreground/10 pb-4 transition-colors hover:text-foreground text-foreground/60"
                                 >
                                     {link.name}
-                                </Link>
-                            ))}
+                                 </Link>
+                             ))}
+                            <Link href="/wishlist" onClick={() => setMobileMenuOpen(false)} className="block w-full border-b border-foreground/10 pb-4 transition-colors hover:text-foreground text-foreground/60">Wishlist{wishlistCount > 0 ? ` (${wishlistCount})` : ''}</Link>
+                            <Link href="/cart" onClick={() => setMobileMenuOpen(false)} className="block w-full border-b border-foreground/10 pb-4 transition-colors hover:text-foreground text-foreground/60">Cart{cartCount > 0 ? ` (${cartCount})` : ''}</Link>
                             <Link
                                 href={session ? "/profile" : "/login"}
                                 onClick={() => setMobileMenuOpen(false)}
