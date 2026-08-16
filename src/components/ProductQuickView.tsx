@@ -18,7 +18,7 @@ export default function ProductQuickView({ product, isOpen, onClose }: ProductQu
     // Use product options or fallbacks
     const sizes = product.sizes && product.sizes.length > 0 ? product.sizes : ['S', 'M', 'L', 'XL'];
     const colors = product.colors && product.colors.length > 0 ? product.colors : ['Black'];
-    const images = Array.isArray(product.image) ? product.image : [product.image || "/placeholder.jpg"];
+    const images = product.images && product.images.length > 0 ? product.images : [product.image || "/placeholder.jpg"];
 
 
     const [selectedSize, setSelectedSize] = useState(sizes[0]);
@@ -27,6 +27,14 @@ export default function ProductQuickView({ product, isOpen, onClose }: ProductQu
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [added, setAdded] = useState(false);
     const dialogRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        setSelectedSize(sizes[0])
+        setSelectedColor(colors[0])
+        setQuantity(1)
+        setCurrentImageIndex(0)
+        setAdded(false)
+    }, [product.id])
 
     useEffect(() => {
         if (!isOpen) return
@@ -115,10 +123,11 @@ export default function ProductQuickView({ product, isOpen, onClose }: ProductQu
 
                             {/* Left: Image Gallery */}
                             <div className="w-full md:w-1/2 bg-brand-cream/30 relative min-h-[250px] sm:min-h-[300px] md:min-h-full shrink-0">
-                                <Image
+                                     <Image
                                     src={images[currentImageIndex] || "/placeholder.jpg"}
                                     alt={product.name || "Product"}
-                                    fill
+                                     fill
+                                     sizes="(max-width: 768px) 100vw, 50vw"
                                     className="object-cover"
                                 />
                                 {images.length > 1 && (
@@ -202,8 +211,9 @@ export default function ProductQuickView({ product, isOpen, onClose }: ProductQu
                                             <button 
                                                 type="button"
                                                 aria-label="Increase quantity"
-                                                onClick={() => setQuantity(quantity + 1)}
-                                                className="text-foreground/60 hover:text-foreground p-1 transition-colors"
+                                                disabled={product.stock !== undefined && quantity >= product.stock}
+                                                onClick={() => setQuantity(product.stock !== undefined ? Math.min(product.stock, quantity + 1) : quantity + 1)}
+                                                className="min-w-11 min-h-11 flex items-center justify-center text-foreground/60 hover:text-foreground p-1 transition-colors disabled:opacity-40"
                                             >
                                                 +
                                             </button>

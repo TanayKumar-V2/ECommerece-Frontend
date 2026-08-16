@@ -7,7 +7,7 @@ import Product from "@/models/Product";
 export default async function WomenPage({
   searchParams,
 }: {
-  searchParams: Promise<{ size?: string; sort?: string; minPrice?: string; maxPrice?: string; category?: string }>;
+    searchParams: Promise<{ size?: string; sort?: string; minPrice?: string; maxPrice?: string; collection?: string; page?: string }>;
 }) {
   await dbConnect();
 
@@ -22,22 +22,29 @@ export default async function WomenPage({
     filter.sizes = { $in: [resolvedSearchParams.size] };
   }
 
-  if (resolvedSearchParams.minPrice || resolvedSearchParams.maxPrice) {
+  const minPrice = Number(resolvedSearchParams.minPrice);
+  const maxPrice = Number(resolvedSearchParams.maxPrice);
+  if (Number.isFinite(minPrice) || Number.isFinite(maxPrice)) {
     filter.price = {};
-    if (resolvedSearchParams.minPrice) {
-      filter.price.$gte = Number(resolvedSearchParams.minPrice);
+    if (Number.isFinite(minPrice)) {
+      filter.price.$gte = minPrice;
     }
-    if (resolvedSearchParams.maxPrice) {
-      filter.price.$lte = Number(resolvedSearchParams.maxPrice);
+    if (Number.isFinite(maxPrice)) {
+      filter.price.$lte = maxPrice;
     }
   }
 
-  if (resolvedSearchParams.category) {
+  if (resolvedSearchParams.collection) {
+    const collectionTerm = resolvedSearchParams.collection.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     filter.$or = [
-      { title: { $regex: resolvedSearchParams.category, $options: 'i' } },
-      { description: { $regex: resolvedSearchParams.category, $options: 'i' } },
+      { title: { $regex: collectionTerm, $options: 'i' } },
+      { description: { $regex: collectionTerm, $options: 'i' } },
     ];
   }
+
+  const page = Math.max(1, Number.parseInt(resolvedSearchParams.page || '1', 10) || 1);
+  const pageSize = 48;
+  const totalCount = await Product.countDocuments(filter);
 
   // Sort direction
   const sortDir =
@@ -47,19 +54,20 @@ export default async function WomenPage({
       ? { price: -1 as const }
       : { createdAt: -1 as const };
 
-  const productsResult = await Product.find(filter).sort(sortDir as any).lean();
+  const productsResult = await Product.find(filter).sort(sortDir as any).skip((page - 1) * pageSize).limit(pageSize).lean();
 
   const womenProducts = productsResult.map((p: any) => ({
     id: p._id.toString(),
     name: p.title,
     price: p.price,
     image: p.images[0],
+    images: p.images,
     category: (p.category.charAt(0).toUpperCase() +
       p.category.slice(1)) as "Men" | "Women" | "Unisex",
     colors: p.colors,
     sizes: p.sizes,
     description: p.description,
-    stock: p.stock,
+        stock: p.stock,
   }));
 
   return (
@@ -69,6 +77,9 @@ export default async function WomenPage({
         title="Women's Collection"
         description="Elegant, flowing, and cozy. Explore modern silhouettes rooted in traditional aesthetics, crafted for your daily wardrobe."
         products={womenProducts}
+        totalCount={totalCount}
+        currentPage={page}
+        pageSize={pageSize}
       />
       <Footer />
     </main>

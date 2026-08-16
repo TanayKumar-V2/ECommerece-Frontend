@@ -32,20 +32,10 @@ export default function ProductCard({ product, index = 0, onOpenQuickView }: Pro
             className="group relative flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
         >
             <div
-                role="button"
-                tabIndex={0}
-                aria-label={`View ${product.name || 'product'} details`}
                 className="relative aspect-[3/4] w-full overflow-hidden bg-brand-cream/30 cursor-pointer"
                 onClick={() => {
                     addRecentlyViewed(product)
                     onOpenQuickView?.(product)
-                }}
-                onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault()
-                        addRecentlyViewed(product)
-                        onOpenQuickView?.(product)
-                    }
                 }}
             >
                 <Image
@@ -53,7 +43,7 @@ export default function ProductCard({ product, index = 0, onOpenQuickView }: Pro
                     alt={product.name || "Product"}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                 />
 
                 {/* Wishlist Button */}
@@ -89,7 +79,7 @@ export default function ProductCard({ product, index = 0, onOpenQuickView }: Pro
 
             <div className="p-5 flex flex-col gap-1">
                 <p className="text-xs text-foreground/60 uppercase tracking-wider">{product.category}</p>
-                <h3 className="font-heading text-lg font-medium text-foreground line-clamp-1">{product.name}</h3>
+                <button type="button" onClick={() => { addRecentlyViewed(product); onOpenQuickView?.(product) }} className="text-left font-heading text-lg font-medium text-foreground line-clamp-1 hover:underline underline-offset-4 focus-visible:underline">{product.name}</button>
                 <p className="text-foreground/80">₹{product.price.toLocaleString('en-IN')}</p>
                 {product.stock === 0 ? <p className="text-xs font-medium text-error">Out of stock</p> : product.stock !== undefined && product.stock <= 5 ? <p className="text-xs font-medium text-warning">Only {product.stock} left</p> : null}
             </div>

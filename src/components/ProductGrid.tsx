@@ -4,6 +4,7 @@ import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { SlidersHorizontal, X } from 'lucide-react'
+import Link from 'next/link'
 import { Product } from '@/store/useStore'
 import ProductCard from './ProductCard'
 import ProductQuickView from './ProductQuickView'
@@ -12,6 +13,9 @@ interface ProductGridProps {
     products: Product[]
     title: string
     description?: string
+    totalCount?: number
+    currentPage?: number
+    pageSize?: number
 }
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
@@ -23,7 +27,7 @@ const PRICE_RANGES = [
     { label: 'Above ₹5,000', min: 5000, max: 999999 },
 ]
 
-function ProductGridInner({ products, title, description }: ProductGridProps) {
+function ProductGridInner({ products, title, description, totalCount = products.length, currentPage = 1, pageSize = 48 }: ProductGridProps) {
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
@@ -35,7 +39,7 @@ function ProductGridInner({ products, title, description }: ProductGridProps) {
     const activeSort = searchParams.get('sort') ?? ''
     const activeMinPrice = searchParams.get('minPrice') ?? ''
     const activeMaxPrice = searchParams.get('maxPrice') ?? ''
-    const activeCategory = searchParams.get('category') ?? ''
+    const activeCollection = searchParams.get('collection') ?? ''
 
     const buildUrl = (updates: Record<string, string>) => {
         const params = new URLSearchParams(searchParams.toString())
@@ -50,19 +54,19 @@ function ProductGridInner({ products, title, description }: ProductGridProps) {
     }
 
     const handleSize = (size: string) => {
-        router.replace(buildUrl({ size: activeSize === size ? '' : size }), { scroll: false })
+        router.replace(buildUrl({ size: activeSize === size ? '' : size, page: '' }), { scroll: false })
     }
 
     const handleSort = (sort: string) => {
-        router.replace(buildUrl({ sort: activeSort === sort ? '' : sort }), { scroll: false })
+        router.replace(buildUrl({ sort: activeSort === sort ? '' : sort, page: '' }), { scroll: false })
     }
 
     const handlePriceRange = (min: number, max: number) => {
         const isActive = activeMinPrice === String(min) && activeMaxPrice === String(max)
         if (isActive) {
-            router.replace(buildUrl({ minPrice: '', maxPrice: '' }), { scroll: false })
+            router.replace(buildUrl({ minPrice: '', maxPrice: '', page: '' }), { scroll: false })
         } else {
-            router.replace(buildUrl({ minPrice: String(min), maxPrice: String(max) }), { scroll: false })
+            router.replace(buildUrl({ minPrice: String(min), maxPrice: String(max), page: '' }), { scroll: false })
         }
     }
 
@@ -70,11 +74,11 @@ function ProductGridInner({ products, title, description }: ProductGridProps) {
         router.replace(pathname, { scroll: false })
     }
 
-    const hasFilters = activeSize || activeSort || activeMinPrice || activeMaxPrice || activeCategory
-    const activeFilterSummary = [activeCategory && `Category: ${activeCategory}`, activeSize && `Size: ${activeSize}`, activeMinPrice && 'Price range', activeSort && `Sorted ${activeSort === 'asc' ? 'low to high' : 'high to low'}`].filter(Boolean).join(' · ')
+    const hasFilters = activeSize || activeSort || activeMinPrice || activeMaxPrice || activeCollection
+    const activeFilterSummary = [activeCollection && `Collection: ${activeCollection}`, activeSize && `Size: ${activeSize}`, activeMinPrice && 'Price range', activeSort && `Sorted ${activeSort === 'asc' ? 'low to high' : 'high to low'}`].filter(Boolean).join(' · ')
 
     const SidebarContent = () => (
-        <div className="sticky top-24 pr-4 border-r border-foreground/10 h-[calc(100vh-120px)] overflow-y-auto pb-10" style={{ scrollbarWidth: 'none' }}>
+        <div className="md:sticky md:top-24 md:pr-4 md:border-r md:border-foreground/10 md:h-[calc(100vh-120px)] md:overflow-y-auto pb-4 md:pb-10" style={{ scrollbarWidth: 'none' }}>
             {/* Filters Header */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2 text-foreground font-heading font-semibold text-base">
@@ -103,6 +107,7 @@ function ProductGridInner({ products, title, description }: ProductGridProps) {
                         <button
                             key={opt.value}
                             onClick={() => handleSort(opt.value)}
+                            aria-pressed={activeSort === opt.value}
                             className={`w-full text-left px-3 py-2 rounded-lg transition-colors text-sm ${
                                 activeSort === opt.value
                                     ? 'bg-foreground text-background font-medium'
@@ -123,6 +128,7 @@ function ProductGridInner({ products, title, description }: ProductGridProps) {
                         <button
                             key={size}
                             onClick={() => handleSize(size)}
+                            aria-pressed={activeSize === size}
                             className={`w-10 h-10 border rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-200 ${
                                 activeSize === size
                                     ? 'bg-foreground text-background border-foreground shadow-sm'
@@ -145,6 +151,7 @@ function ProductGridInner({ products, title, description }: ProductGridProps) {
                             <button
                                 key={range.label}
                                 onClick={() => handlePriceRange(range.min, range.max)}
+                                aria-pressed={isActive}
                                 className={`w-full text-left px-3 py-2 rounded-lg transition-colors text-sm ${
                                     isActive
                                         ? 'bg-foreground text-background font-medium'
@@ -178,6 +185,8 @@ function ProductGridInner({ products, title, description }: ProductGridProps) {
 
                     {/* Mobile filter toggle */}
                     <button
+                        aria-expanded={showMobileFilters}
+                        aria-controls="mobile-collection-filters"
                         onClick={() => setShowMobileFilters(!showMobileFilters)}
                         className="flex items-center gap-2 px-4 py-2 border border-foreground/20 rounded-full hover:bg-brand-cream/50 transition-colors md:hidden text-sm self-start"
                     >
@@ -194,14 +203,12 @@ function ProductGridInner({ products, title, description }: ProductGridProps) {
                             height: showMobileFilters ? 'auto' : undefined,
                             opacity: showMobileFilters ? 1 : undefined,
                         }}
-                        className="md:w-60 shrink-0 md:block"
-                        style={{
-                            display: typeof window !== 'undefined' && window.innerWidth < 768 && !showMobileFilters ? 'none' : undefined,
-                        }}
+                        className={`md:w-60 shrink-0 ${showMobileFilters ? 'block' : 'hidden md:block'}`}
                     >
                         {/* Mobile: show inline panel */}
-                        <div className="md:hidden mb-6 bg-white rounded-2xl p-4 border border-foreground/10 shadow-sm">
+                        <div id="mobile-collection-filters" className="md:hidden mb-6 bg-white rounded-2xl p-4 border border-foreground/10 shadow-sm">
                             <SidebarContent />
+                            <button type="button" onClick={() => setShowMobileFilters(false)} className="mt-3 w-full rounded-xl bg-foreground px-4 py-3 text-sm font-medium text-background">Apply filters</button>
                         </div>
                         {/* Desktop: sticky sidebar */}
                         <div className="hidden md:block">
@@ -226,9 +233,15 @@ function ProductGridInner({ products, title, description }: ProductGridProps) {
                         </div>
                         {products.length === 0 && (
                             <div className="py-20 text-center text-foreground/50">
-                                <p>No products found matching your criteria.</p>
+                                <p className="font-medium text-foreground">No pieces match these filters.</p>
+                                <p className="mt-2 text-sm">Clear the filters or browse the full collection.</p>
+                                <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+                                    {hasFilters && <button type="button" onClick={clearAll} className="rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background">Clear filters</button>}
+                                    <Link href={pathname} className="rounded-full border border-foreground/20 px-5 py-3 text-sm font-medium text-foreground">Browse all</Link>
+                                </div>
                             </div>
                         )}
+                        {totalCount > pageSize && <nav aria-label="Collection pages" className="mt-10 flex items-center justify-center gap-4"><button type="button" disabled={currentPage <= 1} onClick={() => router.replace(buildUrl({ page: String(currentPage - 1) }), { scroll: false })} className="rounded-full border border-foreground/20 px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40">Previous</button><span className="text-sm text-muted">Page {currentPage} of {Math.ceil(totalCount / pageSize)}</span><button type="button" disabled={currentPage >= Math.ceil(totalCount / pageSize)} onClick={() => router.replace(buildUrl({ page: String(currentPage + 1) }), { scroll: false })} className="rounded-full border border-foreground/20 px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40">Next</button></nav>}
                     </div>
                 </div>
             </div>

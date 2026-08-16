@@ -54,6 +54,7 @@ export default async function Home({
       name: p.title,
       price: p.price,
       image: p.images[0],
+      images: p.images,
       category: (p.category.charAt(0).toUpperCase() +
         p.category.slice(1)) as "Men" | "Women" | "Unisex",
       colors: p.colors,

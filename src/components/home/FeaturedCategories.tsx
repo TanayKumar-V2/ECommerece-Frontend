@@ -20,19 +20,19 @@ const categories = [
     {
         title: "Oversized Tees",
         image: "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&q=80&w=800",
-        link: "/men?category=oversized",
+        link: "/men?collection=oversized",
         span: "md:col-span-1 md:row-span-1",
     },
     {
         title: "Slim Fit Tees",
         image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=800",
-        link: "/men?category=slim",
+        link: "/men?collection=slim",
         span: "md:col-span-1 md:row-span-1",
     },
     {
         title: "Printed Tees",
         image: "https://images.unsplash.com/photo-1584273143981-41c073dfe8f8?auto=format&fit=crop&q=80&w=800",
-        link: "/women?category=printed",
+        link: "/women?collection=printed",
         span: "md:col-span-2 md:row-span-1",
     }
 ]
